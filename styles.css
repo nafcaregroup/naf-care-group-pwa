@@ -978,3 +978,114 @@ td {
     grid-template-columns: 1fr;
   }
 }
+
+
+
+/* NAF CARE GROUP: responsive layout fix */
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  overflow-x: hidden;
+}
+
+body {
+  font-family: Arial, sans-serif;
+}
+
+img {
+  max-width: 100%;
+}
+
+header,
+.app-header,
+.topbar,
+main,
+.app-main,
+.container,
+.app-container,
+.page-container,
+.content,
+.content-wrapper {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+main,
+.app-main,
+.container,
+.app-container,
+.page-container,
+.content,
+.content-wrapper {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.logo,
+.site-logo,
+.header-logo,
+.brand-logo {
+  width: auto;
+  max-width: 48px;
+  height: auto;
+  object-fit: contain;
+}
+
+.login-panel img,
+#loginPanel img {
+  max-width: 100%;
+  height: auto;
+}
+
+#loginPanel,
+#memberPanel {
+  width: 100%;
+  max-width: 520px;
+  margin: 20px auto;
+}
+
+.dashboard-grid,
+.stats-grid {
+  width: 100%;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 768px) {
+  main,
+  .app-main,
+  .container,
+  .app-container,
+  .page-container,
+  .content,
+  .content-wrapper {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  #loginPanel,
+  #memberPanel {
+    max-width: 100%;
+  }
+
+  .dashboard-grid,
+  .stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+}
+
+@media (max-width: 380px) {
+  .dashboard-grid,
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+
