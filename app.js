@@ -115,3 +115,103 @@ async function loadPublicPosts(action, containerId) {
 
 loadPublicPosts("notices", "noticesList");
 loadPublicPosts("blog", "blogList");
+
+
+
+
+
+/* =========================================
+   NAF CARE GROUP APP NAVIGATION
+   ========================================= */
+
+(() => {
+  const sidebar = document.getElementById("appSidebar");
+  const menuBtn = document.getElementById("menuBtn");
+  const moreBtn = document.getElementById("moreMenuBtn");
+  const backdrop = document.getElementById("drawerBackdrop");
+
+  if (!sidebar) return;
+
+  function closeMenu() {
+    sidebar.classList.remove("sidebar-open");
+    backdrop?.classList.add("hidden");
+    document.body.classList.remove("drawer-open");
+  }
+
+  function openMenu() {
+    sidebar.classList.add("sidebar-open");
+    backdrop?.classList.remove("hidden");
+    document.body.classList.add("drawer-open");
+  }
+
+  menuBtn?.addEventListener("click", () => {
+    if (sidebar.classList.contains("sidebar-open")) {
+      closeMenu();
+    } else {
+      openMenu();
+    }
+  });
+
+  moreBtn?.addEventListener("click", event => {
+    event.preventDefault();
+    openMenu();
+  });
+
+  backdrop?.addEventListener("click", closeMenu);
+
+  document.querySelectorAll("[data-nav]").forEach(link => {
+    link.addEventListener("click", () => {
+      const target = link.dataset.nav;
+
+      document.querySelectorAll("[data-nav]").forEach(item => {
+        item.classList.toggle("active", item.dataset.nav === target);
+      });
+
+      closeMenu();
+    });
+  });
+
+  document.querySelectorAll(
+    '.quick-action, .panel-head a, .profile-menu a'
+  ).forEach(link => {
+    link.addEventListener("click", closeMenu);
+  });
+
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape") closeMenu();
+  });
+
+  function updateNavigation() {
+    const hash = window.location.hash.replace("#", "") || "home";
+    const validTargets = [
+      "home",
+      "members",
+      "noticesPanel",
+      "blogPanel",
+      "contributionInfo",
+      "profilePanel",
+      "aboutPanel",
+      "settingsPanel"
+    ];
+
+    const target = validTargets.includes(hash) ? hash : "home";
+
+    document.querySelectorAll("[data-nav]").forEach(link => {
+      link.classList.toggle("active", link.dataset.nav === target);
+    });
+  }
+
+  window.addEventListener("hashchange", updateNavigation);
+  updateNavigation();
+
+  function logoutFromMenu() {
+    document.getElementById("logoutBtn")?.click();
+  }
+
+  document.getElementById("sidebarLogoutBtn")
+    ?.addEventListener("click", logoutFromMenu);
+
+  document.getElementById("profileLogoutBtn")
+    ?.addEventListener("click", logoutFromMenu);
+})();
+
