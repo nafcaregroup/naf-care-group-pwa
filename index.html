@@ -1,25 +1,257 @@
+
 <!doctype html>
-<html lang="en"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#0b8043"><meta name="description" content="NAF CARE GROUP member portal">
-<title>NAF CARE GROUP</title><link rel="manifest" href="./manifest.webmanifest">
-<link rel="icon" href="https://nafcare.github.io/nafcare.png"><link rel="stylesheet" href="./styles.css">
-</head><body>
-<header class="topbar"><div class="brand"><img src="https://nafcare.github.io/nafcare.png" alt="NAF CARE GROUP logo"><div><strong>NAF CARE GROUP</strong><small>Together for a Better Tomorrow</small></div></div>
-<div class="top-actions"><button id="refreshBtn" class="ghost" type="button">↻ Refresh</button><button id="logoutBtn" class="ghost hidden" type="button">Log out</button></div></header>
-<main class="container">
-<section id="notice" class="notice" role="status" aria-live="polite"><strong>Member portal</strong><p>Sign in to view your own member information.</p></section>
-<section id="loginPanel" class="panel auth-panel"><p class="eyebrow">MEMBER LOGIN</p><h1>Welcome to NAF CARE GROUP</h1>
-<p class="muted">Enter your Member ID and the email recorded in the Members sheet.</p>
-<form id="loginForm"><label for="memberIdInput">Member ID</label><input id="memberIdInput" name="memberId" placeholder="e.g. NAF-001" autocomplete="username" required maxlength="30">
-<label for="emailInput">Email address</label><input id="emailInput" name="email" type="email" placeholder="Your registered email" autocomplete="email" required maxlength="254">
-<button id="loginBtn" class="primary" type="submit">Log in</button></form>
-<p class="fine-print">Member ID and email matching does not verify email ownership. Do not share your session.</p></section>
-<section id="memberPanel" class="hidden"><section class="welcome"><p class="eyebrow">MY ACCOUNT</p><h1 id="welcomeTitle">Welcome</h1><p class="muted">Your account summary and payment history.</p></section>
-<section class="stats"><article class="stat"><span>Capital paid</span><strong id="capitalPaid">—</strong></article><article class="stat"><span>Capital due</span><strong id="capitalDue">—</strong></article><article class="stat"><span>Monthly due</span><strong id="monthlyDue">—</strong></article></section>
-<section class="panel"><div class="panel-head"><div><p class="eyebrow">MY PROFILE</p><h2>Member details</h2></div></div><div id="profileDetails" class="profile-details"></div></section>
-<section class="panel"><div class="panel-head"><div><p class="eyebrow">MY CONTRIBUTIONS</p><h2>Payment history</h2></div></div><p id="paymentSummary" class="muted"></p>
-<div class="table-wrap"><table class="payments-table"><thead><tr><th>Month</th><th>Required</th><th>Paid</th><th>Due</th><th>Status</th></tr></thead><tbody id="paymentsBody"><tr><td colspan="5">Log in to load your history.</td></tr></tbody></table></div></section></section>
-<section class="panel"><div class="panel-head"><div><p class="eyebrow">UPDATES</p><h2>Notices & blog</h2></div></div><p class="muted">Read updates on the NAF CARE GROUP blog.</p><a href="https://nafcaregroup.blogspot.com/" target="_blank" rel="noopener">Open NAF CARE GROUP Blog ↗</a></section>
-<footer><p>© <span id="year"></span> NAF CARE GROUP</p><p class="muted">Member portal</p></footer></main>
-<script src="./app.js" defer></script></body></html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b8043">
+  <meta name="description" content="NAF CARE GROUP member portal, notices, blog posts and contribution history.">
+
+  <title>NAF CARE GROUP | Member Portal</title>
+
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="https://nafcare.github.io/nafcare.png">
+  <link rel="stylesheet" href="./styles.css">
+
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="NAF CARE GROUP">
+</head>
+
+<body>
+  <header class="topbar">
+    <a class="brand" href="./" aria-label="NAF CARE GROUP Home">
+      <img
+        src="https://nafcare.github.io/nafcare.png"
+        alt="NAF CARE GROUP logo"
+      >
+      <div>
+        <strong>NAF CARE GROUP</strong>
+        <small>Together for a Better Tomorrow</small>
+      </div>
+    </a>
+
+    <div class="top-actions">
+      <button id="refreshBtn" class="ghost" type="button">
+        ↻ Refresh
+      </button>
+      <button id="logoutBtn" class="ghost hidden" type="button">
+        Log out
+      </button>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- Application status -->
+    <section
+      id="notice"
+      class="notice"
+      role="status"
+      aria-live="polite"
+    >
+      <strong>Welcome to NAF CARE GROUP</strong>
+      <p>Sign in to view your member information.</p>
+    </section>
+
+    <!-- Login -->
+    <section id="loginPanel" class="panel auth-panel">
+      <p class="eyebrow">MEMBER ACCESS</p>
+      <h1>Welcome to NAF CARE GROUP</h1>
+
+      <p class="muted">
+        Sign in using your Member ID and registered email address.
+      </p>
+
+      <form id="loginForm">
+        <label for="memberIdInput">Member ID</label>
+        <input
+          id="memberIdInput"
+          name="memberId"
+          type="text"
+          placeholder="e.g. NAF-001"
+          autocomplete="username"
+          maxlength="30"
+          required
+        >
+
+        <label for="emailInput">Registered email address</label>
+        <input
+          id="emailInput"
+          name="email"
+          type="email"
+          placeholder="Enter your registered email"
+          autocomplete="email"
+          maxlength="254"
+          required
+        >
+
+        <button id="loginBtn" class="primary" type="submit">
+          Log in to your account
+        </button>
+      </form>
+
+      <p class="fine-print">
+        Use your own registered Member ID and email.
+        Never share your session token with anyone.
+      </p>
+    </section>
+
+    <!-- Member dashboard -->
+    <section id="memberPanel" class="hidden">
+
+      <section class="welcome">
+        <p class="eyebrow">MEMBER DASHBOARD</p>
+        <h1 id="welcomeTitle">Welcome</h1>
+        <p class="muted">
+          Your membership summary and contribution information.
+        </p>
+      </section>
+
+      <!-- Financial summary -->
+      <section class="stats">
+        <article class="stat">
+          <span>Capital paid</span>
+          <strong id="capitalPaid">—</strong>
+        </article>
+
+        <article class="stat">
+          <span>Capital due</span>
+          <strong id="capitalDue">—</strong>
+        </article>
+
+        <article class="stat">
+          <span>Monthly due</span>
+          <strong id="monthlyDue">—</strong>
+        </article>
+      </section>
+
+      <!-- Member details -->
+      <section class="panel" id="profilePanel">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">MY ACCOUNT</p>
+            <h2>Member Profile</h2>
+          </div>
+        </div>
+
+        <div id="profileDetails" class="profile-details">
+          <p class="muted">Your profile will appear here after login.</p>
+        </div>
+      </section>
+
+      <!-- Payment history -->
+      <section class="panel" id="paymentsPanel">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">CONTRIBUTIONS</p>
+            <h2>Payment History</h2>
+          </div>
+        </div>
+
+        <p id="paymentSummary" class="muted"></p>
+
+        <div class="table-wrap">
+          <table class="payments-table">
+            <thead>
+              <tr>
+                <th>Month</th>
+                <th>Required</th>
+                <th>Paid</th>
+                <th>Due</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+
+            <tbody id="paymentsBody">
+              <tr>
+                <td colspan="5">Log in to load your payment history.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </section>
+
+    <!-- Notice Center -->
+    <section class="panel" id="noticesPanel">
+      <div class="panel-head">
+        <div>
+          <p class="eyebrow">IMPORTANT UPDATES</p>
+          <h2>Notice Center</h2>
+        </div>
+
+        <a
+          href="https://nafcaregroup.blogspot.com/search/label/Notice"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          View all ↗
+        </a>
+      </div>
+
+      <p class="muted">
+        Important announcements and updates from NAF CARE GROUP.
+      </p>
+
+      <div id="noticesList" class="updates-list" aria-live="polite">
+        <p class="muted">Notice posts will appear here.</p>
+      </div>
+    </section>
+
+    <!-- Latest blog posts -->
+    <section class="panel" id="blogPanel">
+      <div class="panel-head">
+        <div>
+          <p class="eyebrow">NEWS & STORIES</p>
+          <h2>Latest Blog Posts</h2>
+        </div>
+
+        <a
+          href="https://nafcaregroup.blogspot.com/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          View all ↗
+        </a>
+      </div>
+
+      <p class="muted">
+        Read news, stories and updates from our group.
+      </p>
+
+      <div id="blogList" class="updates-list" aria-live="polite">
+        <p class="muted">Blog posts will appear here.</p>
+      </div>
+    </section>
+
+    <!-- About -->
+    <section class="panel" id="aboutPanel">
+      <p class="eyebrow">ABOUT OUR GROUP</p>
+      <h2>NAF CARE GROUP</h2>
+
+      <p class="muted">
+        Together for a Better Tomorrow. Access your member information,
+        review contributions and stay informed about group updates.
+      </p>
+
+      <a
+        href="https://nafcaregroup.blogspot.com/"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Visit our official blog ↗
+      </a>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      <p>© <span id="year"></span> NAF CARE GROUP</p>
+      <p class="muted">Member Portal · Together for a Better Tomorrow</p>
+    </footer>
+
+  </main>
+
+  <script src="./app.js" defer></script>
+</body>
+</html>
