@@ -215,3 +215,70 @@ loadPublicPosts("blog", "blogList");
     ?.addEventListener("click", logoutFromMenu);
 })();
 
+
+/* Screen navigation */
+(() => {
+  const screens = [
+    "home",
+    "members",
+    "noticesPanel",
+    "blogPanel",
+    "contributionInfo",
+    "profilePanel",
+    "aboutPanel",
+    "settingsPanel"
+  ];
+
+  function showScreen(screenId) {
+    if (!screens.includes(screenId)) {
+      screenId = "home";
+    }
+
+    screens.forEach(id => {
+      const screen = document.getElementById(id);
+      if (screen) {
+        screen.classList.toggle("hidden", id !== screenId);
+      }
+    });
+
+    document.querySelectorAll("[data-nav]").forEach(link => {
+      link.classList.toggle(
+        "active",
+        link.dataset.nav === screenId
+      );
+    });
+
+    history.replaceState(null, "", "#" + screenId);
+  }
+
+  document.querySelectorAll("[data-nav]").forEach(link => {
+    link.addEventListener("click", event => {
+      event.preventDefault();
+      showScreen(link.dataset.nav);
+    });
+  });
+
+  document.querySelectorAll(
+    ".quick-action, .panel-head a, .profile-menu a"
+  ).forEach(link => {
+    link.addEventListener("click", event => {
+      const href = link.getAttribute("href");
+
+      if (href && href.startsWith("#")) {
+        const target = href.slice(1);
+
+        if (screens.includes(target)) {
+          event.preventDefault();
+          showScreen(target);
+        }
+      }
+    });
+  });
+
+  window.addEventListener("hashchange", () => {
+    showScreen(location.hash.slice(1) || "home");
+  });
+
+  showScreen(location.hash.slice(1) || "home");
+})();
+
