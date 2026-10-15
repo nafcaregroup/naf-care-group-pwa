@@ -1,70 +1,19 @@
-/*
- * NAF CARE GROUP PWA starter.
- * The directory below contains names only. Do not add private financial data here.
- * Connect to the Apps Script API only after authentication and server-side
- * authorization have been implemented and tested.
- */
-const previewMembers = [
-  "Tareq Aziz",
-  "Jasim Uddin",
-  "Ishaq Saeed",
-  "Sifat Hossain",
-  "Nurul Ansar Akash",
-  "Shah Kamal Shafi",
-  "Kafayat Ullah",
-  "Abdullah",
-  "Kafil Uddin",
-  "Mizan"
-];
-
-const list = document.querySelector("#membersList");
-const search = document.querySelector("#memberSearch");
-
-function renderMembers(query = "") {
-  const filtered = previewMembers.filter(name =>
-    name.toLowerCase().includes(query.trim().toLowerCase())
-  );
-  list.replaceChildren();
-
-  if (!filtered.length) {
-    const empty = document.createElement("p");
-    empty.className = "muted";
-    empty.textContent = "No members match your search.";
-    list.appendChild(empty);
-    return;
-  }
-
-  filtered.forEach(name => {
-    const card = document.createElement("article");
-    card.className = "member";
-    const avatar = document.createElement("div");
-    avatar.className = "avatar";
-    avatar.textContent = name.split(/\s+/).slice(0, 2).map(part => part[0]).join("").toUpperCase();
-    const text = document.createElement("div");
-    const title = document.createElement("strong");
-    title.textContent = name;
-    const sub = document.createElement("small");
-    sub.textContent = "Member profile will be connected later";
-    text.append(title, sub);
-    card.append(avatar, text);
-    list.appendChild(card);
-  });
-}
-
-search.addEventListener("input", event => renderMembers(event.target.value));
-document.querySelector("#memberCount").textContent = String(previewMembers.length);
-document.querySelector("#year").textContent = String(new Date().getFullYear());
-document.querySelector("#refreshBtn").addEventListener("click", () => {
-  renderMembers(search.value);
-  const notice = document.querySelector("#notice");
-  notice.querySelector("p").textContent =
-    "Preview refreshed. No private financial data has been requested or loaded.";
-});
-
-renderMembers();
-
-if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./service-worker.js").catch(() => {});
-  });
-}
+const API={login:"/api/login",check:"/api/session-check",member:"/api/member",payments:"/api/payments",logout:"/api/logout"};
+const $=s=>document.querySelector(s), KEY="nafCareSessionId";
+const notice=$("#notice"), loginPanel=$("#loginPanel"), memberPanel=$("#memberPanel"), loginBtn=$("#loginBtn");
+function message(title,text,error=false){notice.replaceChildren();const b=document.createElement("strong"),p=document.createElement("p");b.textContent=title;p.textContent=text;notice.append(b,p);notice.classList.toggle("notice-error",error);}
+function session(){return sessionStorage.getItem(KEY)||""}
+function headers(){const id=session();if(!id)throw Error("Session expired. Please log in again.");return {"X-Session-ID":id}}
+function cash(v){return "৳"+Number(v||0).toLocaleString("en-BD",{maximumFractionDigits:2})}
+async function request(url,opts={}){const r=await fetch(url,{cache:"no-store",...opts,headers:{...(opts.headers||{})}});let d;try{d=await r.json()}catch{throw Error("Server returned an unreadable response.")}if(!r.ok||d.ok!==true)throw Error(d.error||`Request failed (${r.status})`);return d}
+function loggedOut(){sessionStorage.removeItem(KEY);loginPanel.classList.remove("hidden");memberPanel.classList.add("hidden");$("#logoutBtn").classList.add("hidden")}
+function detail(box,label,value){const row=document.createElement("div");row.className="profile-row";const a=document.createElement("span"),b=document.createElement("strong");a.className="muted";a.textContent=label;b.textContent=value==null||value===""?"—":String(value);row.append(a,b);box.append(row)}
+function renderProfile(m){$("#welcomeTitle").textContent="Welcome, "+(m.name||"Member");$("#capitalPaid").textContent=cash(m.capitalPaid);$("#capitalDue").textContent=cash(m.capitalDue);$("#monthlyDue").textContent=cash(m.monthlyDue);const box=$("#profileDetails");box.replaceChildren();[["Member ID",m.id],["Full name",m.name],["Email",m.email],["Phone",m.phone],["Ward / Area",m.area],["Status",m.status],["Capital required",cash(m.capitalRequired)],["Monthly contribution",cash(m.monthlyContribution)],["Monthly paid",cash(m.monthlyPaid)],["Months with due",m.monthsDue],["Total due",cash(m.totalDue)]].forEach(x=>detail(box,x[0],x[1]))}
+function renderPayments(rows,result){const body=$("#paymentsBody");body.replaceChildren();$("#paymentSummary").textContent=`Monthly paid: ${cash(result.monthlyPaid)} · Monthly due: ${cash(result.monthlyDue)} · Months with due: ${result.monthsDue??0}`;if(!Array.isArray(rows)||!rows.length){const tr=document.createElement("tr"),td=document.createElement("td");td.colSpan=5;td.textContent="No payment history available.";tr.append(td);body.append(tr);return}rows.slice().reverse().forEach(p=>{const tr=document.createElement("tr");[`${p.monthName||p.month||""} ${p.year||""}`.trim(),cash(p.required),cash(p.paid),cash(p.due),p.status||"—"].forEach(v=>{const td=document.createElement("td");td.textContent=String(v);tr.append(td)});body.append(tr)})}
+async function loadData(){if(!session()){loggedOut();return}try{await request(API.check,{headers:headers()});const [m,p]=await Promise.all([request(API.member,{headers:headers()}),request(API.payments,{headers:headers()})]);if(!m.member)throw Error("Member data missing.");renderProfile(m.member);renderPayments(p.payments,p);loginPanel.classList.add("hidden");memberPanel.classList.remove("hidden");$("#logoutBtn").classList.remove("hidden");message("Signed in","Your account information has loaded.")}catch(e){if(/session|required|expired|unauthorized/i.test(e.message))loggedOut();message("Unable to load account",e.message,true)}}
+$("#loginForm").addEventListener("submit",async e=>{e.preventDefault();loginBtn.disabled=true;loginBtn.textContent="Signing in…";try{const d=await request(API.login,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({memberId:$("#memberIdInput").value.trim(),email:$("#emailInput").value.trim()})});if(!d.sessionId)throw Error("No session returned.");sessionStorage.setItem(KEY,d.sessionId);await loadData()}catch(err){message("Login failed",err.message,true)}finally{loginBtn.disabled=false;loginBtn.textContent="Log in"}});
+$("#logoutBtn").addEventListener("click",async()=>{try{if(session())await fetch(API.logout,{method:"POST",headers:headers(),cache:"no-store"})}catch{}loggedOut();message("Logged out","You have been signed out.")});
+$("#refreshBtn").addEventListener("click",()=>session()?loadData():message("Please log in","No active session."));
+$("#year").textContent=String(new Date().getFullYear());
+if("serviceWorker"in navigator&&location.protocol.startsWith("http"))addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js").catch(()=>{}));
+if(session())loadData();else message("Member portal","Sign in to view your own member information.");
