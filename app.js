@@ -17,3 +17,101 @@ $("#refreshBtn").addEventListener("click",()=>session()?loadData():message("Plea
 $("#year").textContent=String(new Date().getFullYear());
 if("serviceWorker"in navigator&&location.protocol.startsWith("http"))addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js").catch(()=>{}));
 if(session())loadData();else message("Member portal","Sign in to view your own member information.");
+
+
+
+
+/* =========================================
+   NOTICE & BLOG POSTS
+   ========================================= */
+
+async function loadPublicPosts(action, containerId) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+
+  container.replaceChildren();
+
+  const loading = document.createElement("p");
+  loading.className = "muted";
+  loading.textContent = "Loading posts...";
+  container.appendChild(loading);
+
+  try {
+    const url = new URL(
+      "https://script.google.com/macros/s/AKfycby_KG4rhiHL5TRPtlOlEQ8h-2hlWHMpTgy5pEmtik0ZqD863DXt74vPQyfVh1BycM0mLg/exec"
+    );
+    url.searchParams.set("action", action);
+
+    const response = await fetch(url.toString(), {
+      cache: "no-store",
+      redirect: "follow"
+    });
+
+    if (!response.ok) throw new Error("Unable to load posts.");
+
+    const data = await response.json();
+
+    if (!data || data.ok === false) {
+      throw new Error("Posts are temporarily unavailable.");
+    }
+
+    const posts = Array.isArray(data)
+      ? data
+      : Array.isArray(data.posts)
+        ? data.posts
+        : Array.isArray(data.items)
+          ? data.items
+          : [];
+
+    container.replaceChildren();
+
+    if (!posts.length) {
+      const empty = document.createElement("p");
+      empty.className = "muted";
+      empty.textContent = "No posts available right now.";
+      container.appendChild(empty);
+      return;
+    }
+
+    posts.slice(0, 5).forEach(post => {
+      const article = document.createElement("article");
+      article.className = "update-item";
+
+      const title = document.createElement("h3");
+      title.textContent = post.title || post.name || "Untitled post";
+      article.appendChild(title);
+
+      if (post.published || post.date || post.publishedDate) {
+        const date = document.createElement("p");
+        date.className = "muted";
+        date.textContent = post.published || post.date || post.publishedDate;
+        article.appendChild(date);
+      }
+
+      const summary = document.createElement("p");
+      summary.textContent = post.summary || post.snippet || post.content || "";
+      article.appendChild(summary);
+
+      if (post.url || post.link) {
+        const link = document.createElement("a");
+        link.href = post.url || post.link;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        link.textContent = "Read more ↗";
+        article.appendChild(link);
+      }
+
+      container.appendChild(article);
+    });
+  } catch (error) {
+    container.replaceChildren();
+
+    const message = document.createElement("p");
+    message.className = "muted";
+    message.textContent = "Posts could not be loaded. Please try again later.";
+    container.appendChild(message);
+  }
+}
+
+loadPublicPosts("notices", "noticesList");
+loadPublicPosts("blog", "blogList");
