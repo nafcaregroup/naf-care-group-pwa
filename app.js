@@ -225,6 +225,9 @@ function showScreen(screenId) {
   closeMenu();
 
   history.replaceState(null, "", "#" + screenId);
+   if (screenId === "members") {
+  loadMembers();
+}
 }
 
 /* ==========================================
@@ -434,6 +437,116 @@ function renderPayments(rows, result) {
     body.appendChild(row);
   });
 }
+
+
+
+
+
+async function loadMembers() {
+  const container = $("#membersList");
+  const searchInput = $("#memberSearch");
+
+  if (!container) return;
+
+  container.replaceChildren();
+
+  const loading = document.createElement("p");
+  loading.className = "muted";
+  loading.textContent = "Loading members...";
+  container.appendChild(loading);
+
+  try {
+    const result = await request(API.members, {
+      method: "POST",
+      headers: {
+        ...headers()
+      }
+    });
+
+    const members = Array.isArray(result.members)
+      ? result.members
+      : [];
+
+    function renderList(query = "") {
+      container.replaceChildren();
+
+      const filtered = members.filter(member => {
+        const text = `${member.name} ${member.id} ${member.area}`
+          .toLowerCase();
+
+        return text.includes(query.trim().toLowerCase());
+      });
+
+      if (!filtered.length) {
+        const empty = document.createElement("p");
+        empty.className = "muted";
+        empty.textContent = "No members found.";
+        container.appendChild(empty);
+        return;
+      }
+
+      filtered.forEach(member => {
+        const card = document.createElement("article");
+        card.className = "member-card";
+
+        const name = document.createElement("h3");
+        name.textContent = member.name || "Unnamed member";
+
+        const id = document.createElement("p");
+        id.textContent = `Member ID: ${member.id || "—"}`;
+
+        const area = document.createElement("p");
+        area.textContent = `Area: ${member.area || "—"}`;
+
+        const status = document.createElement("p");
+        status.textContent = `Status: ${member.status || "—"}`;
+
+        card.append(name, id, area, status);
+
+        if (member.photoUrl) {
+          try {
+            const photoUrl = new URL(member.photoUrl);
+
+            if (photoUrl.protocol === "https:") {
+              const image = document.createElement("img");
+              image.src = photoUrl.href;
+              image.alt = member.name || "Member";
+              image.loading = "lazy";
+              image.referrerPolicy = "no-referrer";
+              image.width = 64;
+              image.height = 64;
+              card.prepend(image);
+            }
+          } catch {
+            // Ignore an invalid photo URL.
+          }
+        }
+
+        container.appendChild(card);
+      });
+    }
+
+    renderList(searchInput?.value || "");
+
+    if (searchInput && !searchInput.dataset.bound) {
+      searchInput.addEventListener("input", () => {
+        renderList(searchInput.value);
+      });
+
+      searchInput.dataset.bound = "true";
+    }
+  } catch (error) {
+    container.replaceChildren();
+
+    const errorText = document.createElement("p");
+    errorText.className = "muted";
+    errorText.textContent =
+      error.message || "Member list could not be loaded.";
+
+    container.appendChild(errorText);
+  }
+}
+
 
 /* ==========================================
    LOAD AUTHENTICATED MEMBER DATA
