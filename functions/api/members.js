@@ -1,3 +1,4 @@
+
 export async function onRequest({ request, env }) {
   try {
     // 1. Allow only GET or POST
@@ -11,9 +12,9 @@ export async function onRequest({ request, env }) {
     // 2. Check login session
     const sessionId = request.headers.get("X-Session-ID");
 
-    if (!sessionId) {
+    if (!sessionId || sessionId.length > 200) {
       return Response.json(
-        { ok: false, error: "Please log in first." },
+        { ok: false, error: "Please log in again." },
         { status: 401 }
       );
     }
@@ -42,9 +43,9 @@ export async function onRequest({ request, env }) {
       .first();
 
     if (
-  !session ||
-  Number(session.expires_at) <= Math.floor(Date.now() / 1000)
-) {
+      !session ||
+      Number(session.expires_at) <= Math.floor(Date.now() / 1000)
+    ) {
       return Response.json(
         {
           ok: false,
@@ -95,6 +96,7 @@ export async function onRequest({ request, env }) {
     }
 
     if (
+      !data ||
       data.ok !== true ||
       !Array.isArray(data.members)
     ) {
@@ -102,7 +104,7 @@ export async function onRequest({ request, env }) {
         {
           ok: false,
           error:
-            data.error || "Could not load the member list."
+            data?.error || "Could not load the member list."
         },
         { status: 502 }
       );
