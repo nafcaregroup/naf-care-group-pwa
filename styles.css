@@ -92,3 +92,38 @@ body:not(.member-authenticated) #loginPanel.hidden{display:none!important}
   #memberPanel{display:block!important}
   .app-shell,.app-layout,.container{display:block!important;min-height:0!important;height:auto!important;overflow:visible!important;box-shadow:none!important}
 }
+
+
+
+/* Fix Notice and Blog post card colors */
+
+.update-item {
+  display: block;
+  background: #12352e !important;
+  color: #f1f8f5 !important;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 18px;
+  padding: 16px;
+  margin-bottom: 14px;
+  text-decoration: none;
+}
+
+.update-item strong {
+  display: block;
+  color: #f1f8f5 !important;
+  opacity: 1 !important;
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+.update-item small {
+  display: block;
+  color: #b8d0c8 !important;
+  opacity: 1 !important;
+  margin-top: 8px;
+}
+
+.update-item:hover {
+  background: #19483e !important;
+}
+
