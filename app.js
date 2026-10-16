@@ -67,6 +67,7 @@ function cash(value) {
   });
 }
 
+
 async function request(url, options = {}) {
   const response = await fetch(url, {
     cache: "no-store",
@@ -79,19 +80,23 @@ async function request(url, options = {}) {
   try {
     data = await response.json();
   } catch {
-    if (!response.ok) {
-      throw new Error(
-        `Server request failed (${response.status}). Check the API endpoint and Cloudflare logs.`
-      );
-    }
-
-    throw new Error(
-      "Server returned an unreadable response. The API must return JSON."
+    const error = new Error(
+      !response.ok
+        ? `Server request failed (${response.status}). Check the API endpoint and Cloudflare logs.`
+        : "Server returned an unreadable response. The API must return JSON."
     );
+
+    error.status = response.status;
+    throw error;
   }
 
   if (!response.ok || data.ok !== true) {
-    throw new Error(data.error || `Request failed (${response.status})`);
+    const error = new Error(
+      data.error || `Request failed (${response.status})`
+    );
+
+    error.status = response.status;
+    throw error;
   }
 
   return data;
@@ -781,6 +786,7 @@ function renderMemberIdentity(member) {
   }
 }
 
+
 async function loadData() {
   if (!session()) {
     loggedOut();
@@ -788,10 +794,34 @@ async function loadData() {
   }
 
   try {
+    // Step 1: Check whether the saved session is valid.
     await request(API.check, {
       headers: headers()
     });
+  } catch (error) {
+    // Do not clear the session for a temporary network/server error.
+    // Only log out when the session is actually invalid or expired.
+    if (error.status === 401) {
+      loggedOut();
 
+      message(
+        "Session expired",
+        "Please log in again.",
+        true
+      );
+      return;
+    }
+
+    message(
+      "Connection problem",
+      "Your saved session is kept. Please try again.",
+      true
+    );
+    return;
+  }
+
+  // Session is valid. Load account information.
+  try {
     const [memberData, paymentData] = await Promise.all([
       request(API.member, {
         headers: headers()
@@ -826,27 +856,18 @@ async function loadData() {
         : "home"
     );
 
-    message("Signed in", "Your account information has loaded.");
-
     loadMembers();
     loadFeed("notices");
     loadFeed("blog");
 
   } catch (error) {
-    loggedOut();
-
+    // Keep the session if account data fails to load.
+    // Do not call loggedOut() here.
     message(
       "Unable to load account",
       error.message || "Please try again.",
       true
     );
-
-    const loginError = document.getElementById("loginError");
-
-    if (loginError) {
-      loginError.textContent = error.message || "Please try again.";
-      loginError.classList.remove("hidden");
-    }
   }
 }
 
