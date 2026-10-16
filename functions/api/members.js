@@ -42,9 +42,9 @@ export async function onRequest({ request, env }) {
       .first();
 
     if (
-      !session ||
-      Number(session.expires_at) <= Date.now()
-    ) {
+  !session ||
+  Number(session.expires_at) <= Math.floor(Date.now() / 1000)
+) {
       return Response.json(
         {
           ok: false,
