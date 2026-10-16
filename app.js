@@ -1,32 +1,486 @@
-const API={login:"/api/login",check:"/api/session-check",member:"/api/member",payments:"/api/payments",logout:"/api/logout"};
-const $=s=>document.querySelector(s), KEY="nafCareSessionId";
-const notice=$("#notice"), loginPanel=$("#loginPanel"), memberPanel=$("#memberPanel"), loginBtn=$("#loginBtn");
-function message(title,text,error=false){notice.replaceChildren();const b=document.createElement("strong"),p=document.createElement("p");b.textContent=title;p.textContent=text;notice.append(b,p);notice.classList.toggle("notice-error",error);}
-function session(){return sessionStorage.getItem(KEY)||""}
-function headers(){const id=session();if(!id)throw Error("Session expired. Please log in again.");return {"X-Session-ID":id}}
-function cash(v){return "৳"+Number(v||0).toLocaleString("en-BD",{maximumFractionDigits:2})}
-async function request(url,opts={}){const r=await fetch(url,{cache:"no-store",...opts,headers:{...(opts.headers||{})}});let d;try{d=await r.json()}catch{throw Error("Server returned an unreadable response.")}if(!r.ok||d.ok!==true)throw Error(d.error||`Request failed (${r.status})`);return d}
-function loggedOut(){sessionStorage.removeItem(KEY);loginPanel.classList.remove("hidden");memberPanel.classList.add("hidden");$("#logoutBtn").classList.add("hidden")}
-function detail(box,label,value){const row=document.createElement("div");row.className="profile-row";const a=document.createElement("span"),b=document.createElement("strong");a.className="muted";a.textContent=label;b.textContent=value==null||value===""?"—":String(value);row.append(a,b);box.append(row)}
-function renderProfile(m){$("#welcomeTitle").textContent="Welcome, "+(m.name||"Member");$("#capitalPaid").textContent=cash(m.capitalPaid);$("#capitalDue").textContent=cash(m.capitalDue);$("#monthlyDue").textContent=cash(m.monthlyDue);const box=$("#profileDetails");box.replaceChildren();[["Member ID",m.id],["Full name",m.name],["Email",m.email],["Phone",m.phone],["Ward / Area",m.area],["Status",m.status],["Capital required",cash(m.capitalRequired)],["Monthly contribution",cash(m.monthlyContribution)],["Monthly paid",cash(m.monthlyPaid)],["Months with due",m.monthsDue],["Total due",cash(m.totalDue)]].forEach(x=>detail(box,x[0],x[1]))}
-function renderPayments(rows,result){const body=$("#paymentsBody");body.replaceChildren();$("#paymentSummary").textContent=`Monthly paid: ${cash(result.monthlyPaid)} · Monthly due: ${cash(result.monthlyDue)} · Months with due: ${result.monthsDue??0}`;if(!Array.isArray(rows)||!rows.length){const tr=document.createElement("tr"),td=document.createElement("td");td.colSpan=5;td.textContent="No payment history available.";tr.append(td);body.append(tr);return}rows.slice().reverse().forEach(p=>{const tr=document.createElement("tr");[`${p.monthName||p.month||""} ${p.year||""}`.trim(),cash(p.required),cash(p.paid),cash(p.due),p.status||"—"].forEach(v=>{const td=document.createElement("td");td.textContent=String(v);tr.append(td)});body.append(tr)})}
-async function loadData(){if(!session()){loggedOut();return}try{await request(API.check,{headers:headers()});const [m,p]=await Promise.all([request(API.member,{headers:headers()}),request(API.payments,{headers:headers()})]);if(!m.member)throw Error("Member data missing.");renderProfile(m.member);renderPayments(p.payments,p);loginPanel.classList.add("hidden");memberPanel.classList.remove("hidden");$("#logoutBtn").classList.remove("hidden");message("Signed in","Your account information has loaded.")}catch(e){if(/session|required|expired|unauthorized/i.test(e.message))loggedOut();message("Unable to load account",e.message,true)}}
-$("#loginForm").addEventListener("submit",async e=>{e.preventDefault();loginBtn.disabled=true;loginBtn.textContent="Signing in…";try{const d=await request(API.login,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({memberId:$("#memberIdInput").value.trim(),email:$("#emailInput").value.trim()})});if(!d.sessionId)throw Error("No session returned.");sessionStorage.setItem(KEY,d.sessionId);await loadData()}catch(err){message("Login failed",err.message,true)}finally{loginBtn.disabled=false;loginBtn.textContent="Log in"}});
-$("#logoutBtn").addEventListener("click",async()=>{try{if(session())await fetch(API.logout,{method:"POST",headers:headers(),cache:"no-store"})}catch{}loggedOut();message("Logged out","You have been signed out.")});
-$("#refreshBtn").addEventListener("click",()=>session()?loadData():message("Please log in","No active session."));
-$("#year").textContent=String(new Date().getFullYear());
-if("serviceWorker"in navigator&&location.protocol.startsWith("http"))addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js").catch(()=>{}));
-if(session())loadData();else message("Member portal","Sign in to view your own member information.");
-
-
-
 
 /* =========================================
-   NOTICE & BLOG POSTS
+   NAF CARE GROUP PWA
+   Main application script
+   ========================================= */
+
+"use strict";
+
+const API = {
+  login: "/api/login",
+  check: "/api/session-check",
+  member: "/api/member",
+  payments: "/api/payments",
+  logout: "/api/logout"
+};
+
+const KEY = "nafCareSessionId";
+const $ = selector => document.querySelector(selector);
+
+const notice = $("#notice");
+const loginPanel = $("#loginPanel");
+const memberPanel = $("#memberPanel");
+const loginBtn = $("#loginBtn");
+
+const PUBLIC_POSTS_URL =
+  "https://script.google.com/macros/s/AKfycby_KG4rhiHL5TRPtlOlEQ8h-2hlWHMpTgy5pEmtik0ZqD863DXt74vPQyfVh1BycM0mLg/exec";
+
+const SCREEN_IDS = [
+  "home",
+  "members",
+  "noticesPanel",
+  "blogPanel",
+  "contributionInfo",
+  "profilePanel",
+  "aboutPanel",
+  "settingsPanel"
+];
+
+/* =========================================
+   MESSAGES AND API HELPERS
+   ========================================= */
+
+function message(title, text, error = false) {
+  if (!notice) return;
+
+  notice.replaceChildren();
+
+  const heading = document.createElement("strong");
+  const paragraph = document.createElement("p");
+
+  heading.textContent = title;
+  paragraph.textContent = text;
+
+  notice.append(heading, paragraph);
+  notice.classList.toggle("notice-error", error);
+}
+
+function session() {
+  return sessionStorage.getItem(KEY) || "";
+}
+
+function headers() {
+  const id = session();
+
+  if (!id) {
+    throw new Error("Session expired. Please log in again.");
+  }
+
+  return { "X-Session-ID": id };
+}
+
+function cash(value) {
+  return "৳" + Number(value || 0).toLocaleString("en-BD", {
+    maximumFractionDigits: 2
+  });
+}
+
+async function request(url, options = {}) {
+  const response = await fetch(url, {
+    cache: "no-store",
+    ...options,
+    headers: { ...(options.headers || {}) }
+  });
+
+  let data;
+
+  try {
+    data = await response.json();
+  } catch {
+    throw new Error("Server returned an unreadable response.");
+  }
+
+  if (!response.ok || data.ok !== true) {
+    throw new Error(data.error || `Request failed (${response.status})`);
+  }
+
+  return data;
+}
+
+/* =========================================
+   SCREEN NAVIGATION
+   ========================================= */
+
+function closeMenu() {
+  $("#appSidebar")?.classList.remove("sidebar-open");
+  $("#drawerBackdrop")?.classList.add("hidden");
+  document.body.classList.remove("drawer-open");
+}
+
+function openMenu() {
+  $("#appSidebar")?.classList.add("sidebar-open");
+  $("#drawerBackdrop")?.classList.remove("hidden");
+  document.body.classList.add("drawer-open");
+}
+
+function showScreen(screenId) {
+  if (!SCREEN_IDS.includes(screenId)) {
+    screenId = "home";
+  }
+
+  // Private screens require an active session.
+  if (!session()) {
+    showLogin();
+    return;
+  }
+
+  SCREEN_IDS.forEach(id => {
+    const screen = document.getElementById(id);
+
+    if (screen) {
+      screen.classList.toggle("hidden", id !== screenId);
+    }
+  });
+
+  // The member panel contains the member details and payment history.
+  if (memberPanel) {
+    memberPanel.classList.toggle("hidden", screenId !== "profilePanel");
+  }
+
+  document.querySelectorAll("[data-nav]").forEach(link => {
+    link.classList.toggle("active", link.dataset.nav === screenId);
+  });
+
+  history.replaceState(null, "", "#" + screenId);
+  closeMenu();
+}
+
+function showLogin() {
+  if (loginPanel) {
+    loginPanel.classList.remove("hidden");
+  }
+
+  if (memberPanel) {
+    memberPanel.classList.add("hidden");
+  }
+
+  SCREEN_IDS.forEach(id => {
+    document.getElementById(id)?.classList.add("hidden");
+  });
+
+  $("#logoutBtn")?.classList.add("hidden");
+  $("#sidebarLogoutBtn")?.classList.add("hidden");
+  $("#profileLogoutBtn")?.classList.add("hidden");
+
+  document.querySelectorAll("[data-nav]").forEach(link => {
+    link.classList.remove("active");
+  });
+
+  closeMenu();
+  history.replaceState(null, "", location.pathname);
+}
+
+function showApp() {
+  loginPanel?.classList.add("hidden");
+  $("#logoutBtn")?.classList.remove("hidden");
+  $("#sidebarLogoutBtn")?.classList.remove("hidden");
+  $("#profileLogoutBtn")?.classList.remove("hidden");
+
+  const requestedScreen = location.hash.replace("#", "");
+  const target = SCREEN_IDS.includes(requestedScreen)
+    ? requestedScreen
+    : "home";
+
+  showScreen(target);
+}
+
+function setupNavigation() {
+  $("#menuBtn")?.addEventListener("click", () => {
+    const sidebar = $("#appSidebar");
+
+    if (sidebar?.classList.contains("sidebar-open")) {
+      closeMenu();
+    } else {
+      openMenu();
+    }
+  });
+
+  $("#moreMenuBtn")?.addEventListener("click", event => {
+    event.preventDefault();
+    openMenu();
+  });
+
+  $("#drawerBackdrop")?.addEventListener("click", closeMenu);
+
+  document.querySelectorAll("[data-nav]").forEach(link => {
+    link.addEventListener("click", event => {
+      event.preventDefault();
+      showScreen(link.dataset.nav);
+    });
+  });
+
+  document.querySelectorAll(
+    ".quick-action, .panel-head a, .profile-menu a"
+  ).forEach(link => {
+    link.addEventListener("click", event => {
+      const href = link.getAttribute("href");
+
+      if (href?.startsWith("#")) {
+        const target = href.slice(1);
+
+        if (SCREEN_IDS.includes(target)) {
+          event.preventDefault();
+          showScreen(target);
+        }
+      }
+
+      closeMenu();
+    });
+  });
+
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape") closeMenu();
+  });
+
+  window.addEventListener("hashchange", () => {
+    if (session()) {
+      showScreen(location.hash.replace("#", "") || "home");
+    } else {
+      showLogin();
+    }
+  });
+
+  $("#sidebarLogoutBtn")?.addEventListener("click", logout);
+  $("#profileLogoutBtn")?.addEventListener("click", logout);
+}
+
+/* =========================================
+   MEMBER PROFILE
+   ========================================= */
+
+function detail(box, label, value) {
+  if (!box) return;
+
+  const row = document.createElement("div");
+  row.className = "profile-row";
+
+  const labelElement = document.createElement("span");
+  labelElement.className = "muted";
+  labelElement.textContent = label;
+
+  const valueElement = document.createElement("strong");
+  valueElement.textContent =
+    value == null || value === "" ? "—" : String(value);
+
+  row.append(labelElement, valueElement);
+  box.appendChild(row);
+}
+
+function renderProfile(member) {
+  $("#welcomeTitle")?.replaceChildren(
+    document.createTextNode("Welcome, " + (member.name || "Member"))
+  );
+
+  $("#homeGreeting")?.replaceChildren(
+    document.createTextNode("Welcome, " + (member.name || "Member"))
+  );
+
+  const capitalPaid = $("#capitalPaid");
+  const capitalDue = $("#capitalDue");
+  const monthlyDue = $("#monthlyDue");
+
+  if (capitalPaid) capitalPaid.textContent = cash(member.capitalPaid);
+  if (capitalDue) capitalDue.textContent = cash(member.capitalDue);
+  if (monthlyDue) monthlyDue.textContent = cash(member.monthlyDue);
+
+  const box = $("#profileDetails");
+
+  if (box) {
+    box.replaceChildren();
+
+    [
+      ["Member ID", member.id],
+      ["Full name", member.name],
+      ["Email", member.email],
+      ["Phone", member.phone],
+      ["Ward / Area", member.area],
+      ["Status", member.status],
+      ["Capital required", cash(member.capitalRequired)],
+      ["Capital paid", cash(member.capitalPaid)],
+      ["Capital due", cash(member.capitalDue)],
+      ["Monthly contribution", cash(member.monthlyContribution)],
+      ["Monthly paid", cash(member.monthlyPaid)],
+      ["Months with due", member.monthsDue],
+      ["Total due", cash(member.totalDue)]
+    ].forEach(item => detail(box, item[0], item[1]));
+  }
+
+  if ($("#profileName")) {
+    $("#profileName").textContent = member.name || "Member";
+  }
+
+  if ($("#infoMonthlyAmount")) {
+    $("#infoMonthlyAmount").textContent =
+      cash(member.monthlyContribution);
+  }
+}
+
+/* =========================================
+   PAYMENT HISTORY
+   ========================================= */
+
+function renderPayments(rows, result) {
+  const body = $("#paymentsBody");
+
+  if (!body) return;
+
+  body.replaceChildren();
+
+  const summary = $("#paymentSummary");
+
+  if (summary) {
+    summary.textContent =
+      `Monthly paid: ${cash(result.monthlyPaid)} · ` +
+      `Monthly due: ${cash(result.monthlyDue)} · ` +
+      `Months with due: ${result.monthsDue ?? 0}`;
+  }
+
+  if (!Array.isArray(rows) || rows.length === 0) {
+    const row = document.createElement("tr");
+    const cell = document.createElement("td");
+
+    cell.colSpan = 5;
+    cell.textContent = "No payment history available.";
+
+    row.appendChild(cell);
+    body.appendChild(row);
+    return;
+  }
+
+  rows.slice().reverse().forEach(payment => {
+    const row = document.createElement("tr");
+
+    const values = [
+      `${payment.monthName || payment.month || ""} ${payment.year || ""}`.trim(),
+      cash(payment.required),
+      cash(payment.paid),
+      cash(payment.due),
+      payment.status || "—"
+    ];
+
+    values.forEach(value => {
+      const cell = document.createElement("td");
+      cell.textContent = String(value);
+      row.appendChild(cell);
+    });
+
+    body.appendChild(row);
+  });
+}
+
+/* =========================================
+   LOAD PRIVATE MEMBER DATA
+   ========================================= */
+
+async function loadData() {
+  if (!session()) {
+    showLogin();
+    return;
+  }
+
+  try {
+    await request(API.check, {
+      headers: headers()
+    });
+
+    const [memberResult, paymentResult] = await Promise.all([
+      request(API.member, { headers: headers() }),
+      request(API.payments, { headers: headers() })
+    ]);
+
+    if (!memberResult.member) {
+      throw new Error("Member data missing.");
+    }
+
+    renderProfile(memberResult.member);
+    renderPayments(paymentResult.payments, paymentResult);
+
+    showApp();
+    message("Signed in", "Your account information has loaded.");
+  } catch (error) {
+    if (/session|required|expired|unauthorized/i.test(error.message)) {
+      await endSession();
+    }
+
+    message("Unable to load account", error.message, true);
+  }
+}
+
+/* =========================================
+   LOGIN AND LOGOUT
+   ========================================= */
+
+async function endSession() {
+  sessionStorage.removeItem(KEY);
+  showLogin();
+}
+
+async function logout() {
+  try {
+    if (session()) {
+      await fetch(API.logout, {
+        method: "POST",
+        headers: headers(),
+        cache: "no-store"
+      });
+    }
+  } catch {
+    // Clear the local session even if the logout request fails.
+  }
+
+  await endSession();
+  message("Logged out", "You have been signed out.");
+}
+
+$("#loginForm")?.addEventListener("submit", async event => {
+  event.preventDefault();
+
+  if (!loginBtn) return;
+
+  loginBtn.disabled = true;
+  loginBtn.textContent = "Signing in…";
+
+  try {
+    const result = await request(API.login, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        memberId: $("#memberIdInput")?.value.trim(),
+        email: $("#emailInput")?.value.trim()
+      })
+    });
+
+    if (!result.sessionId) {
+      throw new Error("No session returned.");
+    }
+
+    sessionStorage.setItem(KEY, result.sessionId);
+    await loadData();
+  } catch (error) {
+    message("Login failed", error.message, true);
+  } finally {
+    loginBtn.disabled = false;
+    loginBtn.textContent = "Log in";
+  }
+});
+
+$("#logoutBtn")?.addEventListener("click", logout);
+
+$("#refreshBtn")?.addEventListener("click", () => {
+  if (session()) {
+    loadData();
+  } else {
+    message("Please log in", "No active session.");
+  }
+});
+
+/* =========================================
+   PUBLIC NOTICES AND BLOG
    ========================================= */
 
 async function loadPublicPosts(action, containerId) {
   const container = document.getElementById(containerId);
+
   if (!container) return;
 
   container.replaceChildren();
@@ -37,9 +491,7 @@ async function loadPublicPosts(action, containerId) {
   container.appendChild(loading);
 
   try {
-    const url = new URL(
-      "https://script.google.com/macros/s/AKfycby_KG4rhiHL5TRPtlOlEQ8h-2hlWHMpTgy5pEmtik0ZqD863DXt74vPQyfVh1BycM0mLg/exec"
-    );
+    const url = new URL(PUBLIC_POSTS_URL);
     url.searchParams.set("action", action);
 
     const response = await fetch(url.toString(), {
@@ -47,7 +499,9 @@ async function loadPublicPosts(action, containerId) {
       redirect: "follow"
     });
 
-    if (!response.ok) throw new Error("Unable to load posts.");
+    if (!response.ok) {
+      throw new Error("Unable to load posts.");
+    }
 
     const data = await response.json();
 
@@ -81,20 +535,25 @@ async function loadPublicPosts(action, containerId) {
       title.textContent = post.title || post.name || "Untitled post";
       article.appendChild(title);
 
-      if (post.published || post.date || post.publishedDate) {
+      const dateValue = post.published || post.date || post.publishedDate;
+
+      if (dateValue) {
         const date = document.createElement("p");
         date.className = "muted";
-        date.textContent = post.published || post.date || post.publishedDate;
+        date.textContent = dateValue;
         article.appendChild(date);
       }
 
       const summary = document.createElement("p");
-      summary.textContent = post.summary || post.snippet || post.content || "";
+      summary.textContent =
+        post.summary || post.snippet || post.content || "";
       article.appendChild(summary);
 
-      if (post.url || post.link) {
+      const postUrl = post.url || post.link;
+
+      if (postUrl) {
         const link = document.createElement("a");
-        link.href = post.url || post.link;
+        link.href = postUrl;
         link.target = "_blank";
         link.rel = "noopener noreferrer";
         link.textContent = "Read more ↗";
@@ -103,182 +562,48 @@ async function loadPublicPosts(action, containerId) {
 
       container.appendChild(article);
     });
-  } catch (error) {
+  } catch {
     container.replaceChildren();
 
-    const message = document.createElement("p");
-    message.className = "muted";
-    message.textContent = "Posts could not be loaded. Please try again later.";
-    container.appendChild(message);
+    const errorMessage = document.createElement("p");
+    errorMessage.className = "muted";
+    errorMessage.textContent =
+      "Posts could not be loaded. Please try again later.";
+
+    container.appendChild(errorMessage);
   }
 }
 
-loadPublicPosts("notices", "noticesList");
-loadPublicPosts("blog", "blogList");
-
-
-
-
-
 /* =========================================
-   NAF CARE GROUP APP NAVIGATION
+   INITIALIZE APP
    ========================================= */
 
-(() => {
-  const sidebar = document.getElementById("appSidebar");
-  const menuBtn = document.getElementById("menuBtn");
-  const moreBtn = document.getElementById("moreMenuBtn");
-  const backdrop = document.getElementById("drawerBackdrop");
+function initializeApp() {
+  setupNavigation();
 
-  if (!sidebar) return;
+  const year = $("#year");
 
-  function closeMenu() {
-    sidebar.classList.remove("sidebar-open");
-    backdrop?.classList.add("hidden");
-    document.body.classList.remove("drawer-open");
+  if (year) {
+    year.textContent = String(new Date().getFullYear());
   }
 
-  function openMenu() {
-    sidebar.classList.add("sidebar-open");
-    backdrop?.classList.remove("hidden");
-    document.body.classList.add("drawer-open");
-  }
+  loadPublicPosts("notices", "noticesList");
+  loadPublicPosts("blog", "blogList");
 
-  menuBtn?.addEventListener("click", () => {
-    if (sidebar.classList.contains("sidebar-open")) {
-      closeMenu();
-    } else {
-      openMenu();
-    }
-  });
-
-  moreBtn?.addEventListener("click", event => {
-    event.preventDefault();
-    openMenu();
-  });
-
-  backdrop?.addEventListener("click", closeMenu);
-
-  document.querySelectorAll("[data-nav]").forEach(link => {
-    link.addEventListener("click", () => {
-      const target = link.dataset.nav;
-
-      document.querySelectorAll("[data-nav]").forEach(item => {
-        item.classList.toggle("active", item.dataset.nav === target);
-      });
-
-      closeMenu();
-    });
-  });
-
-  document.querySelectorAll(
-    '.quick-action, .panel-head a, .profile-menu a'
-  ).forEach(link => {
-    link.addEventListener("click", closeMenu);
-  });
-
-  document.addEventListener("keydown", event => {
-    if (event.key === "Escape") closeMenu();
-  });
-
-  function updateNavigation() {
-    const hash = window.location.hash.replace("#", "") || "home";
-    const validTargets = [
-      "home",
-      "members",
-      "noticesPanel",
-      "blogPanel",
-      "contributionInfo",
-      "profilePanel",
-      "aboutPanel",
-      "settingsPanel"
-    ];
-
-    const target = validTargets.includes(hash) ? hash : "home";
-
-    document.querySelectorAll("[data-nav]").forEach(link => {
-      link.classList.toggle("active", link.dataset.nav === target);
+  if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker
+        .register("./service-worker.js")
+        .catch(() => {});
     });
   }
 
-  window.addEventListener("hashchange", updateNavigation);
-  updateNavigation();
-
-  function logoutFromMenu() {
-    document.getElementById("logoutBtn")?.click();
+  if (session()) {
+    loadData();
+  } else {
+    showLogin();
+    message("Member portal", "Sign in to view your own member information.");
   }
+}
 
-  document.getElementById("sidebarLogoutBtn")
-    ?.addEventListener("click", logoutFromMenu);
-
-  document.getElementById("profileLogoutBtn")
-    ?.addEventListener("click", logoutFromMenu);
-})();
-
-
-/* Screen navigation */
-(() => {
-  const screens = [
-    "home",
-    "members",
-    "noticesPanel",
-    "blogPanel",
-    "contributionInfo",
-    "profilePanel",
-    "aboutPanel",
-    "settingsPanel"
-  ];
-
-  function showScreen(screenId) {
-    if (!screens.includes(screenId)) {
-      screenId = "home";
-    }
-
-    screens.forEach(id => {
-      const screen = document.getElementById(id);
-      if (screen) {
-        screen.classList.toggle("hidden", id !== screenId);
-      }
-    });
-
-    document.querySelectorAll("[data-nav]").forEach(link => {
-      link.classList.toggle(
-        "active",
-        link.dataset.nav === screenId
-      );
-    });
-
-    history.replaceState(null, "", "#" + screenId);
-  }
-
-  document.querySelectorAll("[data-nav]").forEach(link => {
-    link.addEventListener("click", event => {
-      event.preventDefault();
-      showScreen(link.dataset.nav);
-    });
-  });
-
-  document.querySelectorAll(
-    ".quick-action, .panel-head a, .profile-menu a"
-  ).forEach(link => {
-    link.addEventListener("click", event => {
-      const href = link.getAttribute("href");
-
-      if (href && href.startsWith("#")) {
-        const target = href.slice(1);
-
-        if (screens.includes(target)) {
-          event.preventDefault();
-          showScreen(target);
-        }
-      }
-    });
-  });
-
-  window.addEventListener("hashchange", () => {
-    showScreen(location.hash.slice(1) || "home");
-  });
-
-  showScreen(location.hash.slice(1) || "home");
-})();
-
+initializeApp();
