@@ -1,85 +1,52 @@
-
-"use strict";
-
-/* ==========================================
-   NAF CARE GROUP PWA
-   Complete application script
-   ========================================== */
+/* NAF CARE GROUP PWA - app.js */
 
 const API = {
   login: "/api/login",
   check: "/api/session-check",
   member: "/api/member",
-  members: "/api/members",
   payments: "/api/payments",
+  members: "/api/members",
   logout: "/api/logout"
 };
 
-const KEY = "nafCareSessionId";
-
 const $ = selector => document.querySelector(selector);
-
+const KEY = "nafCareSessionId";
+const notice = $("#notice");
 const loginPanel = $("#loginPanel");
 const memberPanel = $("#memberPanel");
-const notice = $("#notice");
+const loginForm = $("#loginForm");
 const loginBtn = $("#loginBtn");
 
-const PRIVATE_SCREENS = [
-  "home",
-  "members",
-  "contributionInfo",
-  "profilePanel",
-  "settingsPanel"
+const SCREEN_IDS = [
+  "home", "members", "memberPanel", "noticesPanel", "blogPanel",
+  "contributionInfo", "profilePanel", "aboutPanel", "settingsPanel"
 ];
-
-const PUBLIC_SCREENS = [
-  "noticesPanel",
-  "blogPanel",
-  "aboutPanel"
-];
-
-const ALL_SCREENS = [
-  ...PRIVATE_SCREENS,
-  ...PUBLIC_SCREENS
-];
-
-/* ==========================================
-   MESSAGE
-   ========================================== */
+const PRIVATE_SCREENS = new Set([
+  "home", "members", "memberPanel", "contributionInfo",
+  "profilePanel", "settingsPanel"
+]);
+const PUBLIC_SCREENS = new Set(["noticesPanel", "blogPanel", "aboutPanel"]);
 
 function message(title, text, error = false) {
   if (!notice) return;
-
   notice.replaceChildren();
-
   const heading = document.createElement("strong");
   const paragraph = document.createElement("p");
-
   heading.textContent = title;
   paragraph.textContent = text;
-
   notice.append(heading, paragraph);
   notice.classList.toggle("notice-error", error);
+  notice.classList.remove("hidden");
 }
-
-/* ==========================================
-   SESSION AND API
-   ========================================== */
 
 function session() {
   return sessionStorage.getItem(KEY) || "";
 }
 
 function headers() {
-  const sessionId = session();
-
-  if (!sessionId) {
-    throw new Error("Your session has expired. Please log in again.");
-  }
-
-  return {
-    "X-Session-ID": sessionId
-  };
+  const id = session();
+  if (!id) throw new Error("Session expired. Please log in again.");
+  return { "X-Session-ID": id };
 }
 
 function cash(value) {
@@ -92,281 +59,188 @@ async function request(url, options = {}) {
   const response = await fetch(url, {
     cache: "no-store",
     ...options,
-    headers: {
-      ...(options.headers || {})
-    }
+    headers: { ...(options.headers || {}) }
   });
 
   let data;
-
   try {
     data = await response.json();
   } catch {
-    throw new Error("The server returned an unreadable response.");
+    throw new Error("Server returned an unreadable response.");
   }
 
   if (!response.ok || data.ok !== true) {
-    throw new Error(
-      data.error || `Request failed (${response.status}).`
-    );
+    throw new Error(data.error || `Request failed (${response.status})`);
   }
-
   return data;
 }
 
-/* ==========================================
-   SIDEBAR
-   ========================================== */
-
-function openMenu() {
-  $("#appSidebar")?.classList.add("sidebar-open");
-  $("#drawerBackdrop")?.classList.remove("hidden");
-  document.body.classList.add("drawer-open");
-}
-
-function closeMenu() {
-  $("#appSidebar")?.classList.remove("sidebar-open");
-  $("#drawerBackdrop")?.classList.add("hidden");
-  document.body.classList.remove("drawer-open");
-}
-
-/* ==========================================
-   SCREEN NAVIGATION
-   ========================================== */
-
-function showLogin() {
-  // Remove authenticated state.
-  document.body.classList.remove("member-authenticated");
-
-  // Show login.
-  loginPanel?.classList.remove("hidden");
-
-  // Hide private account information.
-  memberPanel?.classList.add("hidden");
-
-  PRIVATE_SCREENS.forEach(id => {
-    document.getElementById(id)?.classList.add("hidden");
+function setScreenVisibility(screenId) {
+  SCREEN_IDS.forEach(id => {
+    const element = document.getElementById(id);
+    if (element) element.classList.toggle("hidden", id !== screenId);
   });
-
-  $("#memberDetailsPanel")?.classList.add("hidden");
-
-  // Hide authenticated controls.
-  $("#logoutBtn")?.classList.add("hidden");
-  $("#sidebarLogoutBtn")?.classList.add("hidden");
-  $("#profileLogoutBtn")?.classList.add("hidden");
-
-  // Clear active navigation.
-  document.querySelectorAll("[data-nav]").forEach(link => {
-    link.classList.remove("active");
-  });
-
-  closeMenu();
 }
 
-function showApp() {
-  // Mark the user as authenticated only after successful API checks.
-  document.body.classList.add("member-authenticated");
+function showScreen(screenId, updateUrl = true) {
+  if (!SCREEN_IDS.includes(screenId)) screenId = "home";
+  if (session()) document.body.classList.add("member-authenticated");
 
-  loginPanel?.classList.add("hidden");
-
-  $("#logoutBtn")?.classList.remove("hidden");
-  $("#sidebarLogoutBtn")?.classList.remove("hidden");
-
-  const requestedScreen = location.hash.replace("#", "");
-
-  const target = ALL_SCREENS.includes(requestedScreen)
-    ? requestedScreen
-    : "home";
-
-  showScreen(target);
-}
-
-function showScreen(screenId) {
-  if (!ALL_SCREENS.includes(screenId)) {
-    screenId = "home";
-  }
-
-  // Private screens cannot be opened without a session.
-  if (
-    PRIVATE_SCREENS.includes(screenId) &&
-    !document.body.classList.contains("member-authenticated")
-  ) {
-    showLogin();
+  if (PRIVATE_SCREENS.has(screenId) && !session()) {
+    SCREEN_IDS.forEach(id => {
+      const element = document.getElementById(id);
+      if (element) element.classList.add("hidden");
+    });
+    loginPanel?.classList.remove("hidden");
+    message("Member access", "Please log in to view member information.");
+    closeMenu();
     return;
   }
 
-  // Hide all regular app screens first.
-  ALL_SCREENS.forEach(id => {
-    document.getElementById(id)?.classList.toggle(
-      "hidden",
-      id !== screenId
-    );
-  });
-
-  // The member account details and payments are part of My Profile.
-  memberPanel?.classList.toggle(
-    "hidden",
-    screenId !== "profilePanel"
-  );
-
-  // Login is hidden while an app screen is displayed.
-  loginPanel?.classList.add("hidden");
-
-  // Hide the unused placeholder card.
-  $("#memberDetailsPanel")?.classList.add("hidden");
+  setScreenVisibility(screenId);
+  if (session()) loginPanel?.classList.add("hidden");
+  if (screenId === "members" && session()) loadMembers();
+  else loginPanel?.classList.remove("hidden");
 
   document.querySelectorAll("[data-nav]").forEach(link => {
-    link.classList.toggle(
-      "active",
-      link.dataset.nav === screenId
-    );
+    link.classList.toggle("active", link.dataset.nav === screenId);
   });
 
+  if (updateUrl) history.replaceState(null, "", `#${screenId}`);
   closeMenu();
-
-  history.replaceState(null, "", "#" + screenId);
-   if (screenId === "members") {
-  loadMembers();
-}
 }
 
-/* ==========================================
-   NAVIGATION EVENTS
-   ========================================== */
-
-function setupNavigation() {
-  $("#menuBtn")?.addEventListener("click", () => {
-    const sidebar = $("#appSidebar");
-
-    if (sidebar?.classList.contains("sidebar-open")) {
-      closeMenu();
-    } else {
-      openMenu();
-    }
+function loggedOut(showMessage = false) {
+  sessionStorage.removeItem(KEY);
+  document.body.classList.remove("member-authenticated");
+  loginPanel?.classList.remove("hidden");
+  memberPanel?.classList.add("hidden");
+  ["logoutBtn", "sidebarLogoutBtn", "profileLogoutBtn"].forEach(id => {
+    document.getElementById(id)?.classList.add("hidden");
   });
 
-  $("#moreMenuBtn")?.addEventListener("click", event => {
-    event.preventDefault();
-
-    if (document.body.classList.contains("member-authenticated")) {
-      openMenu();
-    }
+  SCREEN_IDS.forEach(id => {
+    document.getElementById(id)?.classList.add("hidden");
   });
-
-  $("#drawerBackdrop")?.addEventListener("click", closeMenu);
-
-  document.querySelectorAll("[data-nav]").forEach(link => {
-    link.addEventListener("click", event => {
-      event.preventDefault();
-      showScreen(link.dataset.nav);
-    });
-  });
-
-  document.querySelectorAll(
-    ".quick-action, .panel-head a, .profile-menu a"
-  ).forEach(link => {
-    link.addEventListener("click", event => {
-      const href = link.getAttribute("href");
-
-      if (href && href.startsWith("#")) {
-        const target = href.slice(1);
-
-        if (ALL_SCREENS.includes(target)) {
-          event.preventDefault();
-          showScreen(target);
-        }
-      }
-    });
-  });
-
-  document.addEventListener("keydown", event => {
-    if (event.key === "Escape") {
-      closeMenu();
-    }
-  });
-
-  window.addEventListener("hashchange", () => {
-    const target = location.hash.replace("#", "") || "home";
-
-    if (
-      PRIVATE_SCREENS.includes(target) &&
-      !document.body.classList.contains("member-authenticated")
-    ) {
-      showLogin();
-      return;
-    }
-
-    if (ALL_SCREENS.includes(target)) {
-      showScreen(target);
-    }
-  });
-
-  $("#sidebarLogoutBtn")?.addEventListener("click", logout);
-  $("#profileLogoutBtn")?.addEventListener("click", logout);
-  $("#logoutBtn")?.addEventListener("click", logout);
+  document.querySelectorAll("[data-nav]").forEach(link => link.classList.remove("active"));
+  history.replaceState(null, "", location.pathname);
+  closeMenu();
+  if (showMessage) message("Logged out", "You have been signed out.");
+  else message("Member portal", "Sign in to view your own member information.");
 }
 
-/* ==========================================
-   MEMBER PROFILE
-   ========================================== */
-
-function detail(box, label, value) {
-  if (!box) return;
-
+function detail(container, label, value) {
+  if (!container) return;
   const row = document.createElement("div");
   row.className = "profile-row";
+  const name = document.createElement("span");
+  const content = document.createElement("strong");
+  name.className = "muted";
+  name.textContent = label;
+  content.textContent = value == null || value === "" ? "—" : String(value);
+  row.append(name, content);
+  container.append(row);
+}
 
-  const labelElement = document.createElement("span");
-  labelElement.className = "muted";
-  labelElement.textContent = label;
+function safePhoto(value) {
+  try {
+    const url = new URL(String(value || ""), location.href);
+    return url.protocol === "https:" ? url.href : "";
+  } catch (_) { return ""; }
+}
 
-  const valueElement = document.createElement("strong");
-  valueElement.textContent =
-    value === null || value === undefined || value === ""
-      ? "—"
-      : String(value);
+function setPhotoOrInitial(img, photoUrl, name) {
+  if (!img) return;
+  const initial = String(name || "M").trim().charAt(0).toUpperCase() || "M";
+  const fallback = () => {
+    const avatar = document.createElement("div");
+    avatar.id = img.id;
+    avatar.className = img.id === "profilePhoto" ? "profile-initial-avatar" : "avatar-mark member-initial-avatar";
+    avatar.setAttribute("role", "img");
+    avatar.setAttribute("aria-label", `${name || "Member"} initials`);
+    avatar.textContent = initial;
+    img.replaceWith(avatar);
+  };
+  if (!photoUrl) { fallback(); return; }
+  img.src = photoUrl;
+  img.alt = `${name || "Member"} photo`;
+  img.classList.remove("no-photo");
+  img.onerror = () => { img.onerror = null; fallback(); };
+}
 
-  row.append(labelElement, valueElement);
-  box.appendChild(row);
+async function loadMembers() {
+  const box = $("#membersList");
+  if (!box) return;
+  box.replaceChildren();
+  const loading = document.createElement("p");
+  loading.className = "muted";
+  loading.textContent = "Loading members…";
+  box.append(loading);
+  try {
+    const data = await request(API.members, { headers: headers() });
+    const members = Array.isArray(data.members) ? data.members : [];
+    box.replaceChildren();
+    if (!members.length) {
+      const empty = document.createElement("p");
+      empty.className = "muted";
+      empty.textContent = "No members found.";
+      box.append(empty);
+      return;
+    }
+    const query = ($("#memberSearch")?.value || "").trim().toLowerCase();
+    members.filter(m => [m.name, m.id, m.area, m.status].some(v => String(v || "").toLowerCase().includes(query))).forEach(member => {
+      const card = document.createElement("article");
+      card.className = "member-list-card";
+      const avatar = document.createElement("div");
+      avatar.className = "member-list-avatar";
+      const photoUrl = safePhoto(member.photoUrl || "");
+      if (photoUrl) {
+        const image = document.createElement("img");
+        image.src = photoUrl;
+        image.alt = `${member.name || "Member"} photo`;
+        image.loading = "lazy";
+        image.onerror = () => { image.remove(); avatar.textContent = String(member.name || "M").trim().charAt(0).toUpperCase() || "M"; };
+        avatar.append(image);
+      } else avatar.textContent = String(member.name || "M").trim().charAt(0).toUpperCase() || "M";
+      const info = document.createElement("div"); info.className = "member-list-info";
+      const name = document.createElement("strong"); name.textContent = member.name || "Member";
+      const meta = document.createElement("p"); meta.textContent = `${member.id || ""}${member.area ? " · " + member.area : ""}`;
+      info.append(name, meta);
+      const badge = document.createElement("span");
+      badge.className = "member-status" + (/inactive|নিষ্ক্রিয়/i.test(String(member.status || "")) ? " inactive" : "");
+      badge.textContent = member.status || "Member";
+      card.append(avatar, info, badge); box.append(card);
+    });
+    if (!box.children.length) { const empty = document.createElement("p"); empty.className="muted"; empty.textContent="No matching members."; box.append(empty); }
+  } catch (error) {
+    box.replaceChildren(); const failed = document.createElement("p"); failed.className="muted";
+    failed.textContent = error.message || "Members could not be loaded."; box.append(failed);
+  }
 }
 
 function renderProfile(member) {
-  const name = member.name || "Member";
+  const welcome = $("#welcomeTitle");
+  if (welcome) welcome.textContent = "Welcome, " + (member.name || "Member");
 
-  if ($("#welcomeTitle")) {
-    $("#welcomeTitle").textContent = "Welcome, " + name;
-  }
+  const homeGreeting = $("#homeGreeting");
+  if (homeGreeting) homeGreeting.textContent = "Welcome, " + (member.name || "Member");
 
-  if ($("#homeGreeting")) {
-    $("#homeGreeting").textContent = "Welcome, " + name;
-  }
+  const capitalPaid = $("#capitalPaid");
+  const capitalDue = $("#capitalDue");
+  const monthlyDue = $("#monthlyDue");
+  if (capitalPaid) capitalPaid.textContent = cash(member.capitalPaid);
+  if (capitalDue) capitalDue.textContent = cash(member.capitalDue);
+  if (monthlyDue) monthlyDue.textContent = cash(member.monthlyDue);
 
-  if ($("#profileName")) {
-    $("#profileName").textContent = name;
-  }
-
-  if ($("#capitalPaid")) {
-    $("#capitalPaid").textContent = cash(member.capitalPaid);
-  }
-
-  if ($("#capitalDue")) {
-    $("#capitalDue").textContent = cash(member.capitalDue);
-  }
-
-  if ($("#monthlyDue")) {
-    $("#monthlyDue").textContent = cash(member.monthlyDue);
-  }
-
-  if ($("#infoMonthlyAmount")) {
-    $("#infoMonthlyAmount").textContent =
-      cash(member.monthlyContribution);
-  }
+  const profileName = $("#profileName");
+  if (profileName) profileName.textContent = member.name || "Member";
+  const photo = safePhoto(member.photoUrl || member.photoURL || member.photo || "");
+  setPhotoOrInitial($("#homeAvatar"), photo, member.name || "Member");
+  setPhotoOrInitial($("#profilePhoto"), photo, member.name || "Member");
 
   const box = $("#profileDetails");
-
   if (box) {
     box.replaceChildren();
-
     [
       ["Member ID", member.id],
       ["Full name", member.name],
@@ -381,276 +255,107 @@ function renderProfile(member) {
       ["Monthly paid", cash(member.monthlyPaid)],
       ["Months with due", member.monthsDue],
       ["Total due", cash(member.totalDue)]
-    ].forEach(item => {
-      detail(box, item[0], item[1]);
-    });
+    ].forEach(item => detail(box, item[0], item[1]));
   }
-}
 
-/* ==========================================
-   PAYMENT HISTORY
-   ========================================== */
+  const monthlyAmount = $("#infoMonthlyAmount");
+  if (monthlyAmount) monthlyAmount.textContent = cash(member.monthlyContribution);
+}
 
 function renderPayments(rows, result) {
   const body = $("#paymentsBody");
-
-  if (!body) return;
-
-  body.replaceChildren();
-
-  if ($("#paymentSummary")) {
-    $("#paymentSummary").textContent =
-      `Monthly paid: ${cash(result.monthlyPaid)} · ` +
-      `Monthly due: ${cash(result.monthlyDue)} · ` +
-      `Months with due: ${result.monthsDue ?? 0}`;
+  const summary = $("#paymentSummary");
+  if (summary) {
+    summary.textContent = `Monthly paid: ${cash(result.monthlyPaid)} · Monthly due: ${cash(result.monthlyDue)} · Months with due: ${result.monthsDue ?? 0}`;
   }
+  if (!body) return;
+  body.replaceChildren();
 
   if (!Array.isArray(rows) || rows.length === 0) {
     const row = document.createElement("tr");
     const cell = document.createElement("td");
-
     cell.colSpan = 5;
     cell.textContent = "No payment history available.";
-
-    row.appendChild(cell);
-    body.appendChild(row);
+    row.append(cell);
+    body.append(row);
     return;
   }
 
   rows.slice().reverse().forEach(payment => {
     const row = document.createElement("tr");
-
-    const values = [
+    [
       `${payment.monthName || payment.month || ""} ${payment.year || ""}`.trim(),
       cash(payment.required),
       cash(payment.paid),
       cash(payment.due),
       payment.status || "—"
-    ];
-
-    values.forEach(value => {
+    ].forEach(value => {
       const cell = document.createElement("td");
       cell.textContent = String(value);
-      row.appendChild(cell);
+      row.append(cell);
     });
-
-    body.appendChild(row);
+    body.append(row);
   });
 }
 
-
-
-
-
-async function loadMembers() {
-  const container = $("#membersList");
-  const searchInput = $("#memberSearch");
-
-  if (!container) return;
-
-  container.replaceChildren();
-
-  const loading = document.createElement("p");
-  loading.className = "muted";
-  loading.textContent = "Loading members...";
-  container.appendChild(loading);
-
-  try {
-    const result = await request(API.members, {
-      method: "POST",
-      headers: {
-        ...headers()
-      }
-    });
-
-    const members = Array.isArray(result.members)
-      ? result.members
-      : [];
-
-    function renderList(query = "") {
-      container.replaceChildren();
-
-      const filtered = members.filter(member => {
-        const text = `${member.name} ${member.id} ${member.area}`
-          .toLowerCase();
-
-        return text.includes(query.trim().toLowerCase());
-      });
-
-      if (!filtered.length) {
-        const empty = document.createElement("p");
-        empty.className = "muted";
-        empty.textContent = "No members found.";
-        container.appendChild(empty);
-        return;
-      }
-
-      filtered.forEach(member => {
-        const card = document.createElement("article");
-        card.className = "member-card";
-
-        const name = document.createElement("h3");
-        name.textContent = member.name || "Unnamed member";
-
-        const id = document.createElement("p");
-        id.textContent = `Member ID: ${member.id || "—"}`;
-
-        const area = document.createElement("p");
-        area.textContent = `Area: ${member.area || "—"}`;
-
-        const status = document.createElement("p");
-        status.textContent = `Status: ${member.status || "—"}`;
-
-        card.append(name, id, area, status);
-
-        if (member.photoUrl) {
-          try {
-            const photoUrl = new URL(member.photoUrl);
-
-            if (photoUrl.protocol === "https:") {
-              const image = document.createElement("img");
-              image.src = photoUrl.href;
-              image.alt = member.name || "Member";
-              image.loading = "lazy";
-              image.referrerPolicy = "no-referrer";
-              image.width = 64;
-              image.height = 64;
-              card.prepend(image);
-            }
-          } catch {
-            // Ignore an invalid photo URL.
-          }
-        }
-
-        container.appendChild(card);
-      });
-    }
-
-    renderList(searchInput?.value || "");
-
-    if (searchInput && !searchInput.dataset.bound) {
-      searchInput.addEventListener("input", () => {
-        renderList(searchInput.value);
-      });
-
-      searchInput.dataset.bound = "true";
-    }
-  } catch (error) {
-    container.replaceChildren();
-
-    const errorText = document.createElement("p");
-    errorText.className = "muted";
-    errorText.textContent =
-      error.message || "Member list could not be loaded.";
-
-    container.appendChild(errorText);
-  }
-}
-
-
-/* ==========================================
-   LOAD AUTHENTICATED MEMBER DATA
-   ========================================== */
-
 async function loadData() {
   if (!session()) {
-    showLogin();
+    loggedOut();
     return;
   }
 
   try {
-    // Verify session before fetching private data.
-    await request(API.check, {
-      headers: headers()
-    });
-
-    const [memberResult, paymentResult] = await Promise.all([
-      request(API.member, {
-        headers: headers()
-      }),
-      request(API.payments, {
-        headers: headers()
-      })
+    await request(API.check, { headers: headers() });
+    const [memberData, paymentData] = await Promise.all([
+      request(API.member, { headers: headers() }),
+      request(API.payments, { headers: headers() })
     ]);
 
-    if (!memberResult.member) {
-      throw new Error("Member data is missing.");
-    }
+    if (!memberData.member) throw new Error("Member data is missing.");
+    renderProfile(memberData.member);
+    renderPayments(paymentData.payments, paymentData);
 
-    renderProfile(memberResult.member);
-    renderPayments(paymentResult.payments, paymentResult);
+    loginPanel?.classList.add("hidden");
+    $("#logoutBtn")?.classList.remove("hidden");
+    $("#sidebarLogoutBtn")?.classList.remove("hidden");
+    $("#profileLogoutBtn")?.classList.remove("hidden");
 
-    showApp();
+    const wanted = location.hash.slice(1);
+    showScreen(SCREEN_IDS.includes(wanted) && PRIVATE_SCREENS.has(wanted) ? wanted : "home");
     message("Signed in", "Your account information has loaded.");
   } catch (error) {
-    await endSession();
-
-    message(
-      "Unable to load account",
-      error.message || "Please log in again.",
-      true
-    );
+    loggedOut();
+    message("Unable to load account", error.message || "Please try again.", true);
   }
 }
 
-/* ==========================================
-   LOGIN
-   ========================================== */
+if (loginForm) {
+  loginForm.addEventListener("submit", async event => {
+    event.preventDefault();
+    if (!loginBtn) return;
 
-$("#loginForm")?.addEventListener("submit", async event => {
-  event.preventDefault();
+    loginBtn.disabled = true;
+    loginBtn.textContent = "Signing in…";
 
-  if (!loginBtn) return;
+    try {
+      const memberId = $("#memberIdInput")?.value.trim() || "";
+      const email = $("#emailInput")?.value.trim() || "";
+      const data = await request(API.login, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ memberId, email })
+      });
 
-  const memberId = $("#memberIdInput")?.value.trim();
-  const email = $("#emailInput")?.value.trim();
-
-  if (!memberId || !email) {
-    message(
-      "Login required",
-      "Enter your Member ID and registered email.",
-      true
-    );
-    return;
-  }
-
-  loginBtn.disabled = true;
-  loginBtn.textContent = "Signing in…";
-
-  try {
-    const result = await request(API.login, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        memberId,
-        email
-      })
-    });
-
-    if (!result.sessionId) {
-      throw new Error("The server did not return a session.");
+      if (!data.sessionId) throw new Error("No session returned by the server.");
+      sessionStorage.setItem(KEY, data.sessionId);
+      await loadData();
+    } catch (error) {
+      message("Login failed", error.message || "Please check your details.", true);
+    } finally {
+      loginBtn.disabled = false;
+      loginBtn.textContent = "Log in";
     }
-
-    sessionStorage.setItem(KEY, result.sessionId);
-
-    await loadData();
-  } catch (error) {
-    message("Login failed", error.message, true);
-  } finally {
-    loginBtn.disabled = false;
-    loginBtn.textContent = "Login";
-  }
-});
-
-/* ==========================================
-   LOGOUT
-   ========================================== */
-
-async function endSession() {
-  sessionStorage.removeItem(KEY);
-  showLogin();
+  });
 }
 
 async function logout() {
@@ -662,179 +367,170 @@ async function logout() {
         cache: "no-store"
       });
     }
-  } catch {
-    // Local session will still be cleared.
+  } catch (_) {
+    // Clear the local session even if the network request fails.
   }
-
-  await endSession();
-
-  message("Logged out", "You have been signed out.");
+  loggedOut(true);
 }
 
-/* ==========================================
-   REFRESH
-   ========================================== */
+$("#logoutBtn")?.addEventListener("click", logout);
+$("#sidebarLogoutBtn")?.addEventListener("click", logout);
+$("#profileLogoutBtn")?.addEventListener("click", logout);
+
+$("#memberSearch")?.addEventListener("input", () => loadMembers());
 
 $("#refreshBtn")?.addEventListener("click", () => {
-  if (session()) {
-    loadData();
-  } else {
-    showLogin();
-    message("Member portal", "Sign in to view your account.");
-  }
+  if (session()) loadData();
+  else message("Please log in", "There is no active member session.");
 });
 
-/* ==========================================
-   PUBLIC BLOGGER POSTS
-   Uses Blogger's public JSON feed.
-   ========================================== */
-
-const BLOGGER_BASE = "https://nafcaregroup.blogspot.com";
-
-async function loadBloggerPosts(label, containerId, limit = 5) {
+/* Public notices and blog posts */
+async function loadPublicPosts(action, containerId) {
   const container = document.getElementById(containerId);
-
   if (!container) return;
 
   container.replaceChildren();
-
   const loading = document.createElement("p");
   loading.className = "muted";
   loading.textContent = "Loading posts...";
-  container.appendChild(loading);
+  container.append(loading);
 
   try {
-    const feedUrl = new URL(
-      `${BLOGGER_BASE}/feeds/posts/default/-/${encodeURIComponent(label)}`
-    );
-
-    feedUrl.searchParams.set("alt", "json");
-    feedUrl.searchParams.set("max-results", String(limit));
-
-    const response = await fetch(feedUrl.toString(), {
-      cache: "no-store"
-    });
-
-    if (!response.ok) {
-      throw new Error("Unable to load posts.");
-    }
+    const url = new URL("https://script.google.com/macros/s/AKfycby_KG4rhiHL5TRPtlOlEQ8h-2hlWHMpTgy5pEmtik0ZqD863DXt74vPQyfVh1BycM0mLg/exec");
+    url.searchParams.set("action", action);
+    const response = await fetch(url.toString(), { cache: "no-store", redirect: "follow" });
+    if (!response.ok) throw new Error("Unable to load posts.");
 
     const data = await response.json();
-    const entries = data?.feed?.entry || [];
+    if (!data || data.ok === false) throw new Error("Posts are temporarily unavailable.");
+    const posts = Array.isArray(data) ? data : Array.isArray(data.posts) ? data.posts : Array.isArray(data.items) ? data.items : [];
 
     container.replaceChildren();
-
-    if (!entries.length) {
+    if (!posts.length) {
       const empty = document.createElement("p");
       empty.className = "muted";
       empty.textContent = "No posts available right now.";
-      container.appendChild(empty);
+      container.append(empty);
       return;
     }
 
-    entries.forEach(entry => {
+    posts.slice(0, 5).forEach(post => {
       const article = document.createElement("article");
       article.className = "update-item";
-
       const title = document.createElement("h3");
-      title.textContent = entry.title?.$t || "Untitled post";
-      article.appendChild(title);
+      title.textContent = post.title || post.name || "Untitled post";
+      article.append(title);
 
-      const published = entry.published?.$t;
-
-      if (published) {
+      const dateValue = post.published || post.date || post.publishedDate;
+      if (dateValue) {
         const date = document.createElement("p");
         date.className = "muted";
-        date.textContent = new Date(published).toLocaleDateString();
-        article.appendChild(date);
+        date.textContent = dateValue;
+        article.append(date);
       }
 
-      const content = entry.summary?.$t || entry.content?.$t || "";
+      const summary = document.createElement("p");
+      summary.textContent = post.summary || post.snippet || post.content || "";
+      article.append(summary);
 
-      if (content) {
-        const summary = document.createElement("p");
-        const plainText = content.replace(/<[^>]*>/g, " ")
-          .replace(/\s+/g, " ")
-          .trim();
-
-        summary.textContent = plainText.slice(0, 240);
-        article.appendChild(summary);
+      const imageUrl = post.thumbnail || post.image || post.imageUrl || post.featuredImage;
+      if (imageUrl && /^https:\/\//i.test(imageUrl)) {
+        const image = document.createElement("img");
+        image.src = imageUrl;
+        image.alt = post.title || "Post image";
+        image.loading = "lazy";
+        image.className = "post-thumbnail";
+        article.prepend(image);
       }
 
-      const alternate = (entry.link || []).find(
-        item => item.rel === "alternate"
-      );
-
-      if (alternate?.href) {
+      const postUrl = post.url || post.link;
+      if (postUrl && /^https:\/\//i.test(postUrl)) {
         const link = document.createElement("a");
-        link.href = alternate.href;
+        link.href = postUrl;
         link.target = "_blank";
         link.rel = "noopener noreferrer";
-        link.textContent = "Read more →";
-        article.appendChild(link);
+        link.textContent = "Read more ↗";
+        article.append(link);
       }
-
-      container.appendChild(article);
+      container.append(article);
     });
-  } catch {
+  } catch (_) {
     container.replaceChildren();
-
     const errorText = document.createElement("p");
     errorText.className = "muted";
-    errorText.textContent =
-      "Posts could not be loaded. Please visit our Blogger site.";
-
-    const link = document.createElement("a");
-    link.href = label === "Notice"
-      ? `${BLOGGER_BASE}/search/label/Notice`
-      : BLOGGER_BASE;
-
-    link.target = "_blank";
-    link.rel = "noopener noreferrer";
-    link.textContent = " Open Blogger →";
-
-    errorText.appendChild(link);
-    container.appendChild(errorText);
+    errorText.textContent = "Posts could not be loaded. Please try again later.";
+    container.append(errorText);
   }
 }
 
-/* ==========================================
-   INITIALIZE
-   ========================================== */
+loadPublicPosts("notices", "noticesList");
+loadPublicPosts("blog", "blogList");
 
-function initializeApp() {
-  setupNavigation();
+/* Sidebar drawer */
+const sidebar = document.getElementById("appSidebar");
+const menuBtn = document.getElementById("menuBtn");
+const moreBtn = document.getElementById("moreMenuBtn");
+const backdrop = document.getElementById("drawerBackdrop");
 
-  if ($("#year")) {
-    $("#year").textContent = String(new Date().getFullYear());
-  }
-
-  // Public content does not require a member session.
-  loadBloggerPosts("Notice", "noticesList");
-  loadBloggerPosts("Blog", "blogList");
-  loadBloggerPosts("Notice", "recentNoticesList", 3);
-  loadBloggerPosts("Blog", "recentBlogList", 3);
-
-  if (
-    "serviceWorker" in navigator &&
-    location.protocol.startsWith("http")
-  ) {
-    window.addEventListener("load", () => {
-      navigator.serviceWorker
-        .register("./service-worker.js")
-        .catch(() => {});
-    });
-  }
-
-  if (session()) {
-    loadData();
-  } else {
-    showLogin();
-    message(
-      "Member portal",
-      "Sign in to view your own member information."
-    );
-  }
+function closeMenu() {
+  sidebar?.classList.remove("sidebar-open");
+  backdrop?.classList.add("hidden");
+  document.body.classList.remove("drawer-open");
 }
 
-initializeApp();
+function openMenu() {
+  sidebar?.classList.add("sidebar-open");
+  backdrop?.classList.remove("hidden");
+  document.body.classList.add("drawer-open");
+}
+
+menuBtn?.addEventListener("click", () => {
+  if (sidebar?.classList.contains("sidebar-open")) closeMenu();
+  else openMenu();
+});
+moreBtn?.addEventListener("click", event => {
+  event.preventDefault();
+  openMenu();
+});
+backdrop?.addEventListener("click", closeMenu);
+document.addEventListener("keydown", event => {
+  if (event.key === "Escape") closeMenu();
+});
+
+document.querySelectorAll("[data-nav]").forEach(link => {
+  link.addEventListener("click", event => {
+    event.preventDefault();
+    showScreen(link.dataset.nav);
+  });
+});
+
+document.querySelectorAll(".quick-action, .panel-head a, .profile-menu a").forEach(link => {
+  link.addEventListener("click", event => {
+    const href = link.getAttribute("href");
+    if (!href || !href.startsWith("#")) return;
+    const target = href.slice(1);
+    if (SCREEN_IDS.includes(target)) {
+      event.preventDefault();
+      showScreen(target);
+    }
+  });
+});
+
+window.addEventListener("hashchange", () => {
+  showScreen(location.hash.slice(1) || (session() ? "home" : "noticesPanel"), false);
+});
+
+const year = $("#year");
+if (year) year.textContent = String(new Date().getFullYear());
+
+if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./service-worker.js").catch(() => {});
+  });
+}
+
+if (session()) {
+  loadData();
+} else {
+  loggedOut();
+}
