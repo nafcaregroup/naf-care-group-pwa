@@ -10,6 +10,7 @@ const API = {
   login: "/api/login",
   check: "/api/session-check",
   member: "/api/member",
+  members: "/api/members",
   payments: "/api/payments",
   logout: "/api/logout"
 };
