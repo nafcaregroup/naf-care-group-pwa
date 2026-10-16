@@ -5,8 +5,8 @@ const API = {
   check: "/api/session-check",
   member: "/api/member",
   payments: "/api/payments",
-  members: "/api/members",
-  logout: "/api/logout"
+  logout: "/api/logout",
+  members: "/api/members"
 };
 
 const $ = selector => document.querySelector(selector);
@@ -84,7 +84,6 @@ function setScreenVisibility(screenId) {
 
 function showScreen(screenId, updateUrl = true) {
   if (!SCREEN_IDS.includes(screenId)) screenId = "home";
-  if (session()) document.body.classList.add("member-authenticated");
 
   if (PRIVATE_SCREENS.has(screenId) && !session()) {
     SCREEN_IDS.forEach(id => {
@@ -99,7 +98,6 @@ function showScreen(screenId, updateUrl = true) {
 
   setScreenVisibility(screenId);
   if (session()) loginPanel?.classList.add("hidden");
-  if (screenId === "members" && session()) loadMembers();
   else loginPanel?.classList.remove("hidden");
 
   document.querySelectorAll("[data-nav]").forEach(link => {
@@ -112,7 +110,6 @@ function showScreen(screenId, updateUrl = true) {
 
 function loggedOut(showMessage = false) {
   sessionStorage.removeItem(KEY);
-  document.body.classList.remove("member-authenticated");
   loginPanel?.classList.remove("hidden");
   memberPanel?.classList.add("hidden");
   ["logoutBtn", "sidebarLogoutBtn", "profileLogoutBtn"].forEach(id => {
@@ -142,82 +139,6 @@ function detail(container, label, value) {
   container.append(row);
 }
 
-function safePhoto(value) {
-  try {
-    const url = new URL(String(value || ""), location.href);
-    return url.protocol === "https:" ? url.href : "";
-  } catch (_) { return ""; }
-}
-
-function setPhotoOrInitial(img, photoUrl, name) {
-  if (!img) return;
-  const initial = String(name || "M").trim().charAt(0).toUpperCase() || "M";
-  const fallback = () => {
-    const avatar = document.createElement("div");
-    avatar.id = img.id;
-    avatar.className = img.id === "profilePhoto" ? "profile-initial-avatar" : "avatar-mark member-initial-avatar";
-    avatar.setAttribute("role", "img");
-    avatar.setAttribute("aria-label", `${name || "Member"} initials`);
-    avatar.textContent = initial;
-    img.replaceWith(avatar);
-  };
-  if (!photoUrl) { fallback(); return; }
-  img.src = photoUrl;
-  img.alt = `${name || "Member"} photo`;
-  img.classList.remove("no-photo");
-  img.onerror = () => { img.onerror = null; fallback(); };
-}
-
-async function loadMembers() {
-  const box = $("#membersList");
-  if (!box) return;
-  box.replaceChildren();
-  const loading = document.createElement("p");
-  loading.className = "muted";
-  loading.textContent = "Loading members…";
-  box.append(loading);
-  try {
-    const data = await request(API.members, { headers: headers() });
-    const members = Array.isArray(data.members) ? data.members : [];
-    box.replaceChildren();
-    if (!members.length) {
-      const empty = document.createElement("p");
-      empty.className = "muted";
-      empty.textContent = "No members found.";
-      box.append(empty);
-      return;
-    }
-    const query = ($("#memberSearch")?.value || "").trim().toLowerCase();
-    members.filter(m => [m.name, m.id, m.area, m.status].some(v => String(v || "").toLowerCase().includes(query))).forEach(member => {
-      const card = document.createElement("article");
-      card.className = "member-list-card";
-      const avatar = document.createElement("div");
-      avatar.className = "member-list-avatar";
-      const photoUrl = safePhoto(member.photoUrl || "");
-      if (photoUrl) {
-        const image = document.createElement("img");
-        image.src = photoUrl;
-        image.alt = `${member.name || "Member"} photo`;
-        image.loading = "lazy";
-        image.onerror = () => { image.remove(); avatar.textContent = String(member.name || "M").trim().charAt(0).toUpperCase() || "M"; };
-        avatar.append(image);
-      } else avatar.textContent = String(member.name || "M").trim().charAt(0).toUpperCase() || "M";
-      const info = document.createElement("div"); info.className = "member-list-info";
-      const name = document.createElement("strong"); name.textContent = member.name || "Member";
-      const meta = document.createElement("p"); meta.textContent = `${member.id || ""}${member.area ? " · " + member.area : ""}`;
-      info.append(name, meta);
-      const badge = document.createElement("span");
-      badge.className = "member-status" + (/inactive|নিষ্ক্রিয়/i.test(String(member.status || "")) ? " inactive" : "");
-      badge.textContent = member.status || "Member";
-      card.append(avatar, info, badge); box.append(card);
-    });
-    if (!box.children.length) { const empty = document.createElement("p"); empty.className="muted"; empty.textContent="No matching members."; box.append(empty); }
-  } catch (error) {
-    box.replaceChildren(); const failed = document.createElement("p"); failed.className="muted";
-    failed.textContent = error.message || "Members could not be loaded."; box.append(failed);
-  }
-}
-
 function renderProfile(member) {
   const welcome = $("#welcomeTitle");
   if (welcome) welcome.textContent = "Welcome, " + (member.name || "Member");
@@ -234,9 +155,6 @@ function renderProfile(member) {
 
   const profileName = $("#profileName");
   if (profileName) profileName.textContent = member.name || "Member";
-  const photo = safePhoto(member.photoUrl || member.photoURL || member.photo || "");
-  setPhotoOrInitial($("#homeAvatar"), photo, member.name || "Member");
-  setPhotoOrInitial($("#profilePhoto"), photo, member.name || "Member");
 
   const box = $("#profileDetails");
   if (box) {
@@ -298,6 +216,93 @@ function renderPayments(rows, result) {
   });
 }
 
+
+const FEEDS = {
+  notices: "https://nafcaregroup.blogspot.com/feeds/posts/default/-/Notice?alt=json",
+  blog: "https://nafcaregroup.blogspot.com/feeds/posts/default/-/Blog?alt=json"
+};
+function safeText(entry, key) {
+  const v = entry?.[key];
+  if (Array.isArray(v)) return v[0]?.term || "";
+  return v?.$t || "";
+}
+function postTitle(entry) { return entry?.title?.$t || "Untitled"; }
+function postLink(entry) { return (entry?.link || []).find(x => x.rel === "alternate")?.href || "https://nafcaregroup.blogspot.com/"; }
+function postDate(entry) {
+  const d = new Date(entry?.published?.$t || "");
+  return Number.isNaN(d.getTime()) ? "" : d.toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"});
+}
+function renderPosts(target, entries, emptyText) {
+  const el = $(target); if (!el) return;
+  el.replaceChildren();
+  if (!entries.length) { const p=document.createElement("p"); p.className="muted"; p.textContent=emptyText; el.append(p); return; }
+  entries.slice(0,4).forEach(entry => {
+    const a=document.createElement("a"); a.className="update-item"; a.href=postLink(entry); a.target="_blank"; a.rel="noopener noreferrer";
+    const title=document.createElement("strong"); title.textContent=postTitle(entry);
+    const meta=document.createElement("small"); meta.textContent=postDate(entry);
+    a.append(title,meta); el.append(a);
+  });
+}
+async function loadFeed(kind) {
+  const targets = kind === "notices" ? ["#recentNoticesList","#noticesList"] : ["#recentBlogList","#blogList"];
+  targets.forEach(sel => { const el=$(sel); if(el) el.innerHTML='<p class="muted">Loading…</p>'; });
+  try {
+    const url=FEEDS[kind] + (FEEDS[kind].includes("?") ? "&" : "?") + "alt=json";
+    const res=await fetch(url,{cache:"no-store"});
+    if(!res.ok) throw new Error("Feed unavailable");
+    const data=await res.json();
+    const entries=data?.feed?.entry || [];
+    targets.forEach(sel=>renderPosts(sel,entries,kind==="notices"?"No notices published yet.":"No blog posts published yet."));
+  } catch {
+    targets.forEach(sel=>{const el=$(sel);if(el){el.replaceChildren();const p=document.createElement("p");p.className="muted";p.textContent=kind==="notices"?"Notices could not be loaded. Open the Notices tab or try Refresh.":"Blog posts could not be loaded. Open the Blog tab or try Refresh.";el.append(p);}});
+  }
+}
+function memberPhoto(member) { return typeof member?.photoUrl === "string" && /^https:\/\/.+/i.test(member.photoUrl) ? member.photoUrl : ""; }
+function avatarNode(member, className="member-avatar") {
+  const wrap=document.createElement("div"); wrap.className=className;
+  const url=memberPhoto(member);
+  if(url){const img=document.createElement("img");img.src=url;img.alt="";img.loading="lazy";img.referrerPolicy="no-referrer";img.onerror=()=>{img.remove();wrap.textContent=(member.name||"M").trim().charAt(0).toUpperCase();};wrap.append(img);}
+  else wrap.textContent=(member.name||"M").trim().charAt(0).toUpperCase();
+  return wrap;
+}
+async function loadMembers() {
+  const list=$("#membersList"), search=$("#memberSearch");
+  if(!list) return;
+  list.replaceChildren(); const loading=document.createElement("p");loading.className="muted";loading.textContent="Loading members…";list.append(loading);
+  try {
+    const data=await request(API.members,{headers:headers()});
+    const members=Array.isArray(data.members)?data.members:[];
+    const render=()=>{
+      const q=(search?.value||"").trim().toLowerCase(); list.replaceChildren();
+      const filtered=members.filter(m=>[m.name,m.id,m.area].some(v=>String(v||"").toLowerCase().includes(q)));
+      if(!filtered.length){const p=document.createElement("p");p.className="muted";p.textContent="No matching members found.";list.append(p);return;}
+      filtered.forEach(m=>{
+        const card=document.createElement("article");card.className="member-item";
+        card.append(avatarNode(m));
+        const info=document.createElement("div");info.className="member-item-info";
+        const name=document.createElement("strong");name.textContent=m.name||"Member";
+        const meta=document.createElement("small");meta.textContent=[m.id?"ID: "+m.id:"",m.area||"",m.status||""].filter(Boolean).join(" · ");
+        info.append(name,meta);card.append(info);list.append(card);
+      });
+    };
+    render(); if(search) search.oninput=render;
+  } catch(err) {
+    list.replaceChildren(); const p=document.createElement("p");p.className="error-text";p.textContent=err.message||"Member list could not be loaded.";list.append(p);
+  }
+}
+function renderMemberIdentity(member) {
+  const photo=memberPhoto(member);
+  const sidebar=$("#sidebarMember"), sideImg=$("#sidebarMemberPhoto"), sideInitial=$("#sidebarMemberInitial");
+  sidebar?.classList.remove("hidden");
+  $("#sidebarMemberName") && ($("#sidebarMemberName").textContent=member.name||"Member");
+  $("#sidebarMemberId") && ($("#sidebarMemberId").textContent="ID: "+(member.id||"—"));
+  if(sideImg){sideImg.classList.toggle("hidden",!photo);if(photo){sideImg.src=photo;sideImg.onerror=()=>sideImg.classList.add("hidden");}}
+  if(sideInitial){sideInitial.textContent=(member.name||"M").trim().charAt(0).toUpperCase();sideInitial.classList.toggle("hidden",!!photo);}
+  const homeImg=$("#homeMemberPhoto"), homeInitial=$("#homeMemberInitial");
+  if(homeImg){homeImg.classList.toggle("hidden",!photo);if(photo){homeImg.src=photo;homeImg.onerror=()=>homeImg.classList.add("hidden");}}
+  if(homeInitial){homeInitial.textContent=(member.name||"M").trim().charAt(0).toUpperCase();homeInitial.classList.toggle("hidden",!!photo);}
+}
+
 async function loadData() {
   if (!session()) {
     loggedOut();
@@ -313,6 +318,7 @@ async function loadData() {
 
     if (!memberData.member) throw new Error("Member data is missing.");
     renderProfile(memberData.member);
+    renderMemberIdentity(memberData.member);
     renderPayments(paymentData.payments, paymentData);
 
     loginPanel?.classList.add("hidden");
@@ -323,6 +329,7 @@ async function loadData() {
     const wanted = location.hash.slice(1);
     showScreen(SCREEN_IDS.includes(wanted) && PRIVATE_SCREENS.has(wanted) ? wanted : "home");
     message("Signed in", "Your account information has loaded.");
+    loadMembers(); loadFeed("notices"); loadFeed("blog");
   } catch (error) {
     loggedOut();
     message("Unable to load account", error.message || "Please try again.", true);
@@ -376,8 +383,6 @@ async function logout() {
 $("#logoutBtn")?.addEventListener("click", logout);
 $("#sidebarLogoutBtn")?.addEventListener("click", logout);
 $("#profileLogoutBtn")?.addEventListener("click", logout);
-
-$("#memberSearch")?.addEventListener("input", () => loadMembers());
 
 $("#refreshBtn")?.addEventListener("click", () => {
   if (session()) loadData();
@@ -534,3 +539,13 @@ if (session()) {
 } else {
   loggedOut();
 }
+
+document.querySelectorAll('[data-nav]').forEach(link => link.addEventListener('click', () => {
+  const target=link.getAttribute('data-nav');
+  if(target==="members" && session()) loadMembers();
+  if(target==="noticesPanel") loadFeed("notices");
+  if(target==="blogPanel") loadFeed("blog");
+}));
+document.querySelectorAll('a[href="#noticesPanel"]').forEach(a=>a.addEventListener('click',()=>loadFeed("notices")));
+document.querySelectorAll('a[href="#blogPanel"]').forEach(a=>a.addEventListener('click',()=>loadFeed("blog")));
+if(window.lucide) window.lucide.createIcons();
