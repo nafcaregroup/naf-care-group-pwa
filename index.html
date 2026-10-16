@@ -61,6 +61,7 @@
               <label for="emailInput">Registered Email</label>
               <div class="input-with-icon"><span aria-hidden="true">✉</span><input id="emailInput" name="email" type="email" placeholder="Enter your registered email" autocomplete="email" maxlength="254" required></div>
               <button id="loginBtn" class="primary-button" type="submit">Login</button>
+              <p id="loginError" class="login-error hidden" role="alert"></p>
             </form>
             <p class="login-help">Enter your Member ID and registered email to continue.</p>
           </div>
@@ -75,7 +76,7 @@
           </div>
           <div class="quick-grid">
             <a class="quick-action" href="#profilePanel"><span class="nav-icon"><i data-lucide="user-round"></i></span><strong>My Details</strong></a>
-            <a class="quick-action" href="#profilePanel"><span class="nav-icon"><i data-lucide="wallet"></i></span><strong>My Payments</strong></a>
+            <a class="quick-action" href="#memberPanel"><span class="nav-icon"><i data-lucide="wallet"></i></span><strong>My Payments</strong></a>
             <a class="quick-action" href="#noticesPanel"><span class="nav-icon"><i data-lucide="diamond"></i></span><strong>Notices</strong></a>
             <a class="quick-action" href="#blogPanel"><span class="nav-icon"><i data-lucide="newspaper"></i></span><strong>Blog</strong></a>
           </div>
@@ -92,7 +93,7 @@
         <section id="memberDetailsPanel" class="content-panel app-page hidden"><div class="section-heading"><div><p class="eyebrow">MEMBER INFORMATION</p><h2>Member Details</h2></div></div><p class="muted">Sign in to view your own profile and contribution details.</p><a href="#profilePanel">Open My Profile →</a></section>
         <section id="noticesPanel" class="content-panel app-page hidden"><div class="section-heading"><div><p class="eyebrow">IMPORTANT UPDATES</p><h2>Notices</h2></div><a href="https://nafcaregroup.blogspot.com/search/label/Notice" target="_blank" rel="noopener noreferrer">View all →</a></div><p class="muted">Official announcements from NAF CARE GROUP.</p><div id="noticesList" class="updates-list" aria-live="polite"><p class="muted">Loading notices…</p></div></section>
         <section id="blogPanel" class="content-panel app-page hidden"><div class="section-heading"><div><p class="eyebrow">NEWS & STORIES</p><h2>Blog</h2></div><a href="https://nafcaregroup.blogspot.com/" target="_blank" rel="noopener noreferrer">View all →</a></div><p class="muted">Stories, news and updates from our group.</p><div id="blogList" class="updates-list" aria-live="polite"><p class="muted">Loading blog posts…</p></div></section>
-        <section id="contributionInfo" class="content-panel app-page hidden"><div class="section-heading"><div><p class="eyebrow">GROUP INFORMATION</p><h2>Contribution Info</h2></div></div><div class="contribution-highlight"><span class="contribution-icon">৳</span><div><span>Monthly Contribution</span><strong id="infoMonthlyAmount">See your member account</strong></div></div><h3>Important Information</h3><div class="info-row"><strong>Contribution Start</strong><p>January 2024</p></div><div class="info-row"><strong>Payment Deadline</strong><p>Follow the group's official payment notice.</p></div><div class="info-row"><strong>Purpose</strong><p>Group support, savings and member welfare.</p></div></section>
+        <section id="contributionInfo" class="content-panel app-page hidden"><div class="section-heading"><div><p class="eyebrow">GROUP INFORMATION</p><h2>Contribution Info</h2></div></div><div class="contribution-highlight"><span class="contribution-icon">৳</span><div><span>Monthly Contribution</span><strong id="infoMonthlyAmount">See your member account</strong></div></div><h3>Important Information</h3><div class="info-row"><strong>Contribution Start</strong><p>July 2024</p></div><div class="info-row"><strong>Payment Deadline</strong><p>Follow the group's official payment notice.</p></div><div class="info-row"><strong>Purpose</strong><p>Group support, savings and member welfare.</p></div></section>
         <section id="profilePanel" class="content-panel app-page hidden"><div class="section-heading"><div><p class="eyebrow">MY ACCOUNT</p><h2>My Profile</h2></div></div><div class="profile-hero"><img src="https://nafcare.github.io/nafcare.png" alt="NAF CARE GROUP logo"><h3 id="profileName">Member</h3><p class="muted">Member account</p></div><div class="profile-menu"><a href="#memberPanel">Personal Information <span>›</span></a><a href="#memberPanel">My Payment History <span>›</span></a><a href="#noticesPanel">Notices <span>›</span></a><button id="profileLogoutBtn" type="button">Log out <span>›</span></button></div></section>
         <section id="aboutPanel" class="content-panel app-page hidden"><p class="eyebrow">ABOUT OUR GROUP</p><h2>NAF CARE GROUP</h2><div class="about-banner"><img src="https://nafcare.github.io/nafcare.png" alt="NAF CARE GROUP logo"><div><strong>Together</strong><p>For a Better Tomorrow</p></div></div><h3>Our Story</h3><p>NAF CARE GROUP is a community initiative built on mutual support, financial discipline and unity among members.</p><p>We believe in helping each other and building a better tomorrow through responsibility, cooperation and trust.</p><div class="values-grid"><div>♡<strong>Support</strong></div><div>▥<strong>Discipline</strong></div><div>♧<strong>Unity</strong></div></div></section>
         <section id="settingsPanel" class="content-panel app-page hidden"><div class="section-heading"><div><p class="eyebrow">APP PREFERENCES</p><h2>Settings</h2></div></div><div class="info-row"><strong>App information</strong><p>NAF CARE GROUP Member App</p></div><div class="info-row"><strong>Privacy</strong><p>Never share your session token.</p></div></section>
@@ -101,6 +102,7 @@
     </div>
     <div id="drawerBackdrop" class="drawer-backdrop hidden"></div>
   </div>
+  <script src="https://unpkg.com/lucide@latest"></script>
   <script src="./app.js" defer></script>
 <script>if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js").catch(()=>{}));}</script>
 </body>
