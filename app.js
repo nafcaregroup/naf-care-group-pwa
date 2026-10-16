@@ -213,6 +213,7 @@ function detail(container, label, value) {
 }
 
 function renderProfile(member) {
+
   const welcome = $("#welcomeTitle");
 
   if (welcome) {
@@ -237,6 +238,11 @@ function renderProfile(member) {
   if (capitalDue) {
     capitalDue.textContent = cash(member.capitalDue);
   }
+    const monthlyPaid = $("#monthlyPaid");
+
+if (monthlyPaid) {
+  monthlyPaid.textContent = cash(member.monthlyPaid);
+}
 
   if (monthlyDue) {
     monthlyDue.textContent = cash(member.monthlyDue);
