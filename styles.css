@@ -1178,4 +1178,29 @@ header img,
 }
 
 
+/* Hide private member information before login */
+body:not(.member-authenticated) #memberPanel,
+body:not(.member-authenticated) #home,
+body:not(.member-authenticated) #members,
+body:not(.member-authenticated) #contributionInfo,
+body:not(.member-authenticated) #profilePanel,
+body:not(.member-authenticated) #settingsPanel {
+  display: none !important;
+}
+
+/* Keep the login page clean and centered */
+body:not(.member-authenticated) #loginPanel {
+  display: block;
+  margin: 24px auto;
+}
+
+/* Hide member-only navigation when logged out */
+body:not(.member-authenticated) #appSidebar [data-nav="home"],
+body:not(.member-authenticated) #appSidebar [data-nav="members"],
+body:not(.member-authenticated) #appSidebar [data-nav="contributionInfo"],
+body:not(.member-authenticated) #appSidebar [data-nav="profilePanel"],
+body:not(.member-authenticated) #appSidebar [data-nav="settingsPanel"] {
+  display: none;
+}
+
 
