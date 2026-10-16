@@ -1014,3 +1014,64 @@ body:not(.member-authenticated) .container {
 body:not(.member-authenticated) #loginPanel {
   margin: 0 auto;
 }
+
+
+/* Remove the login card appearance */
+body:not(.member-authenticated) #loginPanel {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 auto !important;
+  padding: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  overflow: visible !important;
+}
+
+/* Make login content part of the page */
+body:not(.member-authenticated) #loginPanel .login-content {
+  padding: 28px 22px 20px !important;
+  background: transparent !important;
+}
+
+/* Remove card styling from inner elements */
+body:not(.member-authenticated) #loginPanel .login-logo,
+body:not(.member-authenticated) #loginPanel form {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Keep the landscape attached to the login screen */
+body:not(.member-authenticated) #loginPanel .landscape {
+  width: 100% !important;
+  height: 145px;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Reference-style mobile layout */
+@media (max-width: 768px) {
+  body:not(.member-authenticated) .container {
+    padding: 0 !important;
+  }
+
+  body:not(.member-authenticated) #loginPanel {
+    padding: 0 !important;
+  }
+
+  body:not(.member-authenticated) #loginPanel .login-content {
+    padding: 36px 22px 18px !important;
+  }
+
+  body:not(.member-authenticated) #loginPanel .login-logo img {
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+  }
+
+  body:not(.member-authenticated) #loginPanel .landscape {
+    height: 150px;
+  }
+}
