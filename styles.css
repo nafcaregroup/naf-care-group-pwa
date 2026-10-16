@@ -70,3 +70,25 @@ input,select,textarea{background:var(--surface);color:var(--ink);border-color:va
 body.member-authenticated .login-screen{display:none!important}
 body.member-authenticated .app-page:not(.hidden),body.member-authenticated .content-panel.app-page:not(.hidden){display:block}
 body:not(.member-authenticated) #loginPanel.hidden{display:none!important}
+
+/* Mobile bottom navigation and member profile photo */
+.bottom-nav{display:none}
+.profile-avatar{width:92px;height:92px;margin:0 auto 12px;border:3px solid #e0a526;border-radius:50%;overflow:hidden;background:var(--green-soft);display:flex;align-items:center;justify-content:center;color:var(--green);font-size:30px;font-weight:800}
+.profile-avatar img{width:100%;height:100%;object-fit:cover}
+.profile-avatar span.hidden{display:none}
+.statement-download{margin:10px 0 16px;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+@media(max-width:760px){
+  body.member-authenticated{padding-bottom:calc(72px + env(safe-area-inset-bottom))}
+  .bottom-nav:not(.hidden){display:grid;grid-template-columns:repeat(5,minmax(0,1fr));position:fixed;left:0;right:0;bottom:0;z-index:60;padding:7px 4px calc(7px + env(safe-area-inset-bottom));background:var(--green-dark);border-top:1px solid rgba(255,255,255,.18);box-shadow:0 -6px 20px rgba(0,0,0,.12)}
+  .bottom-nav a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:#d8eee3;font-size:10px;font-weight:600;min-width:0}
+  .bottom-nav a svg{width:19px;height:19px;stroke-width:2}
+  .bottom-nav a.active{color:#fff}
+  .bottom-nav a.active svg{stroke-width:2.6}
+}
+@media print{
+  body{background:#fff!important;padding:0!important}
+  .topbar,.app-sidebar,.bottom-nav,.app-footer,.login-screen,.section-heading,.profile-menu,.statement-download{display:none!important}
+  .app-page.hidden{display:none!important}
+  #memberPanel{display:block!important}
+  .app-shell,.app-layout,.container{display:block!important;min-height:0!important;height:auto!important;overflow:visible!important;box-shadow:none!important}
+}
