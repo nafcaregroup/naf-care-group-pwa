@@ -1089,3 +1089,93 @@ main,
 }
 
 
+/* ===== NAF CARE GROUP: Login and layout correction ===== */
+
+[hidden],
+.hidden {
+  display: none !important;
+}
+
+html,
+body {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  overflow-x: hidden;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Keep the main content within the screen */
+.app-main,
+main {
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* Login card */
+#loginPanel {
+  width: min(100% - 24px, 520px);
+  max-width: 520px;
+  margin: 24px auto;
+  padding: 28px;
+  border-radius: 24px;
+  overflow: hidden;
+}
+
+/* Limit the large logo inside login */
+#loginPanel img {
+  display: block;
+  width: min(100%, 300px);
+  max-height: 300px;
+  object-fit: contain;
+  margin: 0 auto 24px;
+}
+
+/* Keep the header logo small */
+header img,
+.app-header img,
+.site-header img {
+  max-width: 52px;
+  max-height: 52px;
+  object-fit: contain;
+}
+
+/* Sidebar logo */
+#appSidebar img {
+  max-width: 200px;
+  max-height: 200px;
+  object-fit: contain;
+}
+
+/* Private member details card */
+#memberPanel {
+  width: 100%;
+  max-width: 100%;
+  margin: 20px auto;
+}
+
+/* Mobile layout */
+@media (max-width: 768px) {
+  #loginPanel {
+    width: 100%;
+    margin: 16px auto;
+    padding: 20px;
+  }
+
+  #loginPanel img {
+    width: min(100%, 220px);
+    max-height: 220px;
+  }
+
+  #appSidebar img {
+    max-width: 140px;
+    max-height: 140px;
+  }
+}
+
+
+
