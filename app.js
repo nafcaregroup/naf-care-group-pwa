@@ -48,7 +48,7 @@ function message(title, text, error = false) {
 }
 
 function session() {
-  return sessionStorage.getItem(KEY) || "";
+   return localStorage.getItem(KEY) || "";
 }
 
 function headers() {
@@ -156,7 +156,7 @@ function showScreen(screenId, updateUrl = true) {
 
 function loggedOut(showMessage = false) {
   document.body.classList.remove("member-authenticated");
-  sessionStorage.removeItem(KEY);
+ localStorage.removeItem(KEY);
 
   loginPanel?.classList.remove("hidden");
   memberPanel?.classList.add("hidden");
@@ -878,7 +878,7 @@ if (loginForm) {
         throw new Error("No session returned by the server.");
       }
 
-      sessionStorage.setItem(KEY, data.sessionId);
+      localStorage.setItem(KEY, data.sessionId);
 
       const loginError = document.getElementById("loginError");
 
