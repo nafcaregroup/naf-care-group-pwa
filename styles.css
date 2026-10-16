@@ -745,3 +745,31 @@ body:not(.member-authenticated) #loginPanel {
   display: block;
   margin: 20px auto;
 }
+
+
+
+/* Remove sidebar branding completely */
+#appSidebar .sidebar-profile {
+  display: none !important;
+}
+
+/* Hide public content before login */
+body:not(.member-authenticated) #noticesPanel,
+body:not(.member-authenticated) #blogPanel,
+body:not(.member-authenticated) #aboutPanel,
+body:not(.member-authenticated) #recentNoticesList,
+body:not(.member-authenticated) #recentBlogList {
+  display: none !important;
+}
+
+/* Keep login screen as the only main content */
+body:not(.member-authenticated) .container > .app-page,
+body:not(.member-authenticated) .container > #memberPanel,
+body:not(.member-authenticated) .container > #memberDetailsPanel {
+  display: none !important;
+}
+
+/* Hide bottom navigation */
+.bottom-nav {
+  display: none !important;
+}
