@@ -127,3 +127,19 @@ body:not(.member-authenticated) #loginPanel.hidden{display:none!important}
   background: #19483e !important;
 }
 
+
+
+/* Prevent unnecessary scrolling on the login page */
+html,
+body {
+  min-height: 100%;
+}
+
+body:has(#loginPanel:not(.hidden)) {
+  overflow-y: hidden;
+}
+
+#loginPanel {
+  margin-top: 30px;
+  margin-bottom: 0;
+}
