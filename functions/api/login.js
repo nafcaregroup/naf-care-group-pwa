@@ -73,7 +73,7 @@ export async function onRequest(context) {
 
     const sessionId = crypto.randomUUID() + crypto.randomUUID();
     const now = Math.floor(Date.now() / 1000);
-    const expiresAt = now + 7 * 24 * 60 * 60;
+    const expiresAt = now + 30 * 24 * 60 * 60;
 
     await env.DB.prepare(
       `INSERT INTO sessions
