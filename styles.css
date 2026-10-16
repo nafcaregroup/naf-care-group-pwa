@@ -773,3 +773,216 @@ body:not(.member-authenticated) .container > #memberDetailsPanel {
 .bottom-nav {
   display: none !important;
 }
+
+
+/* =====================================
+   NAF CARE GROUP - LOGIN SCREEN REFINEMENT
+   Keep the existing logo and login system
+   ===================================== */
+
+/* Remove sidebar logo/profile */
+#appSidebar .sidebar-profile {
+  display: none !important;
+}
+
+/* Hide bottom navigation on every screen */
+.bottom-nav {
+  display: none !important;
+}
+
+/* Logged-out screen: hide notice, footer and other pages */
+body:not(.member-authenticated) #notice,
+body:not(.member-authenticated) .container > footer,
+body:not(.member-authenticated) .container > .app-page,
+body:not(.member-authenticated) #memberPanel,
+body:not(.member-authenticated) #memberDetailsPanel {
+  display: none !important;
+}
+
+/* Hide sidebar navigation until login */
+body:not(.member-authenticated) #appSidebar .side-nav,
+body:not(.member-authenticated) #appSidebar .sidebar-logout {
+  display: none !important;
+}
+
+body:not(.member-authenticated) #menuBtn {
+  visibility: hidden !important;
+}
+
+/* Login page layout */
+body:not(.member-authenticated) .app-layout {
+  min-height: auto;
+}
+
+body:not(.member-authenticated) .app-sidebar {
+  display: none !important;
+}
+
+body:not(.member-authenticated) .container {
+  width: 100%;
+  max-width: 100%;
+  padding: 18px 16px 30px;
+}
+
+/* Centered login card */
+body:not(.member-authenticated) #loginPanel {
+  display: block !important;
+  width: 100%;
+  max-width: 440px;
+  margin: 8px auto 24px;
+  overflow: hidden;
+  border-radius: 24px;
+  background: #fff;
+  border: 1px solid #e0eee5;
+  box-shadow: 0 10px 30px rgba(10, 90, 54, 0.07);
+}
+
+/* Login content spacing */
+body:not(.member-authenticated) #loginPanel .login-content {
+  padding: 26px 26px 22px;
+}
+
+/* Keep YOUR existing logo */
+body:not(.member-authenticated) #loginPanel .login-logo img {
+  display: block;
+  width: 100px;
+  height: 100px;
+  max-width: 100px;
+  max-height: 100px;
+  object-fit: contain;
+  margin: 0 auto;
+}
+
+/* Heading and tagline */
+body:not(.member-authenticated) #loginPanel .eyebrow {
+  margin-bottom: 6px;
+  text-align: center;
+  letter-spacing: 2px;
+}
+
+body:not(.member-authenticated) #loginPanel h1 {
+  margin: 0;
+  text-align: center;
+  color: #075b3b;
+  font-size: clamp(23px, 5vw, 29px);
+  line-height: 1.25;
+}
+
+body:not(.member-authenticated) #loginPanel .login-tagline {
+  margin: 8px 0 24px;
+  text-align: center;
+  color: #73847b;
+  font-size: 14px;
+}
+
+/* Compact, clean input fields */
+body:not(.member-authenticated) #loginForm {
+  gap: 8px;
+}
+
+body:not(.member-authenticated) #loginForm label {
+  margin-top: 8px;
+  font-size: 13px;
+}
+
+body:not(.member-authenticated) #loginForm .input-wrap {
+  min-height: 48px;
+  padding: 0 12px;
+  border-radius: 11px;
+  background: #fbfdfb;
+}
+
+body:not(.member-authenticated) #loginForm .input-wrap input {
+  font-size: 15px;
+}
+
+/* Green login button */
+body:not(.member-authenticated) #loginForm .primary {
+  min-height: 50px;
+  margin-top: 12px;
+  border-radius: 11px;
+  background: #087b48;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+/* Helper text */
+body:not(.member-authenticated) #loginPanel .fine-print {
+  margin: 14px 0 0;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+/* Landscape illustration integrated into the card */
+body:not(.member-authenticated) #loginPanel .landscape {
+  display: block;
+  width: 100%;
+  height: 145px;
+  overflow: hidden;
+  margin: 0;
+  border-radius: 0 0 23px 23px;
+}
+
+body:not(.member-authenticated) #loginPanel .landscape svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Keep the top header logo compact */
+.topbar .brand img {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+}
+
+/* Mobile refinement */
+@media (max-width: 768px) {
+  body:not(.member-authenticated) .topbar {
+    grid-template-columns: 0 1fr auto;
+    gap: 8px;
+    padding: 10px 12px;
+  }
+
+  body:not(.member-authenticated) .topbar #menuBtn {
+    display: none !important;
+  }
+
+  body:not(.member-authenticated) .brand {
+    justify-content: flex-start;
+  }
+
+  body:not(.member-authenticated) .container {
+    padding: 12px 12px 24px;
+  }
+
+  body:not(.member-authenticated) #loginPanel {
+    max-width: 440px;
+    margin: 8px auto 18px;
+    border-radius: 22px;
+  }
+
+  body:not(.member-authenticated) #loginPanel .login-content {
+    padding: 22px 20px 20px;
+  }
+
+  body:not(.member-authenticated) #loginPanel .login-logo img {
+    width: 88px;
+    height: 88px;
+    max-width: 88px;
+    max-height: 88px;
+  }
+
+  body:not(.member-authenticated) #loginPanel .login-tagline {
+    margin-bottom: 20px;
+  }
+
+  body:not(.member-authenticated) #loginPanel .landscape {
+    height: 125px;
+  }
+
+  body:not(.member-authenticated) .topbar .brand small {
+    font-size: 11px;
+  }
+}
+
