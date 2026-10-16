@@ -1,10 +1,10 @@
 
-/* =========================================
-   NAF CARE GROUP PWA
-   Main application script
-   ========================================= */
-
 "use strict";
+
+/* ==========================================
+   NAF CARE GROUP PWA
+   Complete application script
+   ========================================== */
 
 const API = {
   login: "/api/login",
@@ -15,30 +15,36 @@ const API = {
 };
 
 const KEY = "nafCareSessionId";
+
 const $ = selector => document.querySelector(selector);
 
-const notice = $("#notice");
 const loginPanel = $("#loginPanel");
 const memberPanel = $("#memberPanel");
+const notice = $("#notice");
 const loginBtn = $("#loginBtn");
 
-const PUBLIC_POSTS_URL =
-  "https://script.google.com/macros/s/AKfycby_KG4rhiHL5TRPtlOlEQ8h-2hlWHMpTgy5pEmtik0ZqD863DXt74vPQyfVh1BycM0mLg/exec";
-
-const SCREEN_IDS = [
+const PRIVATE_SCREENS = [
   "home",
   "members",
-  "noticesPanel",
-  "blogPanel",
   "contributionInfo",
   "profilePanel",
-  "aboutPanel",
   "settingsPanel"
 ];
 
-/* =========================================
-   MESSAGES AND API HELPERS
-   ========================================= */
+const PUBLIC_SCREENS = [
+  "noticesPanel",
+  "blogPanel",
+  "aboutPanel"
+];
+
+const ALL_SCREENS = [
+  ...PRIVATE_SCREENS,
+  ...PUBLIC_SCREENS
+];
+
+/* ==========================================
+   MESSAGE
+   ========================================== */
 
 function message(title, text, error = false) {
   if (!notice) return;
@@ -55,18 +61,24 @@ function message(title, text, error = false) {
   notice.classList.toggle("notice-error", error);
 }
 
+/* ==========================================
+   SESSION AND API
+   ========================================== */
+
 function session() {
   return sessionStorage.getItem(KEY) || "";
 }
 
 function headers() {
-  const id = session();
+  const sessionId = session();
 
-  if (!id) {
-    throw new Error("Session expired. Please log in again.");
+  if (!sessionId) {
+    throw new Error("Your session has expired. Please log in again.");
   }
 
-  return { "X-Session-ID": id };
+  return {
+    "X-Session-ID": sessionId
+  };
 }
 
 function cash(value) {
@@ -79,7 +91,9 @@ async function request(url, options = {}) {
   const response = await fetch(url, {
     cache: "no-store",
     ...options,
-    headers: { ...(options.headers || {}) }
+    headers: {
+      ...(options.headers || {})
+    }
   });
 
   let data;
@@ -87,25 +101,21 @@ async function request(url, options = {}) {
   try {
     data = await response.json();
   } catch {
-    throw new Error("Server returned an unreadable response.");
+    throw new Error("The server returned an unreadable response.");
   }
 
   if (!response.ok || data.ok !== true) {
-    throw new Error(data.error || `Request failed (${response.status})`);
+    throw new Error(
+      data.error || `Request failed (${response.status}).`
+    );
   }
 
   return data;
 }
 
-/* =========================================
-   SCREEN NAVIGATION
-   ========================================= */
-
-function closeMenu() {
-  $("#appSidebar")?.classList.remove("sidebar-open");
-  $("#drawerBackdrop")?.classList.add("hidden");
-  document.body.classList.remove("drawer-open");
-}
+/* ==========================================
+   SIDEBAR
+   ========================================== */
 
 function openMenu() {
   $("#appSidebar")?.classList.add("sidebar-open");
@@ -113,76 +123,112 @@ function openMenu() {
   document.body.classList.add("drawer-open");
 }
 
-function showScreen(screenId) {
-  if (!SCREEN_IDS.includes(screenId)) {
-    screenId = "home";
-  }
-
-  // Private screens require an active session.
-  if (!session()) {
-    showLogin();
-    return;
-  }
-
-  SCREEN_IDS.forEach(id => {
-    const screen = document.getElementById(id);
-
-    if (screen) {
-      screen.classList.toggle("hidden", id !== screenId);
-    }
-  });
-
-  // The member panel contains the member details and payment history.
-  if (memberPanel) {
-    memberPanel.classList.toggle("hidden", screenId !== "profilePanel");
-  }
-
-  document.querySelectorAll("[data-nav]").forEach(link => {
-    link.classList.toggle("active", link.dataset.nav === screenId);
-  });
-
-  history.replaceState(null, "", "#" + screenId);
-  closeMenu();
+function closeMenu() {
+  $("#appSidebar")?.classList.remove("sidebar-open");
+  $("#drawerBackdrop")?.classList.add("hidden");
+  document.body.classList.remove("drawer-open");
 }
 
+/* ==========================================
+   SCREEN NAVIGATION
+   ========================================== */
+
 function showLogin() {
-  if (loginPanel) {
-    loginPanel.classList.remove("hidden");
-  }
+  // Remove authenticated state.
+  document.body.classList.remove("member-authenticated");
 
-  if (memberPanel) {
-    memberPanel.classList.add("hidden");
-  }
+  // Show login.
+  loginPanel?.classList.remove("hidden");
 
-  SCREEN_IDS.forEach(id => {
+  // Hide private account information.
+  memberPanel?.classList.add("hidden");
+
+  PRIVATE_SCREENS.forEach(id => {
     document.getElementById(id)?.classList.add("hidden");
   });
 
+  $("#memberDetailsPanel")?.classList.add("hidden");
+
+  // Hide authenticated controls.
   $("#logoutBtn")?.classList.add("hidden");
   $("#sidebarLogoutBtn")?.classList.add("hidden");
   $("#profileLogoutBtn")?.classList.add("hidden");
 
+  // Clear active navigation.
   document.querySelectorAll("[data-nav]").forEach(link => {
     link.classList.remove("active");
   });
 
   closeMenu();
-  history.replaceState(null, "", location.pathname);
 }
 
 function showApp() {
+  // Mark the user as authenticated only after successful API checks.
+  document.body.classList.add("member-authenticated");
+
   loginPanel?.classList.add("hidden");
+
   $("#logoutBtn")?.classList.remove("hidden");
   $("#sidebarLogoutBtn")?.classList.remove("hidden");
-  $("#profileLogoutBtn")?.classList.remove("hidden");
 
   const requestedScreen = location.hash.replace("#", "");
-  const target = SCREEN_IDS.includes(requestedScreen)
+
+  const target = ALL_SCREENS.includes(requestedScreen)
     ? requestedScreen
     : "home";
 
   showScreen(target);
 }
+
+function showScreen(screenId) {
+  if (!ALL_SCREENS.includes(screenId)) {
+    screenId = "home";
+  }
+
+  // Private screens cannot be opened without a session.
+  if (
+    PRIVATE_SCREENS.includes(screenId) &&
+    !document.body.classList.contains("member-authenticated")
+  ) {
+    showLogin();
+    return;
+  }
+
+  // Hide all regular app screens first.
+  ALL_SCREENS.forEach(id => {
+    document.getElementById(id)?.classList.toggle(
+      "hidden",
+      id !== screenId
+    );
+  });
+
+  // The member account details and payments are part of My Profile.
+  memberPanel?.classList.toggle(
+    "hidden",
+    screenId !== "profilePanel"
+  );
+
+  // Login is hidden while an app screen is displayed.
+  loginPanel?.classList.add("hidden");
+
+  // Hide the unused placeholder card.
+  $("#memberDetailsPanel")?.classList.add("hidden");
+
+  document.querySelectorAll("[data-nav]").forEach(link => {
+    link.classList.toggle(
+      "active",
+      link.dataset.nav === screenId
+    );
+  });
+
+  closeMenu();
+
+  history.replaceState(null, "", "#" + screenId);
+}
+
+/* ==========================================
+   NAVIGATION EVENTS
+   ========================================== */
 
 function setupNavigation() {
   $("#menuBtn")?.addEventListener("click", () => {
@@ -197,7 +243,10 @@ function setupNavigation() {
 
   $("#moreMenuBtn")?.addEventListener("click", event => {
     event.preventDefault();
-    openMenu();
+
+    if (document.body.classList.contains("member-authenticated")) {
+      openMenu();
+    }
   });
 
   $("#drawerBackdrop")?.addEventListener("click", closeMenu);
@@ -215,38 +264,47 @@ function setupNavigation() {
     link.addEventListener("click", event => {
       const href = link.getAttribute("href");
 
-      if (href?.startsWith("#")) {
+      if (href && href.startsWith("#")) {
         const target = href.slice(1);
 
-        if (SCREEN_IDS.includes(target)) {
+        if (ALL_SCREENS.includes(target)) {
           event.preventDefault();
           showScreen(target);
         }
       }
-
-      closeMenu();
     });
   });
 
   document.addEventListener("keydown", event => {
-    if (event.key === "Escape") closeMenu();
+    if (event.key === "Escape") {
+      closeMenu();
+    }
   });
 
   window.addEventListener("hashchange", () => {
-    if (session()) {
-      showScreen(location.hash.replace("#", "") || "home");
-    } else {
+    const target = location.hash.replace("#", "") || "home";
+
+    if (
+      PRIVATE_SCREENS.includes(target) &&
+      !document.body.classList.contains("member-authenticated")
+    ) {
       showLogin();
+      return;
+    }
+
+    if (ALL_SCREENS.includes(target)) {
+      showScreen(target);
     }
   });
 
   $("#sidebarLogoutBtn")?.addEventListener("click", logout);
   $("#profileLogoutBtn")?.addEventListener("click", logout);
+  $("#logoutBtn")?.addEventListener("click", logout);
 }
 
-/* =========================================
+/* ==========================================
    MEMBER PROFILE
-   ========================================= */
+   ========================================== */
 
 function detail(box, label, value) {
   if (!box) return;
@@ -260,28 +318,45 @@ function detail(box, label, value) {
 
   const valueElement = document.createElement("strong");
   valueElement.textContent =
-    value == null || value === "" ? "—" : String(value);
+    value === null || value === undefined || value === ""
+      ? "—"
+      : String(value);
 
   row.append(labelElement, valueElement);
   box.appendChild(row);
 }
 
 function renderProfile(member) {
-  $("#welcomeTitle")?.replaceChildren(
-    document.createTextNode("Welcome, " + (member.name || "Member"))
-  );
+  const name = member.name || "Member";
 
-  $("#homeGreeting")?.replaceChildren(
-    document.createTextNode("Welcome, " + (member.name || "Member"))
-  );
+  if ($("#welcomeTitle")) {
+    $("#welcomeTitle").textContent = "Welcome, " + name;
+  }
 
-  const capitalPaid = $("#capitalPaid");
-  const capitalDue = $("#capitalDue");
-  const monthlyDue = $("#monthlyDue");
+  if ($("#homeGreeting")) {
+    $("#homeGreeting").textContent = "Welcome, " + name;
+  }
 
-  if (capitalPaid) capitalPaid.textContent = cash(member.capitalPaid);
-  if (capitalDue) capitalDue.textContent = cash(member.capitalDue);
-  if (monthlyDue) monthlyDue.textContent = cash(member.monthlyDue);
+  if ($("#profileName")) {
+    $("#profileName").textContent = name;
+  }
+
+  if ($("#capitalPaid")) {
+    $("#capitalPaid").textContent = cash(member.capitalPaid);
+  }
+
+  if ($("#capitalDue")) {
+    $("#capitalDue").textContent = cash(member.capitalDue);
+  }
+
+  if ($("#monthlyDue")) {
+    $("#monthlyDue").textContent = cash(member.monthlyDue);
+  }
+
+  if ($("#infoMonthlyAmount")) {
+    $("#infoMonthlyAmount").textContent =
+      cash(member.monthlyContribution);
+  }
 
   const box = $("#profileDetails");
 
@@ -302,22 +377,15 @@ function renderProfile(member) {
       ["Monthly paid", cash(member.monthlyPaid)],
       ["Months with due", member.monthsDue],
       ["Total due", cash(member.totalDue)]
-    ].forEach(item => detail(box, item[0], item[1]));
-  }
-
-  if ($("#profileName")) {
-    $("#profileName").textContent = member.name || "Member";
-  }
-
-  if ($("#infoMonthlyAmount")) {
-    $("#infoMonthlyAmount").textContent =
-      cash(member.monthlyContribution);
+    ].forEach(item => {
+      detail(box, item[0], item[1]);
+    });
   }
 }
 
-/* =========================================
+/* ==========================================
    PAYMENT HISTORY
-   ========================================= */
+   ========================================== */
 
 function renderPayments(rows, result) {
   const body = $("#paymentsBody");
@@ -326,10 +394,8 @@ function renderPayments(rows, result) {
 
   body.replaceChildren();
 
-  const summary = $("#paymentSummary");
-
-  if (summary) {
-    summary.textContent =
+  if ($("#paymentSummary")) {
+    $("#paymentSummary").textContent =
       `Monthly paid: ${cash(result.monthlyPaid)} · ` +
       `Monthly due: ${cash(result.monthlyDue)} · ` +
       `Months with due: ${result.monthsDue ?? 0}`;
@@ -368,9 +434,9 @@ function renderPayments(rows, result) {
   });
 }
 
-/* =========================================
-   LOAD PRIVATE MEMBER DATA
-   ========================================= */
+/* ==========================================
+   LOAD AUTHENTICATED MEMBER DATA
+   ========================================== */
 
 async function loadData() {
   if (!session()) {
@@ -379,17 +445,22 @@ async function loadData() {
   }
 
   try {
+    // Verify session before fetching private data.
     await request(API.check, {
       headers: headers()
     });
 
     const [memberResult, paymentResult] = await Promise.all([
-      request(API.member, { headers: headers() }),
-      request(API.payments, { headers: headers() })
+      request(API.member, {
+        headers: headers()
+      }),
+      request(API.payments, {
+        headers: headers()
+      })
     ]);
 
     if (!memberResult.member) {
-      throw new Error("Member data missing.");
+      throw new Error("Member data is missing.");
     }
 
     renderProfile(memberResult.member);
@@ -398,17 +469,70 @@ async function loadData() {
     showApp();
     message("Signed in", "Your account information has loaded.");
   } catch (error) {
-    if (/session|required|expired|unauthorized/i.test(error.message)) {
-      await endSession();
-    }
+    await endSession();
 
-    message("Unable to load account", error.message, true);
+    message(
+      "Unable to load account",
+      error.message || "Please log in again.",
+      true
+    );
   }
 }
 
-/* =========================================
-   LOGIN AND LOGOUT
-   ========================================= */
+/* ==========================================
+   LOGIN
+   ========================================== */
+
+$("#loginForm")?.addEventListener("submit", async event => {
+  event.preventDefault();
+
+  if (!loginBtn) return;
+
+  const memberId = $("#memberIdInput")?.value.trim();
+  const email = $("#emailInput")?.value.trim();
+
+  if (!memberId || !email) {
+    message(
+      "Login required",
+      "Enter your Member ID and registered email.",
+      true
+    );
+    return;
+  }
+
+  loginBtn.disabled = true;
+  loginBtn.textContent = "Signing in…";
+
+  try {
+    const result = await request(API.login, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        memberId,
+        email
+      })
+    });
+
+    if (!result.sessionId) {
+      throw new Error("The server did not return a session.");
+    }
+
+    sessionStorage.setItem(KEY, result.sessionId);
+
+    await loadData();
+  } catch (error) {
+    message("Login failed", error.message, true);
+  } finally {
+    loginBtn.disabled = false;
+    loginBtn.textContent = "Login";
+  }
+});
+
+/* ==========================================
+   LOGOUT
+   ========================================== */
 
 async function endSession() {
   sessionStorage.removeItem(KEY);
@@ -425,60 +549,35 @@ async function logout() {
       });
     }
   } catch {
-    // Clear the local session even if the logout request fails.
+    // Local session will still be cleared.
   }
 
   await endSession();
+
   message("Logged out", "You have been signed out.");
 }
 
-$("#loginForm")?.addEventListener("submit", async event => {
-  event.preventDefault();
-
-  if (!loginBtn) return;
-
-  loginBtn.disabled = true;
-  loginBtn.textContent = "Signing in…";
-
-  try {
-    const result = await request(API.login, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        memberId: $("#memberIdInput")?.value.trim(),
-        email: $("#emailInput")?.value.trim()
-      })
-    });
-
-    if (!result.sessionId) {
-      throw new Error("No session returned.");
-    }
-
-    sessionStorage.setItem(KEY, result.sessionId);
-    await loadData();
-  } catch (error) {
-    message("Login failed", error.message, true);
-  } finally {
-    loginBtn.disabled = false;
-    loginBtn.textContent = "Log in";
-  }
-});
-
-$("#logoutBtn")?.addEventListener("click", logout);
+/* ==========================================
+   REFRESH
+   ========================================== */
 
 $("#refreshBtn")?.addEventListener("click", () => {
   if (session()) {
     loadData();
   } else {
-    message("Please log in", "No active session.");
+    showLogin();
+    message("Member portal", "Sign in to view your account.");
   }
 });
 
-/* =========================================
-   PUBLIC NOTICES AND BLOG
-   ========================================= */
+/* ==========================================
+   PUBLIC BLOGGER POSTS
+   Uses Blogger's public JSON feed.
+   ========================================== */
 
-async function loadPublicPosts(action, containerId) {
+const BLOGGER_BASE = "https://nafcaregroup.blogspot.com";
+
+async function loadBloggerPosts(label, containerId, limit = 5) {
   const container = document.getElementById(containerId);
 
   if (!container) return;
@@ -491,12 +590,15 @@ async function loadPublicPosts(action, containerId) {
   container.appendChild(loading);
 
   try {
-    const url = new URL(PUBLIC_POSTS_URL);
-    url.searchParams.set("action", action);
+    const feedUrl = new URL(
+      `${BLOGGER_BASE}/feeds/posts/default/-/${encodeURIComponent(label)}`
+    );
 
-    const response = await fetch(url.toString(), {
-      cache: "no-store",
-      redirect: "follow"
+    feedUrl.searchParams.set("alt", "json");
+    feedUrl.searchParams.set("max-results", String(limit));
+
+    const response = await fetch(feedUrl.toString(), {
+      cache: "no-store"
     });
 
     if (!response.ok) {
@@ -504,22 +606,11 @@ async function loadPublicPosts(action, containerId) {
     }
 
     const data = await response.json();
-
-    if (!data || data.ok === false) {
-      throw new Error("Posts are temporarily unavailable.");
-    }
-
-    const posts = Array.isArray(data)
-      ? data
-      : Array.isArray(data.posts)
-        ? data.posts
-        : Array.isArray(data.items)
-          ? data.items
-          : [];
+    const entries = data?.feed?.entry || [];
 
     container.replaceChildren();
 
-    if (!posts.length) {
+    if (!entries.length) {
       const empty = document.createElement("p");
       empty.className = "muted";
       empty.textContent = "No posts available right now.";
@@ -527,36 +618,45 @@ async function loadPublicPosts(action, containerId) {
       return;
     }
 
-    posts.slice(0, 5).forEach(post => {
+    entries.forEach(entry => {
       const article = document.createElement("article");
       article.className = "update-item";
 
       const title = document.createElement("h3");
-      title.textContent = post.title || post.name || "Untitled post";
+      title.textContent = entry.title?.$t || "Untitled post";
       article.appendChild(title);
 
-      const dateValue = post.published || post.date || post.publishedDate;
+      const published = entry.published?.$t;
 
-      if (dateValue) {
+      if (published) {
         const date = document.createElement("p");
         date.className = "muted";
-        date.textContent = dateValue;
+        date.textContent = new Date(published).toLocaleDateString();
         article.appendChild(date);
       }
 
-      const summary = document.createElement("p");
-      summary.textContent =
-        post.summary || post.snippet || post.content || "";
-      article.appendChild(summary);
+      const content = entry.summary?.$t || entry.content?.$t || "";
 
-      const postUrl = post.url || post.link;
+      if (content) {
+        const summary = document.createElement("p");
+        const plainText = content.replace(/<[^>]*>/g, " ")
+          .replace(/\s+/g, " ")
+          .trim();
 
-      if (postUrl) {
+        summary.textContent = plainText.slice(0, 240);
+        article.appendChild(summary);
+      }
+
+      const alternate = (entry.link || []).find(
+        item => item.rel === "alternate"
+      );
+
+      if (alternate?.href) {
         const link = document.createElement("a");
-        link.href = postUrl;
+        link.href = alternate.href;
         link.target = "_blank";
         link.rel = "noopener noreferrer";
-        link.textContent = "Read more ↗";
+        link.textContent = "Read more →";
         article.appendChild(link);
       }
 
@@ -565,32 +665,46 @@ async function loadPublicPosts(action, containerId) {
   } catch {
     container.replaceChildren();
 
-    const errorMessage = document.createElement("p");
-    errorMessage.className = "muted";
-    errorMessage.textContent =
-      "Posts could not be loaded. Please try again later.";
+    const errorText = document.createElement("p");
+    errorText.className = "muted";
+    errorText.textContent =
+      "Posts could not be loaded. Please visit our Blogger site.";
 
-    container.appendChild(errorMessage);
+    const link = document.createElement("a");
+    link.href = label === "Notice"
+      ? `${BLOGGER_BASE}/search/label/Notice`
+      : BLOGGER_BASE;
+
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    link.textContent = " Open Blogger →";
+
+    errorText.appendChild(link);
+    container.appendChild(errorText);
   }
 }
 
-/* =========================================
-   INITIALIZE APP
-   ========================================= */
+/* ==========================================
+   INITIALIZE
+   ========================================== */
 
 function initializeApp() {
   setupNavigation();
 
-  const year = $("#year");
-
-  if (year) {
-    year.textContent = String(new Date().getFullYear());
+  if ($("#year")) {
+    $("#year").textContent = String(new Date().getFullYear());
   }
 
-  loadPublicPosts("notices", "noticesList");
-  loadPublicPosts("blog", "blogList");
+  // Public content does not require a member session.
+  loadBloggerPosts("Notice", "noticesList");
+  loadBloggerPosts("Blog", "blogList");
+  loadBloggerPosts("Notice", "recentNoticesList", 3);
+  loadBloggerPosts("Blog", "recentBlogList", 3);
 
-  if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+  if (
+    "serviceWorker" in navigator &&
+    location.protocol.startsWith("http")
+  ) {
     window.addEventListener("load", () => {
       navigator.serviceWorker
         .register("./service-worker.js")
@@ -602,7 +716,10 @@ function initializeApp() {
     loadData();
   } else {
     showLogin();
-    message("Member portal", "Sign in to view your own member information.");
+    message(
+      "Member portal",
+      "Sign in to view your own member information."
+    );
   }
 }
 
