@@ -20,7 +20,6 @@
         <span><strong>NAF CARE GROUP</strong><small>Together for a Better Tomorrow</small></span>
       </a>
       <div class="top-actions">
-        <button id="refreshBtn" class="ghost-button" type="button">↻ Refresh</button>
         <button id="logoutBtn" class="ghost-button hidden" type="button">Log out</button>
       </div>
     </header>
@@ -85,7 +84,9 @@
         </section>
 
         <section id="memberPanel" class="app-page hidden">
-          <section class="content-panel"><div class="section-heading"><div><p class="eyebrow">MY ACCOUNT</p><h2 id="welcomeTitle">My Details</h2></div></div><div id="profileDetails" class="profile-details"></div></section>
+          <section class="content-panel"><div class="section-heading"><div><p class="eyebrow">MY ACCOUNT</p><h2 id="welcomeTitle">My Details</h2></div></div>
+<button id="statementDownloadBtn" class="primary-button statement-download" type="button"><i data-lucide="file-down"></i> Download Statement PDF</button>
+<div id="profileDetails" class="profile-details"></div></section>
           <section class="content-panel" id="paymentsPanel"><div class="section-heading"><div><p class="eyebrow">MY CONTRIBUTIONS</p><h2>Payment History</h2></div></div><p id="paymentSummary" class="muted"></p><div class="table-wrap"><table class="payments-table"><thead><tr><th>Month</th><th>Required</th><th>Paid</th><th>Due</th><th>Status</th></tr></thead><tbody id="paymentsBody"><tr><td colspan="5">Log in to load your history.</td></tr></tbody></table></div></section>
         </section>
 
@@ -94,10 +95,17 @@
         <section id="noticesPanel" class="content-panel app-page hidden"><div class="section-heading"><div><p class="eyebrow">IMPORTANT UPDATES</p><h2>Notices</h2></div><a href="https://nafcaregroup.blogspot.com/search/label/Notice" target="_blank" rel="noopener noreferrer">View all →</a></div><p class="muted">Official announcements from NAF CARE GROUP.</p><div id="noticesList" class="updates-list" aria-live="polite"><p class="muted">Loading notices…</p></div></section>
         <section id="blogPanel" class="content-panel app-page hidden"><div class="section-heading"><div><p class="eyebrow">NEWS & STORIES</p><h2>Blog</h2></div><a href="https://nafcaregroup.blogspot.com/" target="_blank" rel="noopener noreferrer">View all →</a></div><p class="muted">Stories, news and updates from our group.</p><div id="blogList" class="updates-list" aria-live="polite"><p class="muted">Loading blog posts…</p></div></section>
         <section id="contributionInfo" class="content-panel app-page hidden"><div class="section-heading"><div><p class="eyebrow">GROUP INFORMATION</p><h2>Contribution Info</h2></div></div><div class="contribution-highlight"><span class="contribution-icon">৳</span><div><span>Monthly Contribution</span><strong id="infoMonthlyAmount">See your member account</strong></div></div><h3>Important Information</h3><div class="info-row"><strong>Contribution Start</strong><p>July 2024</p></div><div class="info-row"><strong>Payment Deadline</strong><p>Follow the group's official payment notice.</p></div><div class="info-row"><strong>Purpose</strong><p>Group support, savings and member welfare.</p></div></section>
-        <section id="profilePanel" class="content-panel app-page hidden"><div class="section-heading"><div><p class="eyebrow">MY ACCOUNT</p><h2>My Profile</h2></div></div><div class="profile-hero"><img src="https://nafcare.github.io/nafcare.png" alt="NAF CARE GROUP logo"><h3 id="profileName">Member</h3><p class="muted">Member account</p></div><div class="profile-menu"><a href="#memberPanel">Personal Information <span>›</span></a><a href="#memberPanel">My Payment History <span>›</span></a><a href="#noticesPanel">Notices <span>›</span></a><button id="profileLogoutBtn" type="button">Log out <span>›</span></button></div></section>
+        <section id="profilePanel" class="content-panel app-page hidden"><div class="section-heading"><div><p class="eyebrow">MY ACCOUNT</p><h2>My Profile</h2></div></div><div class="profile-hero"><div class="profile-avatar"><img id="profileMemberPhoto" class="hidden" alt="Your profile photo"><span id="profileMemberInitial">M</span></div><h3 id="profileName">Member</h3><p id="profileMemberId" class="muted">Member account</p></div><div class="profile-menu"><a href="#memberPanel">Personal Information <span>›</span></a><a href="#memberPanel">My Payment History <span>›</span></a><a href="#noticesPanel">Notices <span>›</span></a><button id="profileLogoutBtn" type="button">Log out <span>›</span></button></div></section>
         <section id="aboutPanel" class="content-panel app-page hidden"><p class="eyebrow">ABOUT OUR GROUP</p><h2>NAF CARE GROUP</h2><div class="about-banner"><img src="https://nafcare.github.io/nafcare.png" alt="NAF CARE GROUP logo"><div><strong>Together</strong><p>For a Better Tomorrow</p></div></div><h3>Our Story</h3><p>NAF CARE GROUP is a community initiative built on mutual support, financial discipline and unity among members.</p><p>We believe in helping each other and building a better tomorrow through responsibility, cooperation and trust.</p><div class="values-grid"><div>♡<strong>Support</strong></div><div>▥<strong>Discipline</strong></div><div>♧<strong>Unity</strong></div></div></section>
         <section id="settingsPanel" class="content-panel app-page hidden"><div class="section-heading"><div><p class="eyebrow">APP PREFERENCES</p><h2>Settings</h2></div></div><div class="info-row"><strong>App information</strong><p>NAF CARE GROUP Member App</p></div><div class="info-row"><strong>Privacy</strong><p>Never share your session token.</p></div></section>
-        <footer class="app-footer"><span>© <span id="year"></span> NAF CARE GROUP</span><small>Together for a Better Tomorrow</small></footer>
+        <nav id="bottomNav" class="bottom-nav hidden" aria-label="Mobile navigation">
+  <a href="#home" data-nav="home"><i data-lucide="house"></i><span>Home</span></a>
+  <a href="#members" data-nav="members"><i data-lucide="users-round"></i><span>Members</span></a>
+  <a href="#noticesPanel" data-nav="noticesPanel"><i data-lucide="bell"></i><span>Notices</span></a>
+  <a href="#blogPanel" data-nav="blogPanel"><i data-lucide="newspaper"></i><span>Blog</span></a>
+  <a href="#profilePanel" data-nav="profilePanel"><i data-lucide="user-round"></i><span>Profile</span></a>
+</nav>
+<footer class="app-footer"><span>© <span id="year"></span> NAF CARE GROUP</span><small>Together for a Better Tomorrow</small></footer>
       </main>
     </div>
     <div id="drawerBackdrop" class="drawer-backdrop hidden"></div>
