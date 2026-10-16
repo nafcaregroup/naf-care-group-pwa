@@ -363,15 +363,12 @@ const FEEDS = {
   blog: "/api/feed?kind=blog"
 };
 
-function safeText(entry, key) {
-  const v = entry?.[key];
+const FEED_PAGE_SIZE = 4;
 
-  if (Array.isArray(v)) {
-    return v[0]?.term || "";
-  }
-
-  return v?.$t || "";
-}
+const feedState = {
+  notices: { entries: [], shown: FEED_PAGE_SIZE, loaded: false },
+  blog: { entries: [], shown: FEED_PAGE_SIZE, loaded: false }
+};
 
 function postTitle(entry) {
   return entry?.title?.$t || "Untitled";
@@ -379,43 +376,39 @@ function postTitle(entry) {
 
 function postLink(entry) {
   return (
-    (entry?.link || []).find(x => x.rel === "alternate")?.href ||
+    (entry?.link || []).find(item => item.rel === "alternate")?.href ||
     "https://nafcaregroup.blogspot.com/"
   );
 }
 
 function postDate(entry) {
-  const d = new Date(entry?.published?.$t || "");
+  const date = new Date(entry?.published?.$t || "");
 
-  return Number.isNaN(d.getTime())
+  return Number.isNaN(date.getTime())
     ? ""
-    : d.toLocaleDateString("en-GB", {
+    : date.toLocaleDateString("en-GB", {
         day: "numeric",
         month: "short",
         year: "numeric"
       });
 }
 
-function renderPosts(target, entries, emptyText) {
+function renderPosts(target, entries, emptyText, limit = FEED_PAGE_SIZE) {
   const el = $(target);
-
   if (!el) return;
 
   el.replaceChildren();
 
   if (!entries.length) {
     const p = document.createElement("p");
-
     p.className = "muted";
     p.textContent = emptyText;
-
     el.append(p);
     return;
   }
 
-  entries.slice(0, 4).forEach(entry => {
+  entries.slice(0, limit).forEach(entry => {
     const a = document.createElement("a");
-
     a.className = "update-item";
     a.href = postLink(entry);
     a.target = "_blank";
@@ -432,8 +425,66 @@ function renderPosts(target, entries, emptyText) {
   });
 }
 
-async function loadFeed(kind) {
+function updateSeeMoreButton(kind) {
+  const state = feedState[kind];
+
+  const button = document.getElementById(
+    kind === "notices" ? "loadMoreNotices" : "loadMoreBlog"
+  );
+
+  if (!button || !state) return;
+
+  button.hidden =
+    !state.loaded || state.shown >= state.entries.length;
+
+  button.disabled = false;
+  button.textContent = "See More";
+}
+
+function renderFeedKind(kind) {
+  const state = feedState[kind];
+  if (!state || !state.loaded) return;
+
+  const emptyText = kind === "notices"
+    ? "No notices published yet."
+    : "No blog posts published yet.";
+
+  const homeTarget = kind === "notices"
+    ? "#recentNoticesList"
+    : "#recentBlogList";
+
+  const tabTarget = kind === "notices"
+    ? "#noticesList"
+    : "#blogList";
+
+  // Home page always displays only the latest four posts.
+  renderPosts(
+    homeTarget,
+    state.entries,
+    emptyText,
+    FEED_PAGE_SIZE
+  );
+
+  // The dedicated tab displays four posts initially, then four more per click.
+  renderPosts(
+    tabTarget,
+    state.entries,
+    emptyText,
+    state.shown
+  );
+
+  updateSeeMoreButton(kind);
+}
+
+async function loadFeed(kind, forceReload = false) {
   if (!Object.prototype.hasOwnProperty.call(FEEDS, kind)) {
+    return;
+  }
+
+  const state = feedState[kind];
+
+  if (state.loaded && !forceReload) {
+    renderFeedKind(kind);
     return;
   }
 
@@ -441,18 +492,23 @@ async function loadFeed(kind) {
     ? ["#recentNoticesList", "#noticesList"]
     : ["#recentBlogList", "#blogList"];
 
-  targets.forEach(sel => {
-    const el = $(sel);
-
+  targets.forEach(selector => {
+    const el = $(selector);
     if (!el) return;
 
     const p = document.createElement("p");
-
     p.className = "muted";
     p.textContent = "Loading…";
-
     el.replaceChildren(p);
   });
+
+  const button = document.getElementById(
+    kind === "notices" ? "loadMoreNotices" : "loadMoreBlog"
+  );
+
+  if (button) {
+    button.hidden = true;
+  }
 
   try {
     const res = await fetch(FEEDS[kind], {
@@ -471,41 +527,74 @@ async function loadFeed(kind) {
       throw new Error("Feed API returned an unreadable response.");
     }
 
-    if (!res.ok || data.ok !== true || !Array.isArray(data.entries)) {
+    if (
+      !res.ok ||
+      data.ok !== true ||
+      !Array.isArray(data.entries)
+    ) {
       throw new Error(data.error || "Feed could not be loaded.");
     }
 
-    const emptyText = kind === "notices"
-      ? "No notices published yet."
-      : "No blog posts published yet.";
+    state.entries = data.entries;
+    state.shown = FEED_PAGE_SIZE;
+    state.loaded = true;
 
-    targets.forEach(sel => {
-      renderPosts(sel, data.entries, emptyText);
-    });
+    renderFeedKind(kind);
 
   } catch (error) {
     const errorText = kind === "notices"
       ? "Notices could not be loaded. Please try again later."
       : "Blog posts could not be loaded. Please try again later.";
 
-    targets.forEach(sel => {
-      const el = $(sel);
-
+    targets.forEach(selector => {
+      const el = $(selector);
       if (!el) return;
 
       el.replaceChildren();
 
       const p = document.createElement("p");
-
       p.className = "muted";
       p.textContent = errorText;
 
       el.append(p);
     });
 
+    if (button) {
+      button.hidden = true;
+    }
+
     console.error(`Failed to load ${kind} feed:`, error);
   }
 }
+
+function loadMorePosts(kind) {
+  const state = feedState[kind];
+
+  if (
+    !state ||
+    !state.loaded ||
+    state.shown >= state.entries.length
+  ) {
+    return;
+  }
+
+  state.shown = Math.min(
+    state.shown + FEED_PAGE_SIZE,
+    state.entries.length
+  );
+
+  renderFeedKind(kind);
+}
+
+document.getElementById("loadMoreNotices")?.addEventListener(
+  "click",
+  () => loadMorePosts("notices")
+);
+
+document.getElementById("loadMoreBlog")?.addEventListener(
+  "click",
+  () => loadMorePosts("blog")
+);
 
 function memberPhoto(member) {
   return typeof member?.photoUrl === "string" &&
@@ -968,3 +1057,4 @@ document.getElementById("statementDownloadBtn")?.addEventListener("click", () =>
 
   window.print();
 });
+
