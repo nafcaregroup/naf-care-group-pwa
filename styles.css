@@ -709,3 +709,39 @@ footer {
     gap: 8px;
   }
 }
+
+
+
+
+/* Remove bottom navigation completely */
+.bottom-nav {
+  display: none !important;
+}
+
+/* Hide sidebar navigation until a member is authenticated */
+body:not(.member-authenticated) #appSidebar .side-nav,
+body:not(.member-authenticated) #appSidebar .sidebar-logout {
+  display: none !important;
+}
+
+/* Hide the menu button before login */
+body:not(.member-authenticated) #menuBtn {
+  visibility: hidden;
+}
+
+/* Hide private screens when logged out */
+body:not(.member-authenticated) #home,
+body:not(.member-authenticated) #members,
+body:not(.member-authenticated) #memberPanel,
+body:not(.member-authenticated) #memberDetailsPanel,
+body:not(.member-authenticated) #contributionInfo,
+body:not(.member-authenticated) #profilePanel,
+body:not(.member-authenticated) #settingsPanel {
+  display: none !important;
+}
+
+/* Keep the login screen centered */
+body:not(.member-authenticated) #loginPanel {
+  display: block;
+  margin: 20px auto;
+}
