@@ -126,6 +126,7 @@ function loggedOut(showMessage = false) {
   closeMenu();
   if (showMessage) message("Logged out", "You have been signed out.");
   else message("Member portal", "Sign in to view your own member information.");
+  $("#bottomNav")?.classList.add("hidden");
 }
 
 function detail(container, label, value) {
@@ -157,6 +158,24 @@ function renderProfile(member) {
 
   const profileName = $("#profileName");
   if (profileName) profileName.textContent = member.name || "Member";
+
+  const profilePhoto = $("#profileMemberPhoto");
+  const profileInitial = $("#profileMemberInitial");
+  const profileId = $("#profileMemberId");
+  const profileUrl = memberPhoto(member);
+  if (profilePhoto) {
+    profilePhoto.classList.toggle("hidden", !profileUrl);
+    profilePhoto.removeAttribute("src");
+    if (profileUrl) {
+      profilePhoto.src = profileUrl;
+      profilePhoto.onerror = () => { profilePhoto.classList.add("hidden"); if (profileInitial) profileInitial.classList.remove("hidden"); };
+    }
+  }
+  if (profileInitial) {
+    profileInitial.textContent = (member.name || "M").trim().charAt(0).toUpperCase();
+    profileInitial.classList.toggle("hidden", !!profileUrl);
+  }
+  if (profileId) profileId.textContent = "Member ID: " + (member.id || "—");
 
   const box = $("#profileDetails");
   if (box) {
@@ -256,7 +275,7 @@ async function loadFeed(kind) {
     const entries=data?.feed?.entry || [];
     targets.forEach(sel=>renderPosts(sel,entries,kind==="notices"?"No notices published yet.":"No blog posts published yet."));
   } catch {
-    targets.forEach(sel=>{const el=$(sel);if(el){el.replaceChildren();const p=document.createElement("p");p.className="muted";p.textContent=kind==="notices"?"Notices could not be loaded. Open the Notices tab or try Refresh.":"Blog posts could not be loaded. Open the Blog tab or try Refresh.";el.append(p);}});
+    targets.forEach(sel=>{const el=$(sel);if(el){el.replaceChildren();const p=document.createElement("p");p.className="muted";p.textContent=kind==="notices"?"Notices could not be loaded. Open the Notices tab or try Refresh.":"Posts could not be loaded. Check your internet connection and try opening this tab again.";el.append(p);}});
   }
 }
 function memberPhoto(member) { return typeof member?.photoUrl === "string" && /^https:\/\/.+/i.test(member.photoUrl) ? member.photoUrl : ""; }
@@ -324,6 +343,7 @@ async function loadData() {
     renderPayments(paymentData.payments, paymentData);
 
     document.body.classList.add("member-authenticated");
+    $("#bottomNav")?.classList.remove("hidden");
     loginPanel?.classList.add("hidden");
     $("#logoutBtn")?.classList.remove("hidden");
     $("#sidebarLogoutBtn")?.classList.remove("hidden");
@@ -393,10 +413,7 @@ $("#logoutBtn")?.addEventListener("click", logout);
 $("#sidebarLogoutBtn")?.addEventListener("click", logout);
 $("#profileLogoutBtn")?.addEventListener("click", logout);
 
-$("#refreshBtn")?.addEventListener("click", () => {
-  if (session()) loadData();
-  else message("Please log in", "There is no active member session.");
-});
+
 
 /* Sidebar drawer */
 const sidebar = document.getElementById("appSidebar");
@@ -476,3 +493,12 @@ document.querySelectorAll('[data-nav]').forEach(link => link.addEventListener('c
 document.querySelectorAll('a[href="#noticesPanel"]').forEach(a=>a.addEventListener('click',()=>loadFeed("notices")));
 document.querySelectorAll('a[href="#blogPanel"]').forEach(a=>a.addEventListener('click',()=>loadFeed("blog")));
 if(window.lucide) window.lucide.createIcons();
+
+// Statement PDF: opens the browser print dialog; choose "Save as PDF".
+document.getElementById("statementDownloadBtn")?.addEventListener("click", () => {
+  if (!session()) {
+    message("Please log in", "Log in before downloading your statement.", true);
+    return;
+  }
+  window.print();
+});
