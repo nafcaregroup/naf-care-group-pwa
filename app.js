@@ -66,7 +66,8 @@ async function request(url, options = {}) {
   try {
     data = await response.json();
   } catch {
-    throw new Error("Server returned an unreadable response.");
+    if (!response.ok) throw new Error(`Server request failed (${response.status}). Check the API endpoint and Cloudflare logs.`);
+    throw new Error("Server returned an unreadable response. The API must return JSON.");
   }
 
   if (!response.ok || data.ok !== true) {
@@ -109,6 +110,7 @@ function showScreen(screenId, updateUrl = true) {
 }
 
 function loggedOut(showMessage = false) {
+  document.body.classList.remove("member-authenticated");
   sessionStorage.removeItem(KEY);
   loginPanel?.classList.remove("hidden");
   memberPanel?.classList.add("hidden");
@@ -218,8 +220,8 @@ function renderPayments(rows, result) {
 
 
 const FEEDS = {
-  notices: "https://nafcaregroup.blogspot.com/feeds/posts/default/-/Notice?alt=json",
-  blog: "https://nafcaregroup.blogspot.com/feeds/posts/default/-/Blog?alt=json"
+  notices: "https://nafcaregroup.blogspot.com/feeds/posts/default/-/Notice",
+  blog: "https://nafcaregroup.blogspot.com/feeds/posts/default/-/Blog"
 };
 function safeText(entry, key) {
   const v = entry?.[key];
@@ -321,6 +323,7 @@ async function loadData() {
     renderMemberIdentity(memberData.member);
     renderPayments(paymentData.payments, paymentData);
 
+    document.body.classList.add("member-authenticated");
     loginPanel?.classList.add("hidden");
     $("#logoutBtn")?.classList.remove("hidden");
     $("#sidebarLogoutBtn")?.classList.remove("hidden");
@@ -333,6 +336,8 @@ async function loadData() {
   } catch (error) {
     loggedOut();
     message("Unable to load account", error.message || "Please try again.", true);
+    const loginError = document.getElementById("loginError");
+    if (loginError) { loginError.textContent = error.message || "Please try again."; loginError.classList.remove("hidden"); }
   }
 }
 
@@ -355,9 +360,13 @@ if (loginForm) {
 
       if (!data.sessionId) throw new Error("No session returned by the server.");
       sessionStorage.setItem(KEY, data.sessionId);
+      const loginError = document.getElementById("loginError");
+      if (loginError) { loginError.textContent = ""; loginError.classList.add("hidden"); }
       await loadData();
     } catch (error) {
       message("Login failed", error.message || "Please check your details.", true);
+      const loginError = document.getElementById("loginError");
+      if (loginError) { loginError.textContent = error.message || "Please check your details."; loginError.classList.remove("hidden"); }
     } finally {
       loginBtn.disabled = false;
       loginBtn.textContent = "Log in";
@@ -388,88 +397,6 @@ $("#refreshBtn")?.addEventListener("click", () => {
   if (session()) loadData();
   else message("Please log in", "There is no active member session.");
 });
-
-/* Public notices and blog posts */
-async function loadPublicPosts(action, containerId) {
-  const container = document.getElementById(containerId);
-  if (!container) return;
-
-  container.replaceChildren();
-  const loading = document.createElement("p");
-  loading.className = "muted";
-  loading.textContent = "Loading posts...";
-  container.append(loading);
-
-  try {
-    const url = new URL("https://script.google.com/macros/s/AKfycby_KG4rhiHL5TRPtlOlEQ8h-2hlWHMpTgy5pEmtik0ZqD863DXt74vPQyfVh1BycM0mLg/exec");
-    url.searchParams.set("action", action);
-    const response = await fetch(url.toString(), { cache: "no-store", redirect: "follow" });
-    if (!response.ok) throw new Error("Unable to load posts.");
-
-    const data = await response.json();
-    if (!data || data.ok === false) throw new Error("Posts are temporarily unavailable.");
-    const posts = Array.isArray(data) ? data : Array.isArray(data.posts) ? data.posts : Array.isArray(data.items) ? data.items : [];
-
-    container.replaceChildren();
-    if (!posts.length) {
-      const empty = document.createElement("p");
-      empty.className = "muted";
-      empty.textContent = "No posts available right now.";
-      container.append(empty);
-      return;
-    }
-
-    posts.slice(0, 5).forEach(post => {
-      const article = document.createElement("article");
-      article.className = "update-item";
-      const title = document.createElement("h3");
-      title.textContent = post.title || post.name || "Untitled post";
-      article.append(title);
-
-      const dateValue = post.published || post.date || post.publishedDate;
-      if (dateValue) {
-        const date = document.createElement("p");
-        date.className = "muted";
-        date.textContent = dateValue;
-        article.append(date);
-      }
-
-      const summary = document.createElement("p");
-      summary.textContent = post.summary || post.snippet || post.content || "";
-      article.append(summary);
-
-      const imageUrl = post.thumbnail || post.image || post.imageUrl || post.featuredImage;
-      if (imageUrl && /^https:\/\//i.test(imageUrl)) {
-        const image = document.createElement("img");
-        image.src = imageUrl;
-        image.alt = post.title || "Post image";
-        image.loading = "lazy";
-        image.className = "post-thumbnail";
-        article.prepend(image);
-      }
-
-      const postUrl = post.url || post.link;
-      if (postUrl && /^https:\/\//i.test(postUrl)) {
-        const link = document.createElement("a");
-        link.href = postUrl;
-        link.target = "_blank";
-        link.rel = "noopener noreferrer";
-        link.textContent = "Read more ↗";
-        article.append(link);
-      }
-      container.append(article);
-    });
-  } catch (_) {
-    container.replaceChildren();
-    const errorText = document.createElement("p");
-    errorText.className = "muted";
-    errorText.textContent = "Posts could not be loaded. Please try again later.";
-    container.append(errorText);
-  }
-}
-
-loadPublicPosts("notices", "noticesList");
-loadPublicPosts("blog", "blogList");
 
 /* Sidebar drawer */
 const sidebar = document.getElementById("appSidebar");
