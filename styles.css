@@ -143,3 +143,8 @@ body:has(#loginPanel:not(.hidden)) {
   margin-top: 30px;
   margin-bottom: 0;
 }
+
+
+.stat-card.red strong {
+  color: #ff7777 !important;
+}
