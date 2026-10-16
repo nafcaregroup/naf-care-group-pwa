@@ -1,7 +1,14 @@
-
-export async function onRequestPost({ request, env }) {
+export async function onRequest({ request, env }) {
   try {
-    // 1. Check login session
+    // 1. Allow only GET or POST
+    if (!["GET", "POST"].includes(request.method)) {
+      return Response.json(
+        { ok: false, error: "Method not allowed." },
+        { status: 405 }
+      );
+    }
+
+    // 2. Check login session
     const sessionId = request.headers.get("X-Session-ID");
 
     if (!sessionId) {
@@ -11,13 +18,22 @@ export async function onRequestPost({ request, env }) {
       );
     }
 
-    if (!env.DB || !env.APPS_SCRIPT_URL || !env.APPS_SCRIPT_SECRET) {
+    // 3. Check server configuration
+    if (
+      !env.DB ||
+      !env.APPS_SCRIPT_URL ||
+      !env.APPS_SCRIPT_SECRET
+    ) {
       return Response.json(
-        { ok: false, error: "Server configuration is incomplete." },
+        {
+          ok: false,
+          error: "Server configuration is incomplete."
+        },
         { status: 500 }
       );
     }
 
+    // 4. Verify session
     const session = await env.DB
       .prepare(
         "SELECT member_id, expires_at FROM sessions WHERE id = ?"
@@ -30,12 +46,15 @@ export async function onRequestPost({ request, env }) {
       Number(session.expires_at) <= Date.now()
     ) {
       return Response.json(
-        { ok: false, error: "Session expired. Please log in again." },
+        {
+          ok: false,
+          error: "Session expired. Please log in again."
+        },
         { status: 401 }
       );
     }
 
-    // 2. Request the protected Apps Script endpoint
+    // 5. Request member data from Google Apps Script
     const upstream = await fetch(env.APPS_SCRIPT_URL, {
       method: "POST",
       headers: {
@@ -47,23 +66,49 @@ export async function onRequestPost({ request, env }) {
       })
     });
 
+    const responseText = await upstream.text();
+
     if (!upstream.ok) {
       return Response.json(
-        { ok: false, error: "Member service is temporarily unavailable." },
+        {
+          ok: false,
+          error: `Member service returned HTTP ${upstream.status}.`
+        },
         { status: 502 }
       );
     }
 
-    const data = await upstream.json();
+    // 6. Confirm that Apps Script returned JSON
+    let data;
 
-    if (data.ok !== true || !Array.isArray(data.members)) {
+    try {
+      data = JSON.parse(responseText);
+    } catch {
       return Response.json(
-        { ok: false, error: "Could not load the member list." },
+        {
+          ok: false,
+          error:
+            "Apps Script returned non-JSON data. Check the Web App URL and deployment access."
+        },
         { status: 502 }
       );
     }
 
-    // 3. Return only public directory fields
+    if (
+      data.ok !== true ||
+      !Array.isArray(data.members)
+    ) {
+      return Response.json(
+        {
+          ok: false,
+          error:
+            data.error || "Could not load the member list."
+        },
+        { status: 502 }
+      );
+    }
+
+    // 7. Return directory information only
     const members = data.members.map(member => ({
       id: String(member.id || ""),
       name: String(member.name || ""),
@@ -72,14 +117,24 @@ export async function onRequestPost({ request, env }) {
       photoUrl: String(member.photoUrl || "")
     }));
 
-    return Response.json({
-      ok: true,
-      members
-    });
+    return Response.json(
+      {
+        ok: true,
+        members
+      },
+      {
+        headers: {
+          "Cache-Control": "no-store"
+        }
+      }
+    );
 
   } catch (error) {
     return Response.json(
-      { ok: false, error: "Unable to load members right now." },
+      {
+        ok: false,
+        error: "Unable to load members right now."
+      },
       { status: 500 }
     );
   }
