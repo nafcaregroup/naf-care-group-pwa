@@ -986,3 +986,31 @@ body:not(.member-authenticated) #loginPanel .landscape svg {
   }
 }
 
+
+/* Remove website header before login */
+body:not(.member-authenticated) .topbar {
+  display: none !important;
+}
+
+/* Remove login notice and sidebar */
+body:not(.member-authenticated) #notice,
+body:not(.member-authenticated) #appSidebar,
+body:not(.member-authenticated) #drawerBackdrop {
+  display: none !important;
+}
+
+/* Center the login screen */
+body:not(.member-authenticated) .app-layout {
+  display: block;
+  min-height: 100vh;
+}
+
+body:not(.member-authenticated) .container {
+  width: 100%;
+  max-width: 100%;
+  padding: 20px 16px;
+}
+
+body:not(.member-authenticated) #loginPanel {
+  margin: 0 auto;
+}
