@@ -495,6 +495,100 @@ function renderPosts(target, entries, emptyText, limit = FEED_PAGE_SIZE) {
   });
 }
 
+function sanitizePostHtml(rawHtml) {
+  const doc = new DOMParser().parseFromString(rawHtml || "", "text/html");
+  doc.querySelectorAll("script, style, iframe, object, embed").forEach(el => el.remove());
+  doc.querySelectorAll("*").forEach(el => {
+    el.removeAttribute("style");
+    el.removeAttribute("class");
+    [...el.attributes].forEach(attr => {
+      if (attr.name.startsWith("on")) el.removeAttribute(attr.name);
+    });
+  });
+  return doc.body.innerHTML;
+}
+
+function openPostReader(entry, categoryLabel = "UPDATE") {
+  const modal = document.getElementById("postReaderModal");
+  const titleEl = document.getElementById("readerTitle");
+  const dateEl = document.getElementById("readerDate");
+  const catEl = document.getElementById("readerCategory");
+  const bodyEl = document.getElementById("readerBody");
+  const extLink = document.getElementById("readerExternalLink");
+
+  if (!modal || !bodyEl) {
+    window.open(postLink(entry), "_blank", "noopener,noreferrer");
+    return;
+  }
+
+  if (catEl) catEl.textContent = categoryLabel;
+  if (titleEl) titleEl.textContent = postTitle(entry);
+  if (dateEl) dateEl.textContent = postDate(entry);
+  if (extLink) extLink.href = postLink(entry);
+
+  const rawContent = entry?.content?.$t || entry?.summary?.$t || "<p>No content available.</p>";
+  bodyEl.innerHTML = sanitizePostHtml(rawContent);
+  bodyEl.scrollTop = 0;
+
+  modal.classList.remove("hidden");
+  document.body.style.overflow = "hidden";
+}
+
+function closePostReader() {
+  const modal = document.getElementById("postReaderModal");
+  if (!modal) return;
+  modal.classList.add("hidden");
+  document.body.style.overflow = "";
+}
+
+document.getElementById("closeReaderBtn")?.addEventListener("click", closePostReader);
+document.getElementById("closeReaderFooterBtn")?.addEventListener("click", closePostReader);
+document.getElementById("readerBackdrop")?.addEventListener("click", closePostReader);
+document.addEventListener("keydown", event => {
+  if (event.key === "Escape") closePostReader();
+});
+
+function renderPosts(target, entries, emptyText, limit = FEED_PAGE_SIZE) {
+  const el = $(target);
+  if (!el) return;
+
+  el.replaceChildren();
+
+  if (!entries.length) {
+    const p = document.createElement("p");
+    p.className = "muted";
+    p.textContent = emptyText;
+    el.append(p);
+    return;
+  }
+
+  const categoryLabel = target.toLowerCase().includes("notice") ? "NOTICE" : "BLOG";
+
+  entries.slice(0, limit).forEach(entry => {
+    const a = document.createElement("a");
+    a.className = "update-item";
+    a.href = postLink(entry);
+
+    a.addEventListener("click", event => {
+      event.preventDefault();
+      openPostReader(entry, categoryLabel);
+    });
+
+    const title = document.createElement("strong");
+    title.textContent = postTitle(entry);
+
+    const meta = document.createElement("small");
+    meta.textContent = postDate(entry);
+
+    a.append(title, meta);
+    el.append(a);
+  });
+}
+
+
+
+
+
 function updateSeeMoreButton(kind) {
   const state = feedState[kind];
 
