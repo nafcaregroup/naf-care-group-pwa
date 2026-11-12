@@ -745,3 +745,46 @@ body:has(#loginPanel:not(.hidden)) {
     text-decoration: none !important;
   }
 }
+
+
+
+
+
+/* FIX: Remove black background from PDF */
+@media print {
+
+  @page {
+    size: A4 portrait;
+    margin: 10mm;
+  }
+
+  html,
+  body,
+  #app,
+  .app-shell,
+  .app-page,
+  #memberPanel {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    color: #222222 !important;
+  }
+
+  html,
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+    min-height: 0 !important;
+  }
+
+  #memberPanel {
+    width: 100% !important;
+    min-height: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  .statement-print-header,
+  .statement-print-summary {
+    background: #ffffff !important;
+  }
+}
