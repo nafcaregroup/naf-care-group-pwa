@@ -1135,7 +1135,6 @@ if (window.lucide) {
 // NAF CARE GROUP - BROWSER PRINT STATEMENT
 // ========================================
 
-// Uses the browser's native print engine. No html2pdf, eval, or unsafe-eval.
 document.getElementById("statementDownloadBtn")
   ?.addEventListener("click", function () {
     if (!session()) {
@@ -1147,7 +1146,13 @@ document.getElementById("statementDownloadBtn")
       return;
     }
 
-    // Ensure the member profile is the active view before opening print.
-    // The print stylesheet controls which parts of the page are printed.
+    const originalTitle = document.title;
+    const memberId = document.getElementById("statementMemberId")?.textContent?.trim() || "Member";
+    document.title = `${memberId}_Financial_Statement`;
+
     window.print();
+
+    setTimeout(() => {
+      document.title = originalTitle;
+    }, 1000);
   });
