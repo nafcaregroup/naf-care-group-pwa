@@ -148,3 +148,299 @@ body:has(#loginPanel:not(.hidden)) {
 .stat-card.red strong {
   color: #ff7777 !important;
 }
+
+
+
+/* ========================================
+   NAF CARE GROUP - PROFESSIONAL PDF DESIGN
+   ======================================== */
+
+.pdf-statement {
+  position: absolute;
+  left: -10000px;
+  top: 0;
+  width: 794px;
+  padding: 42px;
+  background: #ffffff;
+  color: #18362e;
+  font-family: Arial, "Noto Sans Bengali", sans-serif;
+  font-size: 12px;
+  line-height: 1.5;
+  box-sizing: border-box;
+}
+
+.pdf-statement * {
+  box-sizing: border-box;
+}
+
+/* HEADER */
+
+.pdf-brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-bottom: 20px;
+  border-bottom: 4px solid #08784a;
+}
+
+.pdf-brand img {
+  width: 65px;
+  height: 65px;
+  object-fit: contain;
+}
+
+.pdf-brand h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 800;
+  color: #07583d;
+  letter-spacing: .5px;
+}
+
+.pdf-brand p {
+  margin: 3px 0 0;
+  color: #71847d;
+  font-size: 12px;
+}
+
+/* DOCUMENT TITLE */
+
+.pdf-heading {
+  text-align: center;
+  padding: 22px 0;
+}
+
+.pdf-heading h2 {
+  margin: 0;
+  color: #07583d;
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.pdf-heading p {
+  color: #71847d;
+  margin: 6px 0 0;
+  font-size: 11px;
+}
+
+/* SECTION */
+
+.pdf-section {
+  margin-bottom: 23px;
+  break-inside: auto;
+}
+
+.pdf-section h3 {
+  color: #07583d;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: .7px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #dce9e2;
+  margin: 0 0 12px;
+}
+
+/* MEMBER DETAILS */
+
+.pdf-details-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0 22px;
+}
+
+.pdf-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 9px 5px;
+  border-bottom: 1px solid #e6eee9;
+  break-inside: avoid;
+}
+
+.pdf-detail span {
+  color: #71847d;
+  font-size: 10px;
+}
+
+.pdf-detail strong {
+  color: #18362e;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+/* SUMMARY CARDS */
+
+.pdf-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  margin: 15px 0;
+}
+
+.pdf-summary-card {
+  padding: 19px;
+  border-radius: 10px;
+  background: #eaf5ed;
+  border: 1px solid #d3e8d9;
+  border-left: 5px solid #08784a;
+  break-inside: avoid;
+}
+
+.pdf-summary-card.due {
+  background: #fff5e7;
+  border-color: #f0dfc3;
+  border-left-color: #c47a16;
+}
+
+.pdf-summary-card span {
+  display: block;
+  color: #71847d;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.pdf-summary-card strong {
+  display: block;
+  color: #08784a;
+  font-size: 25px;
+  margin: 7px 0;
+  overflow-wrap: anywhere;
+}
+
+.pdf-summary-card.due strong {
+  color: #a65c0a;
+}
+
+.pdf-summary-card small {
+  color: #71847d;
+  font-size: 10px;
+}
+
+/* FINANCIAL BREAKDOWN */
+
+.pdf-breakdown {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0 20px;
+  border: 1px solid #e1ebe4;
+  border-radius: 8px;
+  padding: 10px 15px;
+}
+
+.pdf-breakdown div {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid #e8eee9;
+}
+
+.pdf-breakdown span {
+  color: #71847d;
+  font-size: 10px;
+}
+
+.pdf-breakdown strong {
+  color: #18362e;
+  font-size: 11px;
+}
+
+/* PAYMENT HISTORY */
+
+.pdf-payment-note {
+  color: #71847d;
+  font-size: 10px;
+  margin: 0 0 10px;
+}
+
+.pdf-payment-table {
+  width: 100%;
+  min-width: 0 !important;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 10px;
+}
+
+.pdf-payment-table th {
+  padding: 11px 7px;
+  background: #07583d;
+  color: #ffffff;
+  text-align: left;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .3px;
+}
+
+.pdf-payment-table td {
+  padding: 10px 7px;
+  color: #18362e;
+  border-bottom: 1px solid #e1ebe4;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.pdf-payment-table tbody tr:nth-child(even) {
+  background: #f4f8f5;
+}
+
+.pdf-payment-table th:first-child,
+.pdf-payment-table td:first-child {
+  width: 25%;
+}
+
+.pdf-payment-table th:last-child,
+.pdf-payment-table td:last-child {
+  width: 17%;
+}
+
+.pdf-payment-table tr {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.pdf-payment-table thead {
+  display: table-header-group;
+}
+
+.pdf-status {
+  color: #08784a;
+  font-weight: 700;
+}
+
+.pdf-empty {
+  text-align: center;
+  color: #71847d !important;
+  padding: 20px !important;
+}
+
+/* FOOTER */
+
+.pdf-footer {
+  margin-top: 25px;
+  padding-top: 15px;
+  border-top: 2px solid #08784a;
+  text-align: center;
+  break-inside: avoid;
+}
+
+.pdf-footer strong {
+  color: #07583d;
+  font-size: 13px;
+  letter-spacing: 1px;
+}
+
+.pdf-footer p {
+  color: #71847d;
+  font-size: 10px;
+  margin: 5px 0;
+}
+
+.pdf-footer span {
+  color: #9aaba3;
+  font-size: 9px;
+}
+
+
+
