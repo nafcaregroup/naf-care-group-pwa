@@ -156,9 +156,11 @@ body:has(#loginPanel:not(.hidden)) {
    ======================================== */
 
 .pdf-statement {
-  position: absolute;
-  left: -10000px;
+  position: fixed;
+  left: 0;
   top: 0;
+  z-index: 999999;
+  pointer-events: none;
   width: 794px;
   padding: 42px;
   background: #ffffff;
