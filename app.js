@@ -275,6 +275,31 @@ if (totalDue) {
   totalDue.textContent = cash(total);
 }
 
+  // Keep the print statement summary synchronized with the member data.
+  const statementTotalDeposit =
+    Number(member.capitalPaid || 0) + Number(member.monthlyPaid || 0);
+  const statementTotalDue =
+    Number(member.capitalDue || 0) + Number(member.monthlyDue || 0);
+
+  const statementValues = {
+    statementMemberName: member.name || "Member",
+    statementMemberId: member.id || "—",
+    statementDate: new Date().toLocaleDateString("en-GB", {
+      day: "2-digit", month: "long", year: "numeric"
+    }),
+    statementCapitalPaid: cash(member.capitalPaid),
+    statementCapitalDue: cash(member.capitalDue),
+    statementMonthlyPaid: cash(member.monthlyPaid),
+    statementMonthlyDue: cash(member.monthlyDue),
+    statementTotalDeposit: cash(statementTotalDeposit),
+    statementTotalDue: cash(statementTotalDue)
+  };
+
+  Object.entries(statementValues).forEach(([id, value]) => {
+    const element = document.getElementById(id);
+    if (element) element.textContent = value;
+  });
+
   const profileName = $("#profileName");
 
   if (profileName) {
@@ -352,6 +377,18 @@ function renderPayments(rows, result) {
       `Monthly paid: ${cash(result.monthlyPaid)} · ` +
       `Monthly due: ${cash(result.monthlyDue)} · ` +
       `Months with due: ${result.monthsDue ?? 0}`;
+  }
+
+  // The backend rows are displayed newest-first below.
+  const latestPayment = Array.isArray(rows) && rows.length
+    ? rows[rows.length - 1]
+    : null;
+  const latestMonthElement = document.getElementById("statementLatestMonth");
+
+  if (latestMonthElement) {
+    latestMonthElement.textContent = latestPayment
+      ? `${latestPayment.monthName || latestPayment.month || ""} ${latestPayment.year || ""}`.trim()
+      : "No payment record";
   }
 
   if (!body) return;
@@ -1095,221 +1132,12 @@ if (window.lucide) {
 
 
 // ========================================
-// NAF CARE GROUP - PROFESSIONAL PDF STATEMENT
+// NAF CARE GROUP - BROWSER PRINT STATEMENT
 // ========================================
 
-function pdfEscape(value) {
-  return String(value == null || value === "" ? "—" : value)
-    .replace(/[&<>"']/g, char => ({
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      '"': "&quot;",
-      "'": "&#39;"
-    })[char]);
-}
-
-function pdfFilenamePart(value) {
-  return String(value || "")
-    .normalize("NFKC")
-    .replace(/[\\/:*?"<>|]+/g, "")
-    .replace(/\s+/g, "_")
-    .replace(/_+/g, "_")
-    .replace(/^_|_$/g, "")
-    .replace(/[. ]+$/g, "")
-    .slice(0, 60) || "Member";
-}
-
-function buildPdfStatement(member, paymentData) {
-
-  const totalDeposit =
-    Number(member.capitalPaid || 0) +
-    Number(member.monthlyPaid || 0);
-
-  const totalDue =
-    Number(member.capitalDue || 0) +
-    Number(member.monthlyDue || 0);
-
-  const generatedDate = new Date().toLocaleDateString(
-    "en-GB",
-    {
-      day: "2-digit",
-      month: "long",
-      year: "numeric"
-    }
-  );
-
-  // Member information
-  const memberDetails = [
-    ["Member ID", member.id],
-    ["Full Name", member.name],
-    ["Email", member.email],
-    ["Phone", member.phone],
-    ["Ward / Area", member.area],
-    ["Membership Status", member.status],
-    ["Capital Required", cash(member.capitalRequired)],
-    ["Capital Paid", cash(member.capitalPaid)],
-    ["Capital Due", cash(member.capitalDue)],
-    ["Monthly Contribution", cash(member.monthlyContribution)],
-    ["Monthly Paid", cash(member.monthlyPaid)],
-    ["Months with Due", member.monthsDue]
-  ];
-
-  const detailsHtml = memberDetails.map(([label, value]) => `
-    <div class="pdf-detail">
-      <span>${pdfEscape(label)}</span>
-      <strong>${pdfEscape(value)}</strong>
-    </div>
-  `).join("");
-
-  // Get the latest payment history returned by the backend.
-  const payments = Array.isArray(paymentData.payments)
-    ? paymentData.payments.slice().reverse()
-    : [];
-
-  const paymentRows = payments.length
-    ? payments.map(payment => `
-        <tr>
-          <td>
-            ${pdfEscape(
-              `${payment.monthName || payment.month || ""} ${payment.year || ""}`.trim()
-            )}
-          </td>
-          <td>${pdfEscape(cash(payment.required))}</td>
-          <td>${pdfEscape(cash(payment.paid))}</td>
-          <td>${pdfEscape(cash(payment.due))}</td>
-          <td>
-            <span class="pdf-status">
-              ${pdfEscape(payment.status || "—")}
-            </span>
-          </td>
-        </tr>
-      `).join("")
-    : `
-        <tr>
-          <td colspan="5" class="pdf-empty">
-            No payment history available.
-          </td>
-        </tr>
-      `;
-
-  const statement = document.createElement("div");
-
-  statement.className = "pdf-statement";
-
-  statement.innerHTML = `
-    <div class="pdf-brand">
-      <img
-        src="https://nafcare.github.io/nafcare.png"
-        crossorigin="anonymous"
-        alt="NAF CARE GROUP"
-      >
-
-      <div>
-        <h1>NAF CARE GROUP</h1>
-        <p>Together for a Better Tomorrow</p>
-      </div>
-    </div>
-
-    <div class="pdf-heading">
-      <h2>MEMBER FINANCIAL STATEMENT</h2>
-      <p>Statement generated on ${pdfEscape(generatedDate)}</p>
-    </div>
-
-    <section class="pdf-section">
-      <h3>MEMBER INFORMATION</h3>
-      <div class="pdf-details-grid">
-        ${detailsHtml}
-      </div>
-    </section>
-
-    <section class="pdf-section">
-      <h3>FINANCIAL SUMMARY</h3>
-
-      <div class="pdf-summary-grid">
-
-        <div class="pdf-summary-card deposit">
-          <span>TOTAL DEPOSIT</span>
-          <strong>${pdfEscape(cash(totalDeposit))}</strong>
-          <small>Capital Paid + Monthly Paid</small>
-        </div>
-
-        <div class="pdf-summary-card due">
-          <span>TOTAL DUE</span>
-          <strong>${pdfEscape(cash(totalDue))}</strong>
-          <small>Capital Due + Monthly Due</small>
-        </div>
-
-      </div>
-
-      <div class="pdf-breakdown">
-
-        <div>
-          <span>Capital Paid</span>
-          <strong>${pdfEscape(cash(member.capitalPaid))}</strong>
-        </div>
-
-        <div>
-          <span>Monthly Paid</span>
-          <strong>${pdfEscape(cash(member.monthlyPaid))}</strong>
-        </div>
-
-        <div>
-          <span>Capital Due</span>
-          <strong>${pdfEscape(cash(member.capitalDue))}</strong>
-        </div>
-
-        <div>
-          <span>Monthly Due</span>
-          <strong>${pdfEscape(cash(member.monthlyDue))}</strong>
-        </div>
-
-      </div>
-    </section>
-
-    <section class="pdf-section pdf-payment-section">
-      <h3>COMPLETE PAYMENT HISTORY</h3>
-
-      <p class="pdf-payment-note">
-        Payment records available up to the latest month
-        returned by the system.
-      </p>
-
-      <table class="pdf-payment-table">
-        <thead>
-          <tr>
-            <th>Month</th>
-            <th>Required</th>
-            <th>Paid</th>
-            <th>Due</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          ${paymentRows}
-        </tbody>
-      </table>
-    </section>
-
-    <div class="pdf-footer">
-      <strong>NAF CARE GROUP</strong>
-      <p>
-        This is a computer-generated financial statement.
-        No physical signature is required.
-      </p>
-      <span>Supporting each other through unity and financial discipline.</span>
-    </div>
-  `;
-
-  return statement;
-}
-
-
-// Download button
+// Uses the browser's native print engine. No html2pdf, eval, or unsafe-eval.
 document.getElementById("statementDownloadBtn")
-  ?.addEventListener("click", async function () {
-
+  ?.addEventListener("click", function () {
     if (!session()) {
       message(
         "Please log in",
@@ -1319,115 +1147,7 @@ document.getElementById("statementDownloadBtn")
       return;
     }
 
-    if (typeof window.html2pdf !== "function") {
-      message(
-        "PDF library unavailable",
-        "Please refresh the app and try again.",
-        true
-      );
-      return;
-    }
-
-    const button = this;
-
-    if (button.disabled) return;
-
-    button.disabled = true;
-    let statement = null;
-
-    try {
-
-      // Fetch fresh data without changing the visible app window.
-      const [memberData, paymentData] = await Promise.all([
-        request(API.member, {
-          headers: headers()
-        }),
-
-        request(API.payments, {
-          headers: headers()
-        })
-      ]);
-
-      if (!memberData.member) {
-        throw new Error("Member information is unavailable.");
-      }
-
-      const member = memberData.member;
-
-      // Create the separate PDF layout.
-      statement = buildPdfStatement(member, paymentData);
-
-      document.body.appendChild(statement);
-
-      // Wait for the logo to load before generating the PDF.
-      await Promise.all(
-        [...statement.querySelectorAll("img")].map(img =>
-          img.decode().catch(() => {})
-        )
-      );
-
-      // Automatic filename.
-      const memberName = pdfFilenamePart(member.name);
-      const memberId = pdfFilenamePart(member.id);
-
-      const filename =
-        `NAF_CARE_GROUP_Statement_${memberName}_${memberId}.pdf`;
-
-      // Generate and download PDF.
-      const options = {
-        margin: [8, 8, 8, 8],
-
-        filename: filename,
-
-        image: {
-          type: "jpeg",
-          quality: 0.98
-        },
-
-        html2canvas: {
-          scale: 2,
-          useCORS: true,
-          allowTaint: false,
-          backgroundColor: "#ffffff",
-          scrollX: 0,
-          scrollY: 0,
-          windowWidth: 794
-        },
-
-        jsPDF: {
-          unit: "mm",
-          format: "a4",
-          orientation: "portrait"
-        },
-
-        pagebreak: {
-          mode: ["css", "legacy"]
-        }
-      };
-
-      await window.html2pdf()
-        .set(options)
-        .from(statement)
-        .save();
-
-    } catch (error) {
-
-      console.error("Statement PDF error:", error);
-
-      message(
-        "PDF download failed",
-        error.message || "Please try again.",
-        true
-      );
-
-    } finally {
-
-      if (statement) {
-        statement.remove();
-      }
-
-      button.disabled = false;
-    }
+    // Ensure the member profile is the active view before opening print.
+    // The print stylesheet controls which parts of the page are printed.
+    window.print();
   });
-
-
