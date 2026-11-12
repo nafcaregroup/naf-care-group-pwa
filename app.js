@@ -253,6 +253,28 @@ if (monthlyPaid) {
     monthlyDue.textContent = cash(member.monthlyDue);
   }
 
+  // Calculate Total Deposit
+const totalDeposit = $("#totalDeposit");
+
+if (totalDeposit) {
+  const total =
+    Number(member.capitalPaid || 0) +
+    Number(member.monthlyPaid || 0);
+
+  totalDeposit.textContent = cash(total);
+}
+
+// Calculate Total Due
+const totalDue = $("#totalDue");
+
+if (totalDue) {
+  const total =
+    Number(member.capitalDue || 0) +
+    Number(member.monthlyDue || 0);
+
+  totalDue.textContent = cash(total);
+}
+
   const profileName = $("#profileName");
 
   if (profileName) {
