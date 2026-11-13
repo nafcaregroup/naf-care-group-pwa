@@ -918,6 +918,7 @@ function openMemberQuickModal(member) {
 
   if (areaEl) areaEl.textContent = member.area || "—";
 
+  // এখানে বড়হাতের 'Phone' কলামের ডেটা ধরার জন্য member.Phone যোগ করা হয়েছে
   const rawPhone = String(
     member.phone || 
     member.Phone || 
