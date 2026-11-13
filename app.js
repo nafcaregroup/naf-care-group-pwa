@@ -323,9 +323,17 @@ function renderProfile(member) {
     profilePhoto.removeAttribute("src");
 
     if (profileUrl) {
+      profilePhoto.crossOrigin = "anonymous";
+      profilePhoto.referrerPolicy = "no-referrer";
       profilePhoto.src = profileUrl;
 
       profilePhoto.onerror = () => {
+        // Retry without crossOrigin if the image host blocks CORS headers
+        if (profilePhoto.hasAttribute("crossorigin")) {
+          profilePhoto.removeAttribute("crossorigin");
+          profilePhoto.src = profileUrl;
+          return;
+        }
         profilePhoto.classList.add("hidden");
 
         if (profileInitial) {
@@ -378,6 +386,20 @@ function renderProfile(member) {
       colorDark: "#000000",
       colorLight: "#ffffff",
       correctLevel: window.QRCode.CorrectLevel.M
+    });
+  }
+
+  // Real Scannable Barcode encoding the Member ID
+  const barcodeEl = document.getElementById("memberBarcode");
+  if (barcodeEl && window.JsBarcode && member.id) {
+    window.JsBarcode(barcodeEl, String(member.id).trim(), {
+      format: "CODE128",
+      lineColor: "#0d1f1c",
+      background: "#ffffff",
+      width: 1.8,
+      height: 28,
+      displayValue: false,
+      margin: 0
     });
   }
 
@@ -1271,7 +1293,51 @@ document.getElementById("downloadIdCardBtn")?.addEventListener("click", async fu
       useCORS: true,
       allowTaint: true,
       backgroundColor: "#f5f9f8",
-      logging: false
+      logging: false,
+      onclone: (clonedDoc) => {
+        const origImg = document.getElementById("profileMemberPhoto");
+        const clonedImg = clonedDoc.getElementById("profileMemberPhoto");
+
+        if (origImg && clonedImg && !origImg.classList.contains("hidden") && origImg.naturalWidth > 0) {
+          const boxW = origImg.clientWidth || 90;
+          const boxH = origImg.clientHeight || 110;
+          const targetRatio = boxW / boxH;
+          const imgRatio = origImg.naturalWidth / origImg.naturalHeight;
+
+          let sx = 0, sy = 0, sWidth = origImg.naturalWidth, sHeight = origImg.naturalHeight;
+          if (imgRatio > targetRatio) {
+            sWidth = origImg.naturalHeight * targetRatio;
+            sx = (origImg.naturalWidth - sWidth) / 2;
+          } else {
+            sHeight = origImg.naturalWidth / targetRatio;
+            sy = 0; // Keep head/face top-aligned
+          }
+
+          try {
+            const cropCanvas = document.createElement("canvas");
+            cropCanvas.width = Math.round(boxW * 4);
+            cropCanvas.height = Math.round(boxH * 4);
+            const ctx = cropCanvas.getContext("2d");
+            ctx.drawImage(origImg, sx, sy, sWidth, sHeight, 0, 0, cropCanvas.width, cropCanvas.height);
+
+            clonedImg.src = cropCanvas.toDataURL("image/png");
+            clonedImg.style.width = "100%";
+            clonedImg.style.height = "100%";
+            clonedImg.style.objectFit = "fill";
+          } catch {
+            // Safe fallback if external host lacks CORS headers: preserve aspect ratio without stretching
+            if (imgRatio > targetRatio) {
+              clonedImg.style.height = "100%";
+              clonedImg.style.width = "auto";
+              clonedImg.style.maxWidth = "none";
+            } else {
+              clonedImg.style.width = "100%";
+              clonedImg.style.height = "auto";
+              clonedImg.style.maxHeight = "none";
+            }
+          }
+        }
+      }
     });
 
     const link = document.createElement("a");
