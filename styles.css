@@ -1665,3 +1665,34 @@ body.public-verify-mode #notice {
   height: 16px;
   flex: none;
 }
+
+
+/* ========================================
+   DESKTOP SIDEBAR STICKY HEIGHT & SCROLL FIX
+   ======================================== */
+@media (min-width: 900px) {
+  .app-sidebar {
+    position: sticky;
+    top: 68px;
+    height: calc(100vh - 68px);
+    min-height: calc(100vh - 68px);
+    max-height: calc(100vh - 68px);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    background: #0d6859;
+    scrollbar-width: thin;
+  }
+
+  .app-sidebar .side-nav {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 16px;
+  }
+
+  .app-sidebar .sidebar-dev-credit {
+    margin-top: auto;
+    padding-top: 12px;
+  }
+}
