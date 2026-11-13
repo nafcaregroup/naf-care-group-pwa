@@ -1491,3 +1491,37 @@ body.public-verify-mode #notice {
   background-size: 200% 100%;
   animation: skeletonShimmer 1.4s infinite linear;
 }
+
+
+
+/* ========================================
+   UNREAD NOTIFICATION BADGE (RED DOT)
+   ======================================== */
+.nav-link,
+.bottom-nav a {
+  position: relative;
+}
+
+.has-unread-badge::after {
+  content: "";
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ef4444;
+  box-shadow: 0 0 0 2px #0f241f;
+  pointer-events: none;
+}
+
+/* Sidebar link badge position */
+.side-nav .has-unread-badge::after {
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* Mobile bottom nav icon badge position */
+.bottom-nav .has-unread-badge::after {
+  top: 7px;
+  right: calc(50% - 14px);
+}
