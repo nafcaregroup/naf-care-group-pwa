@@ -90,6 +90,22 @@
       <main class="container" id="mainContent">
         <section id="notice" class="notice hidden" role="status" aria-live="polite"></section>
 
+
+<section id="verifyScreen" class="verify-screen hidden">
+          <div class="verify-card">
+            <div class="verify-brand">
+              <img src="https://nafcare.github.io/nafcare.png" alt="NAF CARE GROUP">
+              <strong>NAF CARE GROUP</strong>
+              <small>OFFICIAL IDENTITY VERIFICATION</small>
+            </div>
+            <div id="verifyResult" class="verify-result">
+              <p class="muted">Verifying member credentials…</p>
+            </div>
+            <a href="./" class="primary-button verify-portal-btn">Open Member Portal</a>
+          </div>
+        </section>
+        
+
 <div id="sessionLoader" class="session-loader hidden">
           <img src="https://nafcare.github.io/nafcare.png" alt="NAF CARE GROUP">
           <p>Loading your account…</p>
@@ -330,14 +346,59 @@
           <div class="section-heading">
             <div><p class="eyebrow">MY ACCOUNT</p><h2>My Profile</h2></div>
           </div>
-          <div class="profile-hero">
-            <div class="profile-avatar">
-              <img id="profileMemberPhoto" class="hidden" alt="Your profile photo">
-              <span id="profileMemberInitial">M</span>
+          
+         <div class="id-card-wrapper">
+            <div id="digitalIdCard" class="digital-id-card">
+              <div class="id-card-glow"></div>
+              <div class="id-card-top">
+                <img src="https://nafcare.github.io/nafcare.png" alt="NAF CARE GROUP">
+                <div class="id-org-title">
+                  <strong>NAF CARE GROUP</strong>
+                  <small>DIGITAL MEMBER IDENTITY</small>
+                </div>
+                <span id="idCardStatus" class="id-status-badge">ACTIVE</span>
+              </div>
+
+              <div class="id-card-body">
+                <div class="profile-avatar id-card-avatar">
+                  <img id="profileMemberPhoto" class="hidden" alt="Member photo">
+                  <span id="profileMemberInitial">M</span>
+                </div>
+                <div class="id-card-info">
+                  <h3 id="profileName">Member</h3>
+                  <p id="profileMemberId" class="id-badge-code">ID: —</p>
+                  <ul class="id-card-meta">
+                    <li><span>Area:</span> <strong id="idCardArea">—</strong></li>
+                    <li><span>Phone:</span> <strong id="idCardPhone">—</strong></li>
+                    <li><span>Email:</span> <strong id="idCardEmail">—</strong></li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="id-card-bottom">
+                <div class="id-qr-wrapper">
+                  <div id="memberQrCode" class="id-qr-box" aria-label="Verification QR Code"></div>
+                  <img src="https://nafcare.github.io/nafcare.png" class="id-qr-center-logo" alt="">
+                </div>
+                <div class="id-qr-text">
+                  <strong>Scan to Verify Identity</strong>
+                  <small>Protected with encrypted verification hint</small>
+                  <span id="idCardHintTag" class="id-hint-tag">RH: —</span>
+                </div>
+              </div>
             </div>
-            <h3 id="profileName">Member</h3>
-            <p id="profileMemberId" class="muted">Member account</p>
+
+            <div class="id-card-actions">
+              <button id="downloadIdCardBtn" type="button" class="primary-button id-action-btn">
+                Download PNG
+              </button>
+              <button id="shareIdCardBtn" type="button" class="ghost-button id-action-btn">
+                Share / Copy Link
+              </button>
+            </div>
           </div>
+
+          
           <div class="profile-menu">
             <a href="#memberPanel">Personal Information <span>›</span></a>
             <a href="#memberPanel">My Payment History <span>›</span></a>
@@ -409,7 +470,8 @@
 
     
   </div>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="./app.js" defer></script>
   <script>
