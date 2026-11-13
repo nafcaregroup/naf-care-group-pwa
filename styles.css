@@ -1696,3 +1696,344 @@ body.public-verify-mode #notice {
     padding-top: 12px;
   }
 }
+
+
+
+/* ========================================
+   UPGRADED MEMBERS DIRECTORY & QUICK MODAL
+   ======================================== */
+.member-count-badge {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: rgba(94, 234, 212, 0.12);
+  color: #5eead4;
+  border: 1px solid rgba(94, 234, 212, 0.25);
+  white-space: nowrap;
+}
+
+.member-search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.member-search-box svg {
+  position: absolute;
+  left: 14px;
+  width: 18px;
+  height: 18px;
+  color: var(--muted);
+  pointer-events: none;
+}
+
+.member-search-box input[type="search"] {
+  width: 100%;
+  margin: 0;
+  padding: 13px 14px 13px 42px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: #0e1f1c;
+  color: var(--ink);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.member-search-box input[type="search"]::placeholder {
+  color: var(--muted);
+}
+
+.member-search-box input[type="search"]:focus {
+  border-color: #16a388;
+  box-shadow: 0 0 0 3px rgba(22, 163, 136, 0.16);
+}
+
+.area-filter-chips {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  margin-bottom: 14px;
+  scrollbar-width: none;
+}
+
+.area-filter-chips::-webkit-scrollbar {
+  display: none;
+}
+
+.area-chip {
+  flex: none;
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: #102420;
+  color: var(--muted);
+  font-size: 12.5px;
+  font-weight: 700;
+  transition: all 0.18s ease;
+}
+
+.area-chip:hover {
+  border-color: rgba(94, 234, 212, 0.35);
+  color: #e4f0ec;
+}
+
+.area-chip.active {
+  background: #0b6657;
+  border-color: #16a388;
+  color: #ffffff;
+}
+
+.members-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+@media (max-width: 760px) {
+  .members-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.member-card {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  background: linear-gradient(155deg, #132924 0%, #0e201c 100%);
+  border-radius: 16px;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition: transform 0.16s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.member-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(94, 234, 212, 0.38);
+  background: #16302a;
+}
+
+.member-card .member-avatar {
+  width: 52px;
+  height: 52px;
+  flex: 0 0 52px;
+  border: 2px solid rgba(224, 165, 38, 0.55);
+}
+
+.member-card-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.member-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.member-card-top strong {
+  font-size: 15px;
+  font-weight: 800;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.member-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.member-id-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: rgba(94, 234, 212, 0.12);
+  color: #5eead4;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+}
+
+.member-area-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.member-area-tag svg {
+  width: 12px;
+  height: 12px;
+  color: #e0a526;
+  flex: none;
+}
+
+.member-status-pill {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  background: rgba(16, 185, 129, 0.14);
+  color: #6ee7b7;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.member-status-pill::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10b981;
+}
+
+.member-status-pill.inactive {
+  background: rgba(239, 68, 68, 0.14);
+  color: #fca5a5;
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.member-status-pill.inactive::before {
+  background: #ef4444;
+}
+
+/* Quick Member Profile Modal */
+.qm-dialog {
+  max-width: 420px;
+}
+
+.qm-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--line);
+  background: #10221e;
+}
+
+.qm-body {
+  padding: 24px 20px 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.qm-avatar {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  border: 3px solid #e0a526;
+  background: #0b6657;
+  color: #ffffff;
+  font-size: 32px;
+  font-weight: 800;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  margin-bottom: 12px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+}
+
+.qm-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+}
+
+.qm-body h3 {
+  margin: 0 0 8px;
+  font-size: 20px;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.qm-badges {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.qm-info-list {
+  width: 100%;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.02);
+  padding: 4px 14px;
+  text-align: left;
+  margin-bottom: 16px;
+}
+
+.qm-info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 13.5px;
+}
+
+.qm-info-row:last-child {
+  border-bottom: 0;
+}
+
+.qm-info-row span {
+  color: var(--muted);
+}
+
+.qm-info-row strong {
+  color: #ffffff;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.qm-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  width: 100%;
+}
+
+.qm-actions:empty {
+  display: none;
+}
+
+.qm-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 44px;
+  border-radius: 12px;
+  font-size: 13.5px;
+  font-weight: 700;
+  text-decoration: none;
+  margin: 0;
+}
