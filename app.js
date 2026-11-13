@@ -886,8 +886,6 @@ function openMemberQuickModal(member) {
   const areaEl = document.getElementById("qmArea");
   const phoneRow = document.getElementById("qmPhoneRow");
   const phoneEl = document.getElementById("qmPhone");
-  const emailRow = document.getElementById("qmEmailRow");
-  const emailEl = document.getElementById("qmEmail");
   const actionsEl = document.getElementById("qmActions");
 
   if (avatarWrap) {
@@ -920,16 +918,10 @@ function openMemberQuickModal(member) {
 
   if (areaEl) areaEl.textContent = member.area || "—";
 
-  const rawPhone = String(member.phone || member.mobile || "").trim();
+  const rawPhone = String(member.phone || member.mobile || member.cell || member.contact || "").trim();
   if (phoneRow && phoneEl) {
     phoneRow.classList.toggle("hidden", !rawPhone);
     phoneEl.textContent = rawPhone || "—";
-  }
-
-  const rawEmail = String(member.email || "").trim();
-  if (emailRow && emailEl) {
-    emailRow.classList.toggle("hidden", !rawEmail);
-    emailEl.textContent = rawEmail || "—";
   }
 
   if (actionsEl) {
