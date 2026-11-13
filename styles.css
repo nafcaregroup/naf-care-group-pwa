@@ -742,9 +742,6 @@ body:has(#loginPanel:not(.hidden)) {
   }
 }
 
-
-
-
 /* ========================================
    IN-APP NOTICE & BLOG READER MODAL
    ======================================== */
@@ -818,7 +815,6 @@ body:has(#loginPanel:not(.hidden)) {
   overflow-wrap: anywhere;
 }
 
-/* ব্লগস্পট পোস্টের ভেতরের HTML এলিমেন্টগুলোর সুন্দর ডিজাইন */
 .reader-body * {
   max-width: 100% !important;
   background-color: transparent !important;
@@ -906,8 +902,6 @@ body:has(#loginPanel:not(.hidden)) {
   }
 }
 
-
-
 /* ========================================
    PREVENT LOGIN SCREEN FLASH ON REFRESH
    ======================================== */
@@ -940,213 +934,289 @@ body.session-checking #loginPanel {
   50% { opacity: 1; transform: scale(1.03); }
 }
 
-
-
 /* ========================================
-   SMART DIGITAL MEMBER ID CARD & VERIFY
+   HORIZONTAL CORPORATE DIGITAL ID CARD
    ======================================== */
 .id-card-wrapper {
-  max-width: 420px;
-  margin: 0 auto 22px;
+  max-width: 520px;
+  margin: 0 auto 24px;
 }
 
-.digital-id-card {
+.horiz-id-card {
   position: relative;
-  padding: 22px 20px;
-  border-radius: 24px;
-  background: radial-gradient(circle at top right, #148572 0%, #09463c 48%, #04221d 100%);
-  border: 1.5px solid rgba(235, 179, 54, 0.65);
-  box-shadow: 0 18px 38px rgba(0, 0, 0, 0.42);
-  color: #ffffff;
+  width: 100%;
+  background: #f5f9f8;
+  color: #102a26;
+  border-radius: 16px;
   overflow: hidden;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.42);
+  border: 1px solid #cfe0dc;
+  font-family: inherit;
 }
 
-.id-card-glow {
+.id-watermark {
   position: absolute;
-  top: -50px;
-  right: -50px;
-  width: 150px;
-  height: 150px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(235, 179, 54, 0.22), transparent 70%);
+  inset: 0;
+  background-image:
+    linear-gradient(135deg, rgba(11, 102, 87, 0.06) 25%, transparent 25%),
+    linear-gradient(225deg, rgba(11, 102, 87, 0.06) 25%, transparent 25%);
+  background-size: 80px 80px;
   pointer-events: none;
 }
 
-.id-card-top {
+/* Top Header */
+.horiz-header {
+  position: relative;
   display: flex;
-  align-items: center;
-  gap: 11px;
-  padding-bottom: 14px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+  align-items: stretch;
+  justify-content: space-between;
+  background: #0b6657;
+  color: #ffffff;
+  min-height: 52px;
 }
 
-.id-card-top img {
+.horiz-header-title {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 8px 16px;
+}
+
+.horiz-header-title strong {
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  line-height: 1.15;
+  color: #ffffff;
+}
+
+.horiz-header-title span {
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #a9e5d8;
+  margin-top: 2px;
+}
+
+.horiz-logo-box {
+  width: 82px;
+  background: #b8e3d6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 10px 4px 18px;
+  clip-path: polygon(20% 0%, 100% 0%, 100% 100%, 0% 100%);
+  flex: none;
+}
+
+.horiz-logo-box img {
   width: 40px;
   height: 40px;
   object-fit: contain;
-  flex: none;
 }
 
-.id-org-title {
-  display: flex;
-  flex-direction: column;
-  margin-right: auto;
-}
-
-.id-org-title strong {
-  font-size: 14.5px;
-  letter-spacing: 0.4px;
-  color: #ffffff;
-}
-
-.id-org-title small {
-  font-size: 9px;
-  letter-spacing: 1.3px;
-  color: #f3c45c;
-  font-weight: 800;
-}
-
-.id-status-badge {
-  padding: 4px 10px;
-  border-radius: 999px;
-  background: rgba(57, 217, 138, 0.16);
-  border: 1px solid #39d98a;
-  color: #6ef7b2;
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.8px;
-}
-
-.id-card-body {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  padding: 18px 0;
-}
-
-.id-card-avatar {
-  width: 78px !important;
-  height: 78px !important;
-  margin: 0 !important;
-  flex: none;
-  border-width: 2.5px !important;
-}
-
-.id-card-info {
-  min-width: 0;
-  flex: 1;
-}
-
-.id-card-info h3 {
-  margin: 0 0 3px;
-  font-size: 18px;
-  line-height: 1.25;
-  color: #ffffff;
-}
-
-.id-badge-code {
-  display: inline-block;
-  margin: 0 0 8px;
-  padding: 2px 9px;
-  border-radius: 6px;
-  background: rgba(243, 196, 92, 0.16);
-  border: 1px solid rgba(243, 196, 92, 0.45);
-  font-size: 12px;
-  font-weight: 800;
-  color: #ffd573;
-}
-
-.id-card-meta {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: grid;
-  gap: 3px;
-  font-size: 11.5px;
-  color: #cbe3dc;
-}
-
-.id-card-meta li {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.id-card-meta span {
-  color: #96bdb3;
-}
-
-.id-card-meta strong {
-  color: #ffffff;
-  font-weight: 600;
-}
-
-.id-card-bottom {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding-top: 14px;
-  border-top: 1px dashed rgba(255, 255, 255, 0.22);
-}
-
-.id-qr-wrapper {
+/* Horizontal 3-Column Body */
+.horiz-body {
   position: relative;
-  background: #ffffff;
-  padding: 6px;
-  border-radius: 12px;
-  line-height: 0;
-  flex: none;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  display: grid;
+  grid-template-columns: 92px 1fr 104px;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 14px;
 }
 
-.id-qr-box img,
-.id-qr-box canvas {
-  width: 74px !important;
-  height: 74px !important;
+.horiz-photo-frame {
+  width: 92px;
+  height: 104px;
+  border-radius: 6px;
+  background: #dce8e5;
+  border: 1.5px solid #9ab8b1;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
 }
 
-.id-qr-center-logo {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 20px;
-  height: 20px;
-  transform: translate(-50%, -50%);
-  background: #ffffff;
-  border-radius: 50%;
-  padding: 2px;
-  object-fit: contain;
+.horiz-photo-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
 }
 
-.id-qr-text {
+.horiz-photo-frame span {
+  font-size: 34px;
+  font-weight: 800;
+  color: #0b6657;
+}
+
+/* Middle Member Details */
+.horiz-info-col {
+  min-width: 0;
+}
+
+.horiz-member-name {
+  margin: 0 0 6px;
+  font-size: 15.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #0b6657;
+  line-height: 1.2;
+}
+
+.horiz-info-table {
+  width: 100%;
+  min-width: 0 !important;
+  border-collapse: collapse;
+  font-size: 11.5px;
+}
+
+.horiz-info-table th,
+.horiz-info-table td {
+  padding: 2.5px 0;
+  text-align: left;
+  vertical-align: top;
+  border: none !important;
+  background: transparent !important;
+  white-space: normal;
+}
+
+.horiz-info-table th {
+  width: 48px;
+  font-weight: 600;
+  color: #36524d;
+  white-space: nowrap;
+}
+
+.horiz-info-table td {
+  font-weight: 700;
+  color: #0c221f;
+  word-break: break-word;
+}
+
+/* Right Crisp QR Column */
+.horiz-qr-col {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  align-items: center;
+  width: 104px;
 }
 
-.id-qr-text strong {
-  font-size: 13px;
+.horiz-qr-crisp {
+  width: 104px;
+  height: 104px;
+  background: #ffffff;
+  padding: 4px;
+  border: 1px solid #c5d9d4;
+  border-radius: 4px 4px 0 0;
+  display: grid;
+  place-items: center;
+}
+
+.horiz-qr-crisp img,
+.horiz-qr-crisp canvas {
+  width: 100% !important;
+  height: 100% !important;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+.horiz-scan-pill {
+  width: 100%;
+  background: #0d1f1c;
   color: #ffffff;
-}
-
-.id-qr-text small {
-  font-size: 11px;
-  color: #b5d4cc;
-  line-height: 1.35;
-}
-
-.id-hint-tag {
-  font-family: monospace;
-  font-size: 10.5px;
-  color: #ffd573;
+  font-size: 8px;
+  font-weight: 800;
   letter-spacing: 0.6px;
+  text-align: center;
+  padding: 3.5px 0;
+  border-radius: 0 0 4px 4px;
+}
+
+/* Bottom Footer */
+.horiz-footer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #0b6657;
+  height: 36px;
+  overflow: hidden;
+}
+
+.horiz-role-badge {
+  height: 100%;
+  background: #1ea388;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  padding: 0 24px 0 16px;
+  clip-path: polygon(0 0, 88% 0, 100% 100%, 0% 100%);
+  font-size: 13.5px;
+  font-weight: 800;
+  letter-spacing: 0.9px;
+  text-transform: uppercase;
+}
+
+.horiz-barcode-bars {
+  width: 98px;
+  height: 22px;
+  margin-right: 14px;
+  background-color: #ffffff;
+  padding: 2.5px 5px;
+  border-radius: 3px;
+  background-image: repeating-linear-gradient(
+    90deg,
+    #0d1f1c 0px,
+    #0d1f1c 2px,
+    transparent 2px,
+    transparent 4px,
+    #0d1f1c 4px,
+    #0d1f1c 5px,
+    transparent 5px,
+    transparent 8px,
+    #0d1f1c 8px,
+    #0d1f1c 11px,
+    transparent 11px,
+    transparent 13px
+  );
+  background-clip: content-box;
+}
+
+@media (max-width: 380px) {
+  .horiz-body {
+    grid-template-columns: 76px 1fr 88px;
+    gap: 8px;
+    padding: 12px 10px;
+  }
+  .horiz-photo-frame {
+    width: 76px;
+    height: 88px;
+  }
+  .horiz-qr-col,
+  .horiz-qr-crisp {
+    width: 88px;
+  }
+  .horiz-qr-crisp {
+    height: 88px;
+  }
+  .horiz-member-name {
+    font-size: 13.5px;
+  }
+  .horiz-info-table {
+    font-size: 10.5px;
+  }
+  .horiz-info-table th {
+    width: 40px;
+  }
 }
 
 .id-card-actions {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
-  margin-top: 12px;
+  margin-top: 14px;
 }
 
 .id-action-btn {
@@ -1156,7 +1226,9 @@ body.session-checking #loginPanel {
   padding: 10px 12px !important;
 }
 
-/* Public Verification Page (No Login Required) */
+/* ========================================
+   PUBLIC VERIFICATION PAGE (NO LOGIN)
+   ======================================== */
 body.public-verify-mode #loginPanel,
 body.public-verify-mode #sessionLoader,
 body.public-verify-mode #notice {
