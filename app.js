@@ -343,10 +343,10 @@ function renderProfile(member) {
   }
 
   if (profileId) {
-    profileId.textContent = "ID: " + (member.id || "—");
+    profileId.textContent = member.id || "—";
   }
 
-  // Digital Member ID Card Data & QR Code with Random Hint (rh)
+  // Digital Member ID Card Data & Ultra-Crisp QR Code (rh hidden inside URL only)
   window.__currentVerifyUrl = "";
   window.__currentMemberId = member.id || "Member";
 
@@ -360,10 +360,10 @@ function renderProfile(member) {
   if (idCardEmail) idCardEmail.textContent = member.email || "—";
 
   const idCardStatus = document.getElementById("idCardStatus");
-  if (idCardStatus) idCardStatus.textContent = (member.status || "ACTIVE").toUpperCase();
-
-  const idCardHintTag = document.getElementById("idCardHintTag");
-  if (idCardHintTag) idCardHintTag.textContent = member.rh ? `RH: ${member.rh}` : "";
+  if (idCardStatus) {
+    const st = (member.status || "MEMBER").trim().toUpperCase();
+    idCardStatus.textContent = st === "ACTIVE" ? "MEMBER" : st;
+  }
 
   const qrContainer = document.getElementById("memberQrCode");
   if (qrContainer && window.QRCode && member.id && member.rh) {
@@ -373,11 +373,11 @@ function renderProfile(member) {
 
     new window.QRCode(qrContainer, {
       text: verifyUrl,
-      width: 148,
-      height: 148,
-      colorDark: "#06332c",
+      width: 512,
+      height: 512,
+      colorDark: "#000000",
       colorLight: "#ffffff",
-      correctLevel: window.QRCode.CorrectLevel.H
+      correctLevel: window.QRCode.CorrectLevel.M
     });
   }
 
@@ -1263,19 +1263,20 @@ document.getElementById("downloadIdCardBtn")?.addEventListener("click", async fu
   const btn = this;
   const originalText = btn.textContent;
   btn.disabled = true;
-  btn.textContent = "Generating PNG…";
+  btn.textContent = "Generating HD PNG…";
 
   try {
     const canvas = await window.html2canvas(card, {
-      scale: 3,
+      scale: 4,
       useCORS: true,
       allowTaint: true,
-      backgroundColor: null
+      backgroundColor: "#f5f9f8",
+      logging: false
     });
 
     const link = document.createElement("a");
     link.download = `${window.__currentMemberId || "NAF"}_Member_ID_Card.png`;
-    link.href = canvas.toDataURL("image/png");
+    link.href = canvas.toDataURL("image/png", 1.0);
     link.click();
   } catch {
     alert("Could not download ID card image. Please try taking a screenshot.");
