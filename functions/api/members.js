@@ -1,4 +1,3 @@
-
 export async function onRequest({ request, env }) {
   try {
     // 1. Allow only GET or POST
@@ -110,11 +109,12 @@ export async function onRequest({ request, env }) {
       );
     }
 
-    // 7. Return directory information only
+    // 7. Return directory information including phone
     const members = data.members.map(member => ({
       id: String(member.id || ""),
       name: String(member.name || ""),
       area: String(member.area || ""),
+      phone: String(member.phone || member.Phone || ""),
       status: String(member.status || ""),
       photoUrl: String(member.photoUrl || "")
     }));
