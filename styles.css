@@ -938,7 +938,7 @@ body.session-checking #loginPanel {
 
 /* ========================================
    PREMIUM LANDSCAPE CORPORATE ID CARD
-   (CR80 Standard Ratio + Kalpurush Font)
+   (100% html2canvas & Mobile Consistent)
    ======================================== */
 .id-card-wrapper {
   width: 100%;
@@ -959,17 +959,13 @@ body.session-checking #loginPanel {
   overflow: hidden;
   box-shadow: 0 20px 42px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(224, 165, 38, 0.45);
   border: 1.5px solid #c4dcd6;
-  font-family: "Kalpurush", "Noto Sans Bengali", system-ui, -apple-system, sans-serif;
+  font-family: Inter, "Kalpurush", "Noto Sans Bengali", system-ui, -apple-system, sans-serif;
 }
 
 .id-watermark {
   position: absolute;
   inset: 0;
-  background-image:
-    radial-gradient(circle at 82% 28%, rgba(11, 102, 87, 0.08) 0%, transparent 48%),
-    linear-gradient(135deg, rgba(11, 102, 87, 0.045) 25%, transparent 25%),
-    linear-gradient(225deg, rgba(11, 102, 87, 0.045) 25%, transparent 25%);
-  background-size: 100% 100%, 64px 64px, 64px 64px;
+  background: radial-gradient(circle at 82% 28%, rgba(11, 102, 87, 0.08) 0%, transparent 52%);
   pointer-events: none;
 }
 
@@ -984,6 +980,7 @@ body.session-checking #loginPanel {
   height: 22%;
   min-height: 44px;
   border-bottom: 2.5px solid #e0a526;
+  overflow: hidden;
   z-index: 1;
 }
 
@@ -992,6 +989,7 @@ body.session-checking #loginPanel {
   flex-direction: column;
   justify-content: center;
   padding: 0 clamp(10px, 3vw, 18px);
+  z-index: 2;
 }
 
 .horiz-header-title strong {
@@ -1001,7 +999,6 @@ body.session-checking #loginPanel {
   letter-spacing: 0.6px;
   line-height: 1.1;
   color: #ffffff;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
 }
 
 .horiz-header-title span {
@@ -1013,18 +1010,34 @@ body.session-checking #loginPanel {
   margin-top: 2px;
 }
 
+/* Skewed Diagonal Cut (html2canvas compatible) */
 .horiz-logo-box {
-  width: clamp(64px, 18vw, 88px);
+  position: relative;
+  width: clamp(66px, 18vw, 90px);
   background: linear-gradient(135deg, #ffffff 0%, #d4eee6 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 3px 8px 3px 16px;
-  clip-path: polygon(22% 0%, 100% 0%, 100% 100%, 0% 100%);
+  padding: 3px 8px 3px 12px;
   flex: none;
+  z-index: 1;
+}
+
+.horiz-logo-box::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -14px;
+  width: 26px;
+  background: #ffffff;
+  transform: skewX(-22deg);
+  z-index: -1;
 }
 
 .horiz-logo-box img {
+  position: relative;
+  z-index: 2;
   width: clamp(28px, 7.5vw, 38px);
   height: clamp(28px, 7.5vw, 38px);
   object-fit: contain;
@@ -1035,10 +1048,10 @@ body.session-checking #loginPanel {
   position: relative;
   flex: 1;
   display: grid;
-  grid-template-columns: 22% 1fr 23%;
+  grid-template-columns: 20.5% 1fr 22.5%;
   align-items: center;
-  gap: clamp(8px, 2.4vw, 14px);
-  padding: clamp(8px, 2.2vw, 14px) clamp(10px, 2.8vw, 16px);
+  gap: clamp(8px, 2.2vw, 13px);
+  padding: clamp(7px, 2vw, 13px) clamp(10px, 2.6vw, 15px);
   z-index: 1;
 }
 
@@ -1049,11 +1062,11 @@ body.session-checking #loginPanel {
 
 .horiz-photo-frame {
   width: 100%;
-  aspect-ratio: 4 / 4.7;
+  aspect-ratio: 3.6 / 4.4;
   border-radius: 8px;
   background: #d7e8e4;
   border: 2px solid #0b6657;
-  box-shadow: 0 4px 12px rgba(6, 71, 60, 0.16), inset 0 0 0 1.5px rgba(255, 255, 255, 0.75);
+  box-shadow: 0 4px 12px rgba(6, 71, 60, 0.16);
   overflow: hidden;
   display: grid;
   place-items: center;
@@ -1073,17 +1086,19 @@ body.session-checking #loginPanel {
   color: #0b6657;
 }
 
-/* Middle Member Details (Kalpurush) */
+/* Middle Member Details (Inter + Kalpurush) */
 .horiz-info-col {
   min-width: 0;
-  font-family: "Kalpurush", "Noto Sans Bengali", system-ui, sans-serif;
+  font-family: Inter, "Kalpurush", "Noto Sans Bengali", system-ui, sans-serif;
 }
 
 .horiz-member-name {
   margin: 0 0 clamp(3px, 1vw, 6px);
-  font-family: "Kalpurush", "Noto Sans Bengali", system-ui, sans-serif;
-  font-size: clamp(13px, 3.7vw, 17.5px);
-  font-weight: 700;
+  font-family: Inter, "Kalpurush", "Noto Sans Bengali", system-ui, sans-serif;
+  font-size: clamp(12.5px, 3.6vw, 17px);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
   color: #06473c;
   line-height: 1.2;
   white-space: nowrap;
@@ -1095,36 +1110,41 @@ body.session-checking #loginPanel {
   width: 100%;
   min-width: 0 !important;
   border-collapse: collapse;
-  font-family: "Kalpurush", "Noto Sans Bengali", system-ui, sans-serif;
-  font-size: clamp(10px, 2.7vw, 12.5px);
-  line-height: 1.25;
+  font-family: Inter, "Kalpurush", "Noto Sans Bengali", system-ui, sans-serif;
+  font-size: clamp(9.5px, 2.5vw, 12px);
+  line-height: 1.28;
 }
 
 .horiz-info-table th,
 .horiz-info-table td {
-  padding: clamp(1px, 0.4vw, 2.5px) 0;
+  padding: clamp(1px, 0.35vw, 2px) 0;
   text-align: left;
-  vertical-align: middle;
+  vertical-align: top;
   border: none !important;
   background: transparent !important;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .horiz-info-table th {
-  width: clamp(34px, 9.5vw, 48px);
+  width: clamp(32px, 9vw, 44px);
   font-weight: 600;
   color: #466660;
   text-transform: none;
   letter-spacing: 0;
   font-size: inherit;
+  white-space: nowrap;
 }
 
 .horiz-info-table td {
-  max-width: 0;
   font-weight: 700;
   color: #0b2420;
+  white-space: normal;
+  word-break: break-word;
+}
+
+.horiz-email-cell {
+  font-size: clamp(8.5px, 2.25vw, 11px);
+  word-break: break-all;
+  line-height: 1.2;
 }
 
 /* Right Crisp QR Column */
@@ -1161,7 +1181,7 @@ body.session-checking #loginPanel {
   background: #06473c;
   color: #fcd678;
   font-family: Inter, system-ui, sans-serif;
-  font-size: clamp(6px, 1.7vw, 8px);
+  font-size: clamp(6px, 1.65vw, 8px);
   font-weight: 800;
   letter-spacing: 0.5px;
   text-align: center;
@@ -1183,43 +1203,41 @@ body.session-checking #loginPanel {
 }
 
 .horiz-role-badge {
+  position: relative;
   height: 100%;
   background: linear-gradient(135deg, #e0a526 0%, #c68a12 100%);
   color: #072620;
   display: flex;
   align-items: center;
-  padding: 0 clamp(14px, 4vw, 24px) 0 clamp(10px, 3vw, 16px);
-  clip-path: polygon(0 0, 88% 0, 100% 100%, 0% 100%);
+  padding: 0 clamp(14px, 4vw, 22px) 0 clamp(10px, 3vw, 16px);
   font-family: Inter, system-ui, sans-serif;
   font-size: clamp(9.5px, 2.7vw, 12.5px);
   font-weight: 900;
   letter-spacing: 1px;
   text-transform: uppercase;
+  z-index: 1;
 }
 
-.horiz-barcode-bars {
+.horiz-role-badge::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: -11px;
+  width: 22px;
+  background: #c68a12;
+  transform: skewX(22deg);
+  z-index: -1;
+}
+
+.horiz-barcode-box {
   width: clamp(68px, 19vw, 96px);
   height: 62%;
   margin-right: clamp(10px, 2.8vw, 14px);
-  background-color: #ffffff;
-  padding: 2px 4px;
+  background: #ffffff;
   border-radius: 3px;
-  background-image: repeating-linear-gradient(
-    90deg,
-    #0d1f1c 0px,
-    #0d1f1c 2px,
-    transparent 2px,
-    transparent 4px,
-    #0d1f1c 4px,
-    #0d1f1c 5px,
-    transparent 5px,
-    transparent 8px,
-    #0d1f1c 8px,
-    #0d1f1c 11px,
-    transparent 11px,
-    transparent 13px
-  );
-  background-clip: content-box;
+  overflow: hidden;
+  display: flex;
 }
 
 .id-card-actions {
