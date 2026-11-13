@@ -688,10 +688,13 @@ async function loadFeed(kind, forceReload = false) {
     const el = $(selector);
     if (!el) return;
 
-    const p = document.createElement("p");
-    p.className = "muted";
-    p.textContent = "Loading…";
-    el.replaceChildren(p);
+    const skeletons = Array.from({ length: 3 }, () => {
+      const card = document.createElement("div");
+      card.className = "skeleton-card";
+      card.innerHTML = `<div class="skeleton-line title"></div><div class="skeleton-line meta"></div>`;
+      return card;
+    });
+    el.replaceChildren(...skeletons);
   });
 
   const button = document.getElementById(
@@ -830,13 +833,13 @@ async function loadMembers() {
 
   if (!list) return;
 
-  list.replaceChildren();
-
-  const loading = document.createElement("p");
-  loading.className = "muted";
-  loading.textContent = "Loading members…";
-
-  list.append(loading);
+  const memberSkeletons = Array.from({ length: 4 }, () => {
+    const row = document.createElement("div");
+    row.className = "skeleton-member";
+    row.innerHTML = `<div class="skeleton-avatar"></div><div style="flex:1;display:flex;flex-direction:column;gap:8px"><div class="skeleton-line title"></div><div class="skeleton-line meta"></div></div>`;
+    return row;
+  });
+  list.replaceChildren(...memberSkeletons);
 
   try {
     const data = await request(API.members, {
@@ -1461,8 +1464,6 @@ if (IS_PUBLIC_VERIFY) {
   loggedOut();
 }
 
-
-
 // ========================================
 // PWA INSTALL PROMPT HANDLER
 // ========================================
@@ -1492,5 +1493,3 @@ window.addEventListener("appinstalled", () => {
   deferredPrompt = null;
   installAppBtn?.classList.add("hidden");
 });
-
-
