@@ -365,7 +365,7 @@ function renderProfile(member) {
   if (idCardArea) idCardArea.textContent = member.area || "—";
 
   const idCardPhone = document.getElementById("idCardPhone");
-  if (idCardPhone) idCardPhone.textContent = member.phone || "—";
+  if (idCardPhone) idCardPhone.textContent = member.phone || member.Phone || "—";
 
   const idCardEmail = document.getElementById("idCardEmail");
   if (idCardEmail) idCardEmail.textContent = member.email || "—";
@@ -415,7 +415,7 @@ function renderProfile(member) {
       ["Member ID", member.id],
       ["Full name", member.name],
       ["Email", member.email],
-      ["Phone", member.phone],
+      ["Phone", member.phone || member.Phone],
       ["Ward / Area", member.area],
       ["Status", member.status],
       ["Capital required", cash(member.capitalRequired)],
@@ -918,7 +918,15 @@ function openMemberQuickModal(member) {
 
   if (areaEl) areaEl.textContent = member.area || "—";
 
-const rawPhone = String(member.phone || member.Phone || member.mobile || member.cell || member.contact || "").trim();
+  const rawPhone = String(
+    member.phone || 
+    member.Phone || 
+    member.mobile || 
+    member.cell || 
+    member.contact || 
+    ""
+  ).trim();
+
   if (phoneRow && phoneEl) {
     phoneRow.classList.toggle("hidden", !rawPhone);
     phoneEl.textContent = rawPhone || "—";
@@ -1419,7 +1427,7 @@ if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
 
 document.querySelectorAll("[data-nav]").forEach(link => {
   link.addEventListener("click", () => {
-    const target = link.getAttribute("data-nav");
+    const target = link.dataset.nav;
 
     if (target === "members" && session()) {
       loadMembers();
