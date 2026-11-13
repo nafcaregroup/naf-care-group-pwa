@@ -9,8 +9,11 @@
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="https://nafcare.github.io/nafcare.png">
   <link rel="apple-touch-icon" href="https://nafcare.github.io/nafcare.png">
-  <link rel="stylesheet" href="./styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800;900&family=Noto+Sans+Bengali:wght@600;700;800;900&display=swap">
   <link rel="stylesheet" href="https://fonts.maateen.me/kalpurush/font.css">
+  <link rel="stylesheet" href="./styles.css">
 
   <style>
     .see-more-btn {
@@ -400,39 +403,13 @@
                 </div>
               </div>
 
-              <!-- Bottom Status Bar & Crisp SVG Barcode -->
+              <!-- Bottom Status Bar & Real Scannable Barcode -->
               <div class="horiz-footer">
                 <div class="horiz-role-badge">
                   <span id="idCardStatus">MEMBER</span>
                 </div>
-                <div class="horiz-barcode-box" aria-hidden="true">
-                  <svg viewBox="0 0 120 26" width="100%" height="100%" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="120" height="26" fill="#ffffff"/>
-                    <g fill="#0d1f1c">
-                      <rect x="4" y="3" width="3" height="20"/>
-                      <rect x="9" y="3" width="1.5" height="20"/>
-                      <rect x="13" y="3" width="4" height="20"/>
-                      <rect x="19" y="3" width="2" height="20"/>
-                      <rect x="24" y="3" width="1.5" height="20"/>
-                      <rect x="28" y="3" width="3.5" height="20"/>
-                      <rect x="34" y="3" width="2" height="20"/>
-                      <rect x="39" y="3" width="1.5" height="20"/>
-                      <rect x="43" y="3" width="4" height="20"/>
-                      <rect x="50" y="3" width="2" height="20"/>
-                      <rect x="54" y="3" width="3" height="20"/>
-                      <rect x="60" y="3" width="1.5" height="20"/>
-                      <rect x="64" y="3" width="2.5" height="20"/>
-                      <rect x="69" y="3" width="4" height="20"/>
-                      <rect x="76" y="3" width="1.5" height="20"/>
-                      <rect x="80" y="3" width="3" height="20"/>
-                      <rect x="86" y="3" width="2" height="20"/>
-                      <rect x="91" y="3" width="1.5" height="20"/>
-                      <rect x="95" y="3" width="3.5" height="20"/>
-                      <rect x="101" y="3" width="2" height="20"/>
-                      <rect x="106" y="3" width="4" height="20"/>
-                      <rect x="112" y="3" width="2.5" height="20"/>
-                    </g>
-                  </svg>
+                <div class="horiz-barcode-box" aria-label="Member ID Barcode">
+                  <svg id="memberBarcode"></svg>
                 </div>
               </div>
             </div>
@@ -518,6 +495,7 @@
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="./app.js" defer></script>
