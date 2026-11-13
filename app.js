@@ -1460,3 +1460,37 @@ if (IS_PUBLIC_VERIFY) {
 } else {
   loggedOut();
 }
+
+
+
+// ========================================
+// PWA INSTALL PROMPT HANDLER
+// ========================================
+let deferredPrompt = null;
+const installAppBtn = document.getElementById("installAppBtn");
+
+window.addEventListener("beforeinstallprompt", (event) => {
+  event.preventDefault();
+  deferredPrompt = event;
+  installAppBtn?.classList.remove("hidden");
+});
+
+installAppBtn?.addEventListener("click", async () => {
+  if (!deferredPrompt) return;
+
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+
+  if (outcome === "accepted") {
+    installAppBtn.classList.add("hidden");
+  }
+
+  deferredPrompt = null;
+});
+
+window.addEventListener("appinstalled", () => {
+  deferredPrompt = null;
+  installAppBtn?.classList.add("hidden");
+});
+
+
