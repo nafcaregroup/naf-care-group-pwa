@@ -1573,83 +1573,95 @@ body.public-verify-mode #notice {
 /* About Us -> Meet the Developer Card */
 .dev-profile-card {
   margin-top: 24px;
-  padding: 18px;
-  border-radius: 16px;
-  border: 1px solid rgba(94, 234, 212, 0.22);
-  background: linear-gradient(145deg, rgba(16, 46, 39, 0.9), rgba(11, 31, 26, 0.95));
+  padding: 24px 20px;
+  border-radius: 18px;
+  border: 1px solid rgba(94, 234, 212, 0.25);
+  background: radial-gradient(circle at top, rgba(16, 185, 129, 0.16), transparent 65%),
+              linear-gradient(160deg, #112e27 0%, #0b1f1a 100%);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
   display: flex;
   flex-direction: column;
+  align-items: center;
+  text-align: center;
   gap: 14px;
 }
 
 .dev-card-badge {
-  align-self: flex-start;
   font-size: 10px;
   font-weight: 800;
-  letter-spacing: 0.8px;
-  padding: 4px 10px;
+  letter-spacing: 1px;
+  padding: 5px 12px;
   border-radius: 999px;
-  background: rgba(94, 234, 212, 0.14);
+  background: rgba(94, 234, 212, 0.12);
   color: #5eead4;
-  border: 1px solid rgba(94, 234, 212, 0.25);
+  border: 1px solid rgba(94, 234, 212, 0.28);
 }
 
-.dev-card-header {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-.dev-avatar-badge {
-  width: 48px;
-  height: 48px;
+.dev-avatar-wrap {
+  width: 84px;
+  height: 84px;
   border-radius: 50%;
-  flex: none;
-  display: grid;
-  place-items: center;
+  padding: 3px;
+  background: linear-gradient(135deg, #5eead4, #10b981, #fbbf24);
+  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+}
+
+.dev-avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: top center;
+  display: block;
+  background: #0d2620;
+}
+
+.dev-card-info h3 {
+  margin: 0 0 4px;
+  font-size: 19px;
   font-weight: 800;
-  font-size: 16px;
-  color: #06281e;
-  background: linear-gradient(135deg, #5eead4, #10b981);
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
-}
-
-.dev-card-header h3 {
-  margin: 0 0 2px;
-  font-size: 16px;
   color: #ffffff;
+  letter-spacing: 0.2px;
 }
 
-.dev-card-header p {
-  margin: 0 0 2px;
-  font-size: 13px;
-  font-weight: 600;
-  color: #a7f3d0;
+.dev-card-info .dev-role {
+  margin: 0 0 4px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #6ee7b7;
 }
 
-.dev-card-header small {
+.dev-card-info .dev-edu {
   display: block;
   font-size: 12px;
-  color: var(--muted, #94a3b8);
+  line-height: 1.45;
+  color: #94a3b8;
 }
 
 .dev-card-actions {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 10px;
+  width: 100%;
+  margin-top: 4px;
 }
 
 .dev-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 8px 14px;
-  font-size: 13px;
+  gap: 7px;
+  width: 100%;
+  padding: 11px 14px;
+  font-size: 13.5px;
+  font-weight: 700;
+  border-radius: 12px;
   text-decoration: none;
+  margin: 0;
 }
 
 .dev-btn svg {
-  width: 15px;
-  height: 15px;
+  width: 16px;
+  height: 16px;
+  flex: none;
 }
