@@ -1,4 +1,3 @@
-
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), {
     status,
@@ -8,6 +7,30 @@ function json(data, status = 200) {
       "X-Content-Type-Options": "nosniff"
     }
   });
+}
+
+async function generateRandomHint(memberId, secret) {
+  const alphabet = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ"; // Ambiguous 0/O, 1/I excluded
+  const enc = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    "raw",
+    enc.encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+  const sig = new Uint8Array(
+    await crypto.subtle.sign(
+      "HMAC",
+      key,
+      enc.encode("NAF_ID_RH:" + String(memberId).trim().toUpperCase())
+    )
+  );
+  let code = "";
+  for (let i = 0; i < 6; i++) {
+    code += alphabet[sig[i] % alphabet.length];
+  }
+  return code;
 }
 
 export async function onRequest(context) {
@@ -53,8 +76,15 @@ export async function onRequest(context) {
       return json({ ok: false, error: "Unable to load member information." }, 502);
     }
 
+    if (data.member && data.member.id) {
+      data.member.rh = await generateRandomHint(
+        data.member.id,
+        env.APPS_SCRIPT_SECRET
+      );
+    }
+
     return json(data);
-  } catch (error) {
+  } catch {
     return json({ ok: false, error: "Unable to load member information." }, 502);
   }
 }
