@@ -48,7 +48,7 @@ function message(title, text, error = false) {
 }
 
 function session() {
-   return localStorage.getItem(KEY) || "";
+  return localStorage.getItem(KEY) || "";
 }
 
 function headers() {
@@ -66,7 +66,6 @@ function cash(value) {
     maximumFractionDigits: 2
   });
 }
-
 
 async function request(url, options = {}) {
   const response = await fetch(url, {
@@ -160,8 +159,9 @@ function showScreen(screenId, updateUrl = true) {
 }
 
 function loggedOut(showMessage = false) {
-  document.body.classList.remove("member-authenticated");
- localStorage.removeItem(KEY);
+  document.body.classList.remove("member-authenticated", "session-checking");
+  document.getElementById("sessionLoader")?.classList.add("hidden");
+  localStorage.removeItem(KEY);
 
   loginPanel?.classList.remove("hidden");
   memberPanel?.classList.add("hidden");
@@ -218,7 +218,6 @@ function detail(container, label, value) {
 }
 
 function renderProfile(member) {
-
   const welcome = $("#welcomeTitle");
 
   if (welcome) {
@@ -243,37 +242,38 @@ function renderProfile(member) {
   if (capitalDue) {
     capitalDue.textContent = cash(member.capitalDue);
   }
-    const monthlyPaid = $("#monthlyPaid");
 
-if (monthlyPaid) {
-  monthlyPaid.textContent = cash(member.monthlyPaid);
-}
+  const monthlyPaid = $("#monthlyPaid");
+
+  if (monthlyPaid) {
+    monthlyPaid.textContent = cash(member.monthlyPaid);
+  }
 
   if (monthlyDue) {
     monthlyDue.textContent = cash(member.monthlyDue);
   }
 
   // Calculate Total Deposit
-const totalDeposit = $("#totalDeposit");
+  const totalDeposit = $("#totalDeposit");
 
-if (totalDeposit) {
-  const total =
-    Number(member.capitalPaid || 0) +
-    Number(member.monthlyPaid || 0);
+  if (totalDeposit) {
+    const total =
+      Number(member.capitalPaid || 0) +
+      Number(member.monthlyPaid || 0);
 
-  totalDeposit.textContent = cash(total);
-}
+    totalDeposit.textContent = cash(total);
+  }
 
-// Calculate Total Due
-const totalDue = $("#totalDue");
+  // Calculate Total Due
+  const totalDue = $("#totalDue");
 
-if (totalDue) {
-  const total =
-    Number(member.capitalDue || 0) +
-    Number(member.monthlyDue || 0);
+  if (totalDue) {
+    const total =
+      Number(member.capitalDue || 0) +
+      Number(member.monthlyDue || 0);
 
-  totalDue.textContent = cash(total);
-}
+    totalDue.textContent = cash(total);
+  }
 
   // Keep the print statement summary synchronized with the member data.
   const statementTotalDeposit =
@@ -463,38 +463,6 @@ function postDate(entry) {
       });
 }
 
-function renderPosts(target, entries, emptyText, limit = FEED_PAGE_SIZE) {
-  const el = $(target);
-  if (!el) return;
-
-  el.replaceChildren();
-
-  if (!entries.length) {
-    const p = document.createElement("p");
-    p.className = "muted";
-    p.textContent = emptyText;
-    el.append(p);
-    return;
-  }
-
-  entries.slice(0, limit).forEach(entry => {
-    const a = document.createElement("a");
-    a.className = "update-item";
-    a.href = postLink(entry);
-    a.target = "_blank";
-    a.rel = "noopener noreferrer";
-
-    const title = document.createElement("strong");
-    title.textContent = postTitle(entry);
-
-    const meta = document.createElement("small");
-    meta.textContent = postDate(entry);
-
-    a.append(title, meta);
-    el.append(a);
-  });
-}
-
 function sanitizePostHtml(rawHtml) {
   const doc = new DOMParser().parseFromString(rawHtml || "", "text/html");
   doc.querySelectorAll("script, style, iframe, object, embed").forEach(el => el.remove());
@@ -584,10 +552,6 @@ function renderPosts(target, entries, emptyText, limit = FEED_PAGE_SIZE) {
     el.append(a);
   });
 }
-
-
-
-
 
 function updateSeeMoreButton(kind) {
   const state = feedState[kind];
@@ -939,7 +903,6 @@ function renderMemberIdentity(member) {
   }
 }
 
-
 async function loadData() {
   if (!session()) {
     loggedOut();
@@ -1189,7 +1152,12 @@ if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
 }
 
 if (session()) {
-  loadData();
+  document.body.classList.add("session-checking");
+  document.getElementById("sessionLoader")?.classList.remove("hidden");
+  loadData().finally(() => {
+    document.body.classList.remove("session-checking");
+    document.getElementById("sessionLoader")?.classList.add("hidden");
+  });
 } else {
   loggedOut();
 }
@@ -1223,7 +1191,6 @@ document.querySelectorAll('a[href="#blogPanel"]').forEach(a => {
 if (window.lucide) {
   window.lucide.createIcons();
 }
-
 
 // ========================================
 // NAF CARE GROUP - BROWSER PRINT STATEMENT
