@@ -302,12 +302,21 @@
 
         <section id="members" class="content-panel app-page hidden">
           <div class="section-heading">
-            <div><p class="eyebrow">OUR COMMUNITY</p><h2>Members</h2></div>
+            <div>
+              <p class="eyebrow">OUR COMMUNITY</p>
+              <h2>Members</h2>
+            </div>
+            <span id="memberCountBadge" class="member-count-badge">Loading…</span>
           </div>
-          <label for="memberSearch">Search members</label>
-          <input id="memberSearch" type="search" placeholder="Search by name or Member ID">
-          <p class="muted">Member photos and basic directory details are loaded from the member directory.</p>
-          <div id="membersList" class="updates-list"><p class="muted">Loading members…</p></div>
+
+          <div class="member-search-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input id="memberSearch" type="search" placeholder="Search by name, Member ID, or area…" aria-label="Search members">
+          </div>
+
+          <div id="memberAreaFilters" class="area-filter-chips" role="group" aria-label="Filter by area"></div>
+
+          <div id="membersList" class="members-grid"><p class="muted">Loading members…</p></div>
         </section>
 
         <section id="memberDetailsPanel" class="content-panel app-page hidden">
@@ -525,6 +534,39 @@
         <div class="reader-footer">
           <a id="readerExternalLink" href="#" target="_blank" rel="noopener noreferrer" class="ghost-button">Open in Browser ↗</a>
           <button id="closeReaderFooterBtn" class="primary-button reader-done-btn" type="button">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="memberQuickModal" class="reader-modal hidden" role="dialog" aria-modal="true" aria-labelledby="qmName">
+      <div class="reader-backdrop" id="qmBackdrop"></div>
+      <div class="reader-dialog qm-dialog">
+        <div class="qm-top">
+          <span class="dev-card-badge">MEMBER PROFILE</span>
+          <button id="closeQmBtn" class="icon-button reader-close" type="button" aria-label="Close member profile">✕</button>
+        </div>
+        <div class="qm-body">
+          <div id="qmAvatarWrap" class="qm-avatar"></div>
+          <h3 id="qmName">Member Name</h3>
+          <div class="qm-badges">
+            <span id="qmIdBadge" class="member-id-pill">ID: —</span>
+            <span id="qmStatusBadge" class="member-status-pill">Active</span>
+          </div>
+          <div class="qm-info-list">
+            <div class="qm-info-row">
+              <span>Ward / Area</span>
+              <strong id="qmArea">—</strong>
+            </div>
+            <div class="qm-info-row" id="qmPhoneRow">
+              <span>Phone</span>
+              <strong id="qmPhone">—</strong>
+            </div>
+            <div class="qm-info-row" id="qmEmailRow">
+              <span>Email</span>
+              <strong id="qmEmail">—</strong>
+            </div>
+          </div>
+          <div id="qmActions" class="qm-actions"></div>
         </div>
       </div>
     </div>
