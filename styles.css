@@ -1525,3 +1525,130 @@ body.public-verify-mode #notice {
   top: 7px;
   right: calc(50% - 14px);
 }
+
+
+
+
+/* ========================================
+   SIDEBAR DEVELOPER CREDIT & ABOUT DEV CARD
+   ======================================== */
+.sidebar-dev-credit {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding-inline: 12px;
+}
+
+.sidebar-dev-credit small {
+  font-size: 11px;
+  color: var(--muted, #94a3b8);
+  letter-spacing: 0.3px;
+}
+
+.sidebar-dev-credit a {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #5eead4;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+.sidebar-dev-credit a:hover {
+  opacity: 0.85;
+  text-decoration: underline;
+}
+
+.sidebar-dev-credit svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* About Us -> Meet the Developer Card */
+.dev-profile-card {
+  margin-top: 24px;
+  padding: 18px;
+  border-radius: 16px;
+  border: 1px solid rgba(94, 234, 212, 0.22);
+  background: linear-gradient(145deg, rgba(16, 46, 39, 0.9), rgba(11, 31, 26, 0.95));
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.dev-card-badge {
+  align-self: flex-start;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(94, 234, 212, 0.14);
+  color: #5eead4;
+  border: 1px solid rgba(94, 234, 212, 0.25);
+}
+
+.dev-card-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.dev-avatar-badge {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  flex: none;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  font-size: 16px;
+  color: #06281e;
+  background: linear-gradient(135deg, #5eead4, #10b981);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+}
+
+.dev-card-header h3 {
+  margin: 0 0 2px;
+  font-size: 16px;
+  color: #ffffff;
+}
+
+.dev-card-header p {
+  margin: 0 0 2px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #a7f3d0;
+}
+
+.dev-card-header small {
+  display: block;
+  font-size: 12px;
+  color: var(--muted, #94a3b8);
+}
+
+.dev-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.dev-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 14px;
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.dev-btn svg {
+  width: 15px;
+  height: 15px;
+}
