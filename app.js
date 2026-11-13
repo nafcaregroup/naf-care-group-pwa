@@ -143,6 +143,9 @@ function showScreen(screenId, updateUrl = true) {
 
   setScreenVisibility(screenId);
 
+  if (screenId === "noticesPanel") markFeedAsSeen("notices");
+  if (screenId === "blogPanel") markFeedAsSeen("blog");
+
   if (session()) {
     loginPanel?.classList.add("hidden");
   } else {
@@ -504,6 +507,50 @@ const feedState = {
   blog: { entries: [], shown: FEED_PAGE_SIZE, loaded: false }
 };
 
+const SEEN_FEED_KEYS = {
+  notices: "nafCareLastSeenNotice",
+  blog: "nafCareLastSeenBlog"
+};
+
+function entryUid(entry) {
+  return entry?.id?.$t || postLink(entry) || postTitle(entry);
+}
+
+function setUnreadBadge(kind, hasUnread) {
+  const navTarget = kind === "notices" ? "noticesPanel" : "blogPanel";
+  document.querySelectorAll(`[data-nav="${navTarget}"]`).forEach(el => {
+    el.classList.toggle("has-unread-badge", Boolean(hasUnread));
+  });
+}
+
+function syncFeedUnreadBadge(kind) {
+  const entries = feedState[kind]?.entries || [];
+  if (!entries.length) {
+    setUnreadBadge(kind, false);
+    return;
+  }
+
+  const latestId = entryUid(entries[0]);
+  const lastSeenId = localStorage.getItem(SEEN_FEED_KEYS[kind]) || "";
+  const activeScreen = location.hash.slice(1);
+  const currentTabKind = activeScreen === "noticesPanel" ? "notices" : activeScreen === "blogPanel" ? "blog" : "";
+
+  if (currentTabKind === kind) {
+    localStorage.setItem(SEEN_FEED_KEYS[kind], latestId);
+    setUnreadBadge(kind, false);
+  } else {
+    setUnreadBadge(kind, latestId !== lastSeenId);
+  }
+}
+
+function markFeedAsSeen(kind) {
+  const entries = feedState[kind]?.entries || [];
+  if (entries.length) {
+    localStorage.setItem(SEEN_FEED_KEYS[kind], entryUid(entries[0]));
+  }
+  setUnreadBadge(kind, false);
+}
+
 function postTitle(entry) {
   return entry?.title?.$t || "Untitled";
 }
@@ -735,6 +782,7 @@ async function loadFeed(kind, forceReload = false) {
     state.loaded = true;
 
     renderFeedKind(kind);
+    syncFeedUnreadBadge(kind);
 
   } catch (error) {
     const errorText = kind === "notices"
