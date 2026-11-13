@@ -918,7 +918,7 @@ function openMemberQuickModal(member) {
 
   if (areaEl) areaEl.textContent = member.area || "—";
 
-  const rawPhone = String(member.phone || member.mobile || member.cell || member.contact || "").trim();
+const rawPhone = String(member.phone || member.Phone || member.mobile || member.cell || member.contact || "").trim();
   if (phoneRow && phoneEl) {
     phoneRow.classList.toggle("hidden", !rawPhone);
     phoneEl.textContent = rawPhone || "—";
