@@ -875,9 +875,107 @@ function avatarNode(member, className = "member-avatar") {
   return wrap;
 }
 
+function openMemberQuickModal(member) {
+  const modal = document.getElementById("memberQuickModal");
+  if (!modal) return;
+
+  const avatarWrap = document.getElementById("qmAvatarWrap");
+  const nameEl = document.getElementById("qmName");
+  const idBadge = document.getElementById("qmIdBadge");
+  const statusBadge = document.getElementById("qmStatusBadge");
+  const areaEl = document.getElementById("qmArea");
+  const phoneRow = document.getElementById("qmPhoneRow");
+  const phoneEl = document.getElementById("qmPhone");
+  const emailRow = document.getElementById("qmEmailRow");
+  const emailEl = document.getElementById("qmEmail");
+  const actionsEl = document.getElementById("qmActions");
+
+  if (avatarWrap) {
+    avatarWrap.replaceChildren();
+    const url = memberPhoto(member);
+    const initial = (member.name || "M").trim().charAt(0).toUpperCase();
+    if (url) {
+      const img = document.createElement("img");
+      img.src = url;
+      img.alt = member.name || "Member";
+      img.referrerPolicy = "no-referrer";
+      img.onerror = () => {
+        img.remove();
+        avatarWrap.textContent = initial;
+      };
+      avatarWrap.append(img);
+    } else {
+      avatarWrap.textContent = initial;
+    }
+  }
+
+  if (nameEl) nameEl.textContent = member.name || "Member";
+  if (idBadge) idBadge.textContent = member.id ? `ID: ${member.id}` : "MEMBER";
+
+  if (statusBadge) {
+    const statusText = (member.status || "Active").trim();
+    statusBadge.textContent = statusText;
+    statusBadge.classList.toggle("inactive", /inactive|suspended|closed/i.test(statusText));
+  }
+
+  if (areaEl) areaEl.textContent = member.area || "—";
+
+  const rawPhone = String(member.phone || member.mobile || "").trim();
+  if (phoneRow && phoneEl) {
+    phoneRow.classList.toggle("hidden", !rawPhone);
+    phoneEl.textContent = rawPhone || "—";
+  }
+
+  const rawEmail = String(member.email || "").trim();
+  if (emailRow && emailEl) {
+    emailRow.classList.toggle("hidden", !rawEmail);
+    emailEl.textContent = rawEmail || "—";
+  }
+
+  if (actionsEl) {
+    actionsEl.replaceChildren();
+    const cleanDigits = rawPhone.replace(/[^\d+]/g, "");
+    if (cleanDigits) {
+      const waDigits = cleanDigits.startsWith("01") ? "88" + cleanDigits : cleanDigits.replace(/^\+/, "");
+
+      const callLink = document.createElement("a");
+      callLink.href = `tel:${cleanDigits}`;
+      callLink.className = "primary-button qm-action-btn";
+      callLink.textContent = "📞 Call Now";
+
+      const waLink = document.createElement("a");
+      waLink.href = `https://wa.me/${waDigits}`;
+      waLink.target = "_blank";
+      waLink.rel = "noopener noreferrer";
+      waLink.className = "ghost-button qm-action-btn";
+      waLink.textContent = "💬 WhatsApp";
+
+      actionsEl.append(callLink, waLink);
+    }
+  }
+
+  modal.classList.remove("hidden");
+  document.body.style.overflow = "hidden";
+}
+
+function closeMemberQuickModal() {
+  const modal = document.getElementById("memberQuickModal");
+  if (!modal) return;
+  modal.classList.add("hidden");
+  document.body.style.overflow = "";
+}
+
+document.getElementById("closeQmBtn")?.addEventListener("click", closeMemberQuickModal);
+document.getElementById("qmBackdrop")?.addEventListener("click", closeMemberQuickModal);
+document.addEventListener("keydown", event => {
+  if (event.key === "Escape") closeMemberQuickModal();
+});
+
 async function loadMembers() {
   const list = $("#membersList");
   const search = $("#memberSearch");
+  const countBadge = $("#memberCountBadge");
+  const areaFilters = $("#memberAreaFilters");
 
   if (!list) return;
 
@@ -898,49 +996,108 @@ async function loadMembers() {
       ? data.members
       : [];
 
+    let selectedArea = "ALL";
+
+    // Build dynamic area filter chips
+    if (areaFilters) {
+      areaFilters.replaceChildren();
+      const uniqueAreas = [...new Set(members.map(m => String(m.area || "").trim()).filter(Boolean))];
+
+      if (uniqueAreas.length > 1) {
+        const allAreas = ["ALL", ...uniqueAreas];
+        allAreas.forEach(area => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "area-chip" + (area === selectedArea ? " active" : "");
+          btn.textContent = area === "ALL" ? `All (${members.length})` : area;
+
+          btn.addEventListener("click", () => {
+            selectedArea = area;
+            areaFilters.querySelectorAll(".area-chip").forEach(c => c.classList.remove("active"));
+            btn.classList.add("active");
+            render();
+          });
+
+          areaFilters.append(btn);
+        });
+      }
+    }
+
     const render = () => {
       const q = (search?.value || "").trim().toLowerCase();
-
       list.replaceChildren();
 
-      const filtered = members.filter(m =>
-        [m.name, m.id, m.area].some(v =>
+      const filtered = members.filter(m => {
+        const matchesArea = selectedArea === "ALL" || String(m.area || "").trim() === selectedArea;
+        const matchesQuery = !q || [m.name, m.id, m.area].some(v =>
           String(v || "").toLowerCase().includes(q)
-        )
-      );
+        );
+        return matchesArea && matchesQuery;
+      });
+
+      if (countBadge) {
+        countBadge.textContent = filtered.length === members.length
+          ? `Total: ${members.length} Members`
+          : `Showing ${filtered.length} of ${members.length}`;
+      }
 
       if (!filtered.length) {
         const p = document.createElement("p");
-
         p.className = "muted";
+        p.style.gridColumn = "1 / -1";
         p.textContent = "No matching members found.";
-
         list.append(p);
         return;
       }
 
       filtered.forEach(m => {
-        const card = document.createElement("article");
-        card.className = "member-item";
+        const card = document.createElement("button");
+        card.type = "button";
+        card.className = "member-card";
+        card.setAttribute("aria-label", `View details for ${m.name || "Member"}`);
+
+        card.addEventListener("click", () => openMemberQuickModal(m));
 
         card.append(avatarNode(m));
 
-        const info = document.createElement("div");
-        info.className = "member-item-info";
+        const body = document.createElement("div");
+        body.className = "member-card-body";
+
+        const top = document.createElement("div");
+        top.className = "member-card-top";
 
         const name = document.createElement("strong");
         name.textContent = m.name || "Member";
 
-        const meta = document.createElement("small");
+        const statusText = (m.status || "Active").trim();
+        const statusPill = document.createElement("span");
+        statusPill.className = "member-status-pill" + (/inactive|suspended|closed/i.test(statusText) ? " inactive" : "");
+        statusPill.textContent = statusText;
 
-        meta.textContent = [
-          m.id ? "ID: " + m.id : "",
-          m.area || "",
-          m.status || ""
-        ].filter(Boolean).join(" · ");
+        top.append(name, statusPill);
 
-        info.append(name, meta);
-        card.append(info);
+        const meta = document.createElement("div");
+        meta.className = "member-card-meta";
+
+        if (m.id) {
+          const idPill = document.createElement("span");
+          idPill.className = "member-id-pill";
+          idPill.textContent = `ID: ${m.id}`;
+          meta.append(idPill);
+        }
+
+        if (m.area) {
+          const areaTag = document.createElement("span");
+          areaTag.className = "member-area-tag";
+          areaTag.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>`;
+          const areaText = document.createElement("span");
+          areaText.textContent = m.area;
+          areaTag.append(areaText);
+          meta.append(areaTag);
+        }
+
+        body.append(top, meta);
+        card.append(body);
         list.append(card);
       });
     };
@@ -952,10 +1109,12 @@ async function loadMembers() {
     }
 
   } catch (err) {
+    if (countBadge) countBadge.textContent = "Error";
     list.replaceChildren();
 
     const p = document.createElement("p");
     p.className = "error-text";
+    p.style.gridColumn = "1 / -1";
     p.textContent =
       err.message || "Member list could not be loaded.";
 
