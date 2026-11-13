@@ -6,7 +6,8 @@ const API = {
   member: "/api/member",
   payments: "/api/payments",
   logout: "/api/logout",
-  members: "/api/members"
+  members: "/api/members",
+  verify: "/api/verify"
 };
 
 const $ = selector => document.querySelector(selector);
@@ -31,8 +32,10 @@ const PUBLIC_SCREENS = new Set([
   "noticesPanel", "blogPanel", "aboutPanel"
 ]);
 
+const IS_PUBLIC_VERIFY = new URLSearchParams(location.search).has("verify");
+
 function message(title, text, error = false) {
-  if (!notice) return;
+  if (!notice || IS_PUBLIC_VERIFY) return;
 
   notice.replaceChildren();
 
@@ -112,6 +115,8 @@ function setScreenVisibility(screenId) {
 }
 
 function showScreen(screenId, updateUrl = true) {
+  if (IS_PUBLIC_VERIFY) return;
+
   if (!SCREEN_IDS.includes(screenId)) {
     screenId = "home";
   }
@@ -162,6 +167,8 @@ function loggedOut(showMessage = false) {
   document.body.classList.remove("member-authenticated", "session-checking");
   document.getElementById("sessionLoader")?.classList.add("hidden");
   localStorage.removeItem(KEY);
+
+  if (IS_PUBLIC_VERIFY) return;
 
   loginPanel?.classList.remove("hidden");
   memberPanel?.classList.add("hidden");
@@ -336,7 +343,42 @@ function renderProfile(member) {
   }
 
   if (profileId) {
-    profileId.textContent = "Member ID: " + (member.id || "—");
+    profileId.textContent = "ID: " + (member.id || "—");
+  }
+
+  // Digital Member ID Card Data & QR Code with Random Hint (rh)
+  window.__currentVerifyUrl = "";
+  window.__currentMemberId = member.id || "Member";
+
+  const idCardArea = document.getElementById("idCardArea");
+  if (idCardArea) idCardArea.textContent = member.area || "—";
+
+  const idCardPhone = document.getElementById("idCardPhone");
+  if (idCardPhone) idCardPhone.textContent = member.phone || "—";
+
+  const idCardEmail = document.getElementById("idCardEmail");
+  if (idCardEmail) idCardEmail.textContent = member.email || "—";
+
+  const idCardStatus = document.getElementById("idCardStatus");
+  if (idCardStatus) idCardStatus.textContent = (member.status || "ACTIVE").toUpperCase();
+
+  const idCardHintTag = document.getElementById("idCardHintTag");
+  if (idCardHintTag) idCardHintTag.textContent = member.rh ? `RH: ${member.rh}` : "";
+
+  const qrContainer = document.getElementById("memberQrCode");
+  if (qrContainer && window.QRCode && member.id && member.rh) {
+    qrContainer.replaceChildren();
+    const verifyUrl = `${location.origin}${location.pathname}?verify=${encodeURIComponent(member.id)}&rh=${encodeURIComponent(member.rh)}`;
+    window.__currentVerifyUrl = verifyUrl;
+
+    new window.QRCode(qrContainer, {
+      text: verifyUrl,
+      width: 148,
+      height: 148,
+      colorDark: "#06332c",
+      colorLight: "#ffffff",
+      correctLevel: window.QRCode.CorrectLevel.H
+    });
   }
 
   const box = $("#profileDetails");
@@ -1151,17 +1193,6 @@ if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
   });
 }
 
-if (session()) {
-  document.body.classList.add("session-checking");
-  document.getElementById("sessionLoader")?.classList.remove("hidden");
-  loadData().finally(() => {
-    document.body.classList.remove("session-checking");
-    document.getElementById("sessionLoader")?.classList.add("hidden");
-  });
-} else {
-  loggedOut();
-}
-
 document.querySelectorAll("[data-nav]").forEach(link => {
   link.addEventListener("click", () => {
     const target = link.getAttribute("data-nav");
@@ -1217,3 +1248,148 @@ document.getElementById("statementDownloadBtn")
       document.title = originalTitle;
     }, 1000);
   });
+
+// ========================================
+// DIGITAL ID CARD DOWNLOAD, SHARE & VERIFY
+// ========================================
+
+document.getElementById("downloadIdCardBtn")?.addEventListener("click", async function () {
+  const card = document.getElementById("digitalIdCard");
+  if (!card || !window.html2canvas) {
+    alert("ID Card generator is loading. Please try again.");
+    return;
+  }
+
+  const btn = this;
+  const originalText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = "Generating PNG…";
+
+  try {
+    const canvas = await window.html2canvas(card, {
+      scale: 3,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: null
+    });
+
+    const link = document.createElement("a");
+    link.download = `${window.__currentMemberId || "NAF"}_Member_ID_Card.png`;
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+  } catch {
+    alert("Could not download ID card image. Please try taking a screenshot.");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = originalText;
+  }
+});
+
+document.getElementById("shareIdCardBtn")?.addEventListener("click", async function () {
+  const url = window.__currentVerifyUrl;
+  if (!url) return;
+
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        title: "NAF CARE GROUP - Digital Member ID",
+        text: "Verify my official NAF CARE GROUP membership:",
+        url
+      });
+      return;
+    } catch {
+      // Fallback to clipboard copy if cancelled or unsupported
+    }
+  }
+
+  try {
+    await navigator.clipboard.writeText(url);
+    const btn = this;
+    const orig = btn.textContent;
+    btn.textContent = "Link Copied ✓";
+    setTimeout(() => {
+      btn.textContent = orig;
+    }, 2000);
+  } catch {
+    prompt("Copy your verification link:", url);
+  }
+});
+
+async function checkPublicVerification() {
+  const params = new URLSearchParams(location.search);
+  const verifyId = params.get("verify")?.trim();
+  const rh = params.get("rh")?.trim();
+
+  document.body.classList.add("public-verify-mode");
+  document.body.classList.remove("session-checking");
+  document.getElementById("sessionLoader")?.classList.add("hidden");
+
+  const screen = document.getElementById("verifyScreen");
+  const resultBox = document.getElementById("verifyResult");
+  screen?.classList.remove("hidden");
+
+  if (!verifyId || !rh) {
+    resultBox.innerHTML = `
+      <span class="verify-badge-fail">✕ INVALID LINK</span>
+      <h2>Verification Failed</h2>
+      <p class="muted">Member ID or Security Hint (rh) is missing. Please scan an official QR code.</p>
+    `;
+    return;
+  }
+
+  try {
+    const res = await fetch(
+      `${API.verify}?id=${encodeURIComponent(verifyId)}&rh=${encodeURIComponent(rh)}`,
+      { cache: "no-store" }
+    );
+    const data = await res.json();
+
+    if (!res.ok || !data.verified || !data.member) {
+      resultBox.innerHTML = `
+        <span class="verify-badge-fail">✕ NOT VERIFIED</span>
+        <h2>Verification Failed</h2>
+        <p class="muted">${data.error || "Invalid Member ID or Security Hint."}</p>
+      `;
+      return;
+    }
+
+    const m = data.member;
+    const initial = (m.name || "M").trim().charAt(0).toUpperCase();
+    const photoHtml = m.photoUrl && /^https:\/\/.+/i.test(m.photoUrl)
+      ? `<img src="${m.photoUrl}" alt="${m.name}" referrerpolicy="no-referrer">`
+      : initial;
+
+    resultBox.innerHTML = `
+      <span class="verify-badge-ok">✓ VERIFIED MEMBER</span>
+      <div class="verify-photo">${photoHtml}</div>
+      <h2>${m.name}</h2>
+      <p class="muted">Member ID: <strong>${m.id}</strong></p>
+      <div class="verify-meta-box">
+        <div><span>Status</span><strong style="color:#5eead4">${m.status || "Active"}</strong></div>
+        <div><span>Ward / Area</span><strong>${m.area || "—"}</strong></div>
+        <div><span>Phone</span><strong>${m.phoneMasked || "—"}</strong></div>
+        <div><span>Email</span><strong>${m.emailMasked || "—"}</strong></div>
+        <div><span>Organization</span><strong>NAF CARE GROUP</strong></div>
+      </div>
+    `;
+  } catch {
+    resultBox.innerHTML = `
+      <span class="verify-badge-fail">CONNECTION ERROR</span>
+      <p class="muted">Could not verify member right now. Please try again.</p>
+    `;
+  }
+}
+
+// App Entry Point
+if (IS_PUBLIC_VERIFY) {
+  checkPublicVerification();
+} else if (session()) {
+  document.body.classList.add("session-checking");
+  document.getElementById("sessionLoader")?.classList.remove("hidden");
+  loadData().finally(() => {
+    document.body.classList.remove("session-checking");
+    document.getElementById("sessionLoader")?.classList.add("hidden");
+  });
+} else {
+  loggedOut();
+}
