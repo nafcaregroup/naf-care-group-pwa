@@ -1833,3 +1833,21 @@ window.addEventListener("appinstalled", () => {
   observer.observe(paymentsBody, { childList: true });
   injectReceiptButtons();
 })();
+
+
+
+
+// ৫. রিসিটের নিচে ভেরিফিকেশন QR কোড তৈরি করা
+      const qrBox = document.getElementById("rec-qr-box");
+      if (qrBox && window.QRCode) {
+        qrBox.innerHTML = "";
+        const verifyUrl = `${window.location.origin}${window.location.pathname}?verify=${encodeURIComponent(memberId)}`;
+        new QRCode(qrBox, {
+          text: verifyUrl,
+          width: 56,
+          height: 56,
+          colorDark: "#064e3b",
+          colorLight: "#ffffff",
+          correctLevel: QRCode.CorrectLevel.M
+        });
+      }
