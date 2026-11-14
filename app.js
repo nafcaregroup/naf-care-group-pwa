@@ -1703,6 +1703,10 @@ window.addEventListener("appinstalled", () => {
 });
 
 
+
+
+
+
 /* =========================================================
    NAF CARE GROUP - INDIVIDUAL MONTH PDF RECEIPT GENERATOR
    ========================================================= */
@@ -1752,7 +1756,7 @@ window.addEventListener("appinstalled", () => {
     }
 
     try {
-      // ১. পেজের DOM থেকে মেম্বারের তথ্য নেওয়া
+      // ১. পেজের DOM থেকে মেম্বারের তথ্য নেওয়া
       const memberName =
         document.getElementById("profileName")?.textContent.trim() ||
         document.getElementById("sidebarMemberName")?.textContent.trim() ||
@@ -1764,7 +1768,7 @@ window.addEventListener("appinstalled", () => {
       const phone =
         document.getElementById("idCardPhone")?.textContent.trim() || "N/A";
 
-      // ২. পেজের DOM থেকে ৫টি সামারি ফিল্ড নেওয়া
+      // ২. পেজের DOM থেকে ৫টি সামারি ফিল্ড নেওয়া
       const capPaid = document.getElementById("capitalPaid")?.textContent.trim() || "৳0";
       const capDue = document.getElementById("capitalDue")?.textContent.trim() || "৳0";
       const monPaid = document.getElementById("monthlyPaid")?.textContent.trim() || "৳0";
@@ -1794,10 +1798,39 @@ window.addEventListener("appinstalled", () => {
       document.getElementById("rec-mon-due").textContent = monDue;
       document.getElementById("rec-total-due").textContent = totDue;
 
-      // ৪. html2canvas + jsPDF দিয়ে HD A5 PDF তৈরি করা
+      // ৪. রিসিটের নিচে আল্ট্রা-শার্প (256x256px) ভেরিফিকেশন QR কোড তৈরি করা
+      const qrBox = document.getElementById("rec-qr-box");
+      if (qrBox && window.QRCode) {
+        qrBox.innerHTML = "";
+        const verifyUrl = `${window.location.origin}${window.location.pathname}?verify=${encodeURIComponent(memberId)}`;
+
+        const tempDiv = document.createElement("div");
+        new QRCode(tempDiv, {
+          text: verifyUrl,
+          width: 256,
+          height: 256,
+          colorDark: "#064e3b",
+          colorLight: "#ffffff",
+          correctLevel: QRCode.CorrectLevel.H
+        });
+
+        await new Promise((resolve) => setTimeout(resolve, 150));
+        const qrCanvas = tempDiv.querySelector("canvas");
+        if (qrCanvas) {
+          const qrImg = document.createElement("img");
+          qrImg.src = qrCanvas.toDataURL("image/png");
+          qrImg.style.width = "54px";
+          qrImg.style.height = "54px";
+          qrImg.style.display = "block";
+          qrImg.style.imageRendering = "pixelated";
+          qrBox.appendChild(qrImg);
+        }
+      }
+
+      // ৫. html2canvas (scale: 3) + jsPDF দিয়ে HD A5 PDF তৈরি করা
       const receiptEl = document.getElementById("naf-receipt-box");
       const canvas = await html2canvas(receiptEl, {
-        scale: 2,
+        scale: 3,
         useCORS: true,
         backgroundColor: "#ffffff"
       });
@@ -1828,26 +1861,8 @@ window.addEventListener("appinstalled", () => {
     }
   }
 
-  // টেবিল লোড বা আপডেট হওয়ার সাথে সাথে বাটন যুক্ত করার Observer
+  // টেবিল লোড বা আপডেট হওয়ার সাথে সাথে বাটন যুক্ত করার Observer
   const observer = new MutationObserver(() => injectReceiptButtons());
   observer.observe(paymentsBody, { childList: true });
   injectReceiptButtons();
 })();
-
-
-
-
-// ৫. রিসিটের নিচে ভেরিফিকেশন QR কোড তৈরি করা
-      const qrBox = document.getElementById("rec-qr-box");
-      if (qrBox && window.QRCode) {
-        qrBox.innerHTML = "";
-        const verifyUrl = `${window.location.origin}${window.location.pathname}?verify=${encodeURIComponent(memberId)}`;
-        new QRCode(qrBox, {
-          text: verifyUrl,
-          width: 56,
-          height: 56,
-          colorDark: "#064e3b",
-          colorLight: "#ffffff",
-          correctLevel: QRCode.CorrectLevel.M
-        });
-      }
