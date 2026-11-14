@@ -1798,36 +1798,7 @@ window.addEventListener("appinstalled", () => {
       document.getElementById("rec-mon-due").textContent = monDue;
       document.getElementById("rec-total-due").textContent = totDue;
 
-      // ৪. রিসিটের নিচে আল্ট্রা-শার্প (256x256px) ভেরিফিকেশন QR কোড তৈরি করা
-      const qrBox = document.getElementById("rec-qr-box");
-      if (qrBox && window.QRCode) {
-        qrBox.innerHTML = "";
-        const verifyUrl = `${window.location.origin}${window.location.pathname}?verify=${encodeURIComponent(memberId)}`;
-
-        const tempDiv = document.createElement("div");
-        new QRCode(tempDiv, {
-          text: verifyUrl,
-          width: 256,
-          height: 256,
-          colorDark: "#064e3b",
-          colorLight: "#ffffff",
-          correctLevel: QRCode.CorrectLevel.H
-        });
-
-        await new Promise((resolve) => setTimeout(resolve, 150));
-        const qrCanvas = tempDiv.querySelector("canvas");
-        if (qrCanvas) {
-          const qrImg = document.createElement("img");
-          qrImg.src = qrCanvas.toDataURL("image/png");
-          qrImg.style.width = "54px";
-          qrImg.style.height = "54px";
-          qrImg.style.display = "block";
-          qrImg.style.imageRendering = "pixelated";
-          qrBox.appendChild(qrImg);
-        }
-      }
-
-      // ৫. html2canvas (scale: 3) + jsPDF দিয়ে HD A5 PDF তৈরি করা
+      // ৪. html2canvas + jsPDF দিয়ে HD A5 PDF তৈরি করা
       const receiptEl = document.getElementById("naf-receipt-box");
       const canvas = await html2canvas(receiptEl, {
         scale: 3,
