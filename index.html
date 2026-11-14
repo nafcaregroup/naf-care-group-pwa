@@ -48,6 +48,31 @@
     .see-more-btn[hidden] {
       display: none !important;
     }
+
+    .receipt-dl-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 5px 10px;
+      border: 1px solid rgba(16, 185, 129, 0.45);
+      border-radius: 6px;
+      background: rgba(16, 185, 129, 0.16);
+      color: #34d399;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s ease;
+    }
+
+    .receipt-dl-btn:hover {
+      background: rgba(16, 185, 129, 0.28);
+    }
+
+    .receipt-dl-btn:disabled {
+      opacity: 0.6;
+      cursor: wait;
+    }
   </style>
 </head>
 
@@ -88,7 +113,6 @@
           <a href="#aboutPanel" class="nav-link" data-nav="aboutPanel"><span class="nav-icon"><i data-lucide="heart"></i></span>About Us</a>
           <a href="#settingsPanel" class="nav-link" data-nav="settingsPanel"><span class="nav-icon"><i data-lucide="settings"></i></span>Settings</a>
 
-          <!-- Install App Button Added Here -->
           <button id="installAppBtn" class="nav-link hidden" type="button" style="background: rgba(8, 120, 74, 0.2); color: #fff; margin-top: 8px; border: 1px dashed rgba(255,255,255,0.35);">
             <span class="nav-icon"><i data-lucide="download"></i></span>Install App
           </button>
@@ -290,10 +314,10 @@
             <div class="table-wrap">
               <table class="payments-table">
                 <thead>
-                  <tr><th>Month</th><th>Required</th><th>Paid</th><th>Due</th><th>Status</th></tr>
+                  <tr><th>Month</th><th>Required</th><th>Paid</th><th>Due</th><th>Status</th><th>Receipt</th></tr>
                 </thead>
                 <tbody id="paymentsBody">
-                  <tr><td colspan="5">Log in to load your history.</td></tr>
+                  <tr><td colspan="6">Log in to load your history.</td></tr>
                 </tbody>
               </table>
             </div>
@@ -376,7 +400,6 @@
             <div id="digitalIdCard" class="horiz-id-card">
               <div class="id-watermark"></div>
 
-              <!-- Top Banner: Group Name + Skewed Logo Box -->
               <div class="horiz-header">
                 <div class="horiz-header-title">
                   <strong>NAF CARE GROUP</strong>
@@ -387,7 +410,6 @@
                 </div>
               </div>
 
-              <!-- Main 3-Column Horizontal Body: Photo | Info | Large Crisp QR -->
               <div class="horiz-body">
                 <div class="horiz-photo-col">
                   <div class="horiz-photo-frame">
@@ -426,7 +448,6 @@
                 </div>
               </div>
 
-              <!-- Bottom Status Bar & Real Scannable Barcode -->
               <div class="horiz-footer">
                 <div class="horiz-role-badge">
                   <span id="idCardStatus">MEMBER</span>
@@ -568,9 +589,118 @@
     </div>
   </div>
 
+  <!-- Hidden PDF Receipt Template -->
+  <div style="position: fixed; left: -9999px; top: 0;" aria-hidden="true">
+    <div id="naf-receipt-box" style="width: 560px; padding: 32px; background: #ffffff; color: #0f172a; font-family: 'Inter', 'Noto Sans Bengali', sans-serif; border-top: 8px solid #065f46; border-bottom: 8px solid #065f46; box-sizing: border-box;">
+      
+      <!-- Header -->
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 16px; margin-bottom: 18px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <img src="https://nafcare.github.io/nafcare.png" crossorigin="anonymous" alt="Logo" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid #065f46;">
+          <div>
+            <h2 style="margin: 0; color: #065f46; font-size: 20px; font-weight: 800; letter-spacing: 0.4px;">NAF CARE GROUP</h2>
+            <p style="margin: 2px 0 0; font-size: 12px; color: #64748b;">Together for a Better Tomorrow</p>
+          </div>
+        </div>
+        <div style="text-align: right;">
+          <div style="background: #dcfce7; color: #166534; padding: 4px 12px; border-radius: 4px; font-weight: 800; font-size: 12px; border: 1px solid #86efac; display: inline-block;">
+            ✓ PAID RECEIPT
+          </div>
+          <p style="margin: 6px 0 0; font-size: 11px; color: #475569;">Ref: <strong id="rec-no">NCG-000</strong></p>
+        </div>
+      </div>
+
+      <!-- Member Info -->
+      <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px 16px; border-radius: 8px; margin-bottom: 18px; font-size: 13px;">
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 4px 0; color: #64748b; width: 34%;">Member Name:</td>
+            <td style="padding: 4px 0; font-weight: 700; color: #0f172a;" id="rec-name">—</td>
+          </tr>
+          <tr>
+            <td style="padding: 4px 0; color: #64748b;">Member ID:</td>
+            <td style="padding: 4px 0; font-weight: 700; color: #0f172a;" id="rec-id">—</td>
+          </tr>
+          <tr>
+            <td style="padding: 4px 0; color: #64748b;">Phone Number:</td>
+            <td style="padding: 4px 0; font-weight: 600; color: #0f172a;" id="rec-phone">—</td>
+          </tr>
+          <tr>
+            <td style="padding: 4px 0; color: #64748b;">Receipt Issued:</td>
+            <td style="padding: 4px 0; font-weight: 600; color: #0f172a;" id="rec-issue-date">—</td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Contribution Breakdown -->
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 18px; font-size: 13px;">
+        <thead>
+          <tr style="background: #065f46; color: #ffffff;">
+            <th style="padding: 10px 12px; text-align: left;">Contribution Month</th>
+            <th style="padding: 10px 12px; text-align: right;">Required</th>
+            <th style="padding: 10px 12px; text-align: right;">Paid</th>
+            <th style="padding: 10px 12px; text-align: right;">Due</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom: 1px solid #cbd5e1;">
+            <td style="padding: 12px; font-weight: 700;" id="rec-month">—</td>
+            <td style="padding: 12px; text-align: right;" id="rec-req">৳0</td>
+            <td style="padding: 12px; text-align: right; font-weight: 800; color: #065f46;" id="rec-paid">৳0</td>
+            <td style="padding: 12px; text-align: right; color: #64748b;" id="rec-due">৳0</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Overall Account Summary (5 Required Fields) -->
+      <div style="margin-bottom: 22px;">
+        <p style="margin: 0 0 6px; font-size: 11px; font-weight: 800; color: #475569; letter-spacing: 0.5px;">OVERALL ACCOUNT SUMMARY</p>
+        <table style="width: 100%; border-collapse: collapse; font-size: 12px; text-align: center; border: 1px solid #cbd5e1;">
+          <thead>
+            <tr style="background: #f1f5f9; color: #334155; border-bottom: 1px solid #cbd5e1;">
+              <th style="padding: 8px 6px; border-right: 1px solid #cbd5e1;">Capital Paid</th>
+              <th style="padding: 8px 6px; border-right: 1px solid #cbd5e1;">Capital Due</th>
+              <th style="padding: 8px 6px; border-right: 1px solid #cbd5e1;">Monthly Paid</th>
+              <th style="padding: 8px 6px;">Monthly Due</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="background: #ffffff; font-weight: 800; font-size: 13px;">
+              <td style="padding: 10px 6px; border-right: 1px solid #cbd5e1; color: #065f46;" id="rec-cap-paid">৳0</td>
+              <td style="padding: 10px 6px; border-right: 1px solid #cbd5e1; color: #dc2626;" id="rec-cap-due">৳0</td>
+              <td style="padding: 10px 6px; border-right: 1px solid #cbd5e1; color: #065f46;" id="rec-mon-paid">৳0</td>
+              <td style="padding: 10px 6px; color: #dc2626;" id="rec-mon-due">৳0</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr style="background: #ecfdf5; border-top: 1px solid #6ee7b7;">
+              <td colspan="3" style="padding: 8px 12px; text-align: right; font-weight: 800; color: #065f46;">TOTAL DUE:</td>
+              <td style="padding: 8px 12px; text-align: center; font-weight: 900; font-size: 14px; color: #dc2626;" id="rec-total-due">৳0</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <!-- Footer & Stamp -->
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; border-top: 1px solid #e2e8f0; padding-top: 14px; font-size: 11px; color: #64748b;">
+        <div>
+          <p style="margin: 0;">System-generated digital receipt.</p>
+          <p style="margin: 2px 0 0;">Verified from NAF Care Group Official Ledger.</p>
+        </div>
+        <div style="text-align: center;">
+          <div style="border: 1.5px solid #065f46; color: #065f46; padding: 4px 10px; border-radius: 4px; font-weight: 800; font-size: 10px; letter-spacing: 1px; transform: rotate(-3deg);">
+            DIGITALLY VERIFIED
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="./app.js" defer></script>
   <script>
