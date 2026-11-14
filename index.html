@@ -589,111 +589,122 @@
     </div>
   </div>
 
-  <!-- Hidden PDF Receipt Template -->
+  <!-- Hidden Premium PDF Receipt Template -->
   <div style="position: fixed; left: -9999px; top: 0;" aria-hidden="true">
-    <div id="naf-receipt-box" style="width: 560px; padding: 32px; background: #ffffff; color: #0f172a; font-family: 'Inter', 'Noto Sans Bengali', sans-serif; border-top: 8px solid #065f46; border-bottom: 8px solid #065f46; box-sizing: border-box;">
+    <div id="naf-receipt-box" style="width: 580px; background: #ffffff; color: #0f172a; font-family: 'Inter', 'Noto Sans Bengali', sans-serif; box-sizing: border-box; border: 1px solid #cbd5e1; position: relative; overflow: hidden;">
       
-      <!-- Header -->
-      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 16px; margin-bottom: 18px;">
-        <div style="display: flex; align-items: center; gap: 12px;">
-          <img src="https://nafcare.github.io/nafcare.png" crossorigin="anonymous" alt="Logo" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid #065f46;">
+      <!-- Subtle Background Watermark -->
+      <img src="https://nafcare.github.io/nafcare.png" crossorigin="anonymous" alt="" style="position: absolute; top: 52%; left: 50%; transform: translate(-50%, -50%); width: 250px; height: 250px; opacity: 0.045; pointer-events: none;">
+
+      <!-- Premium Dark Emerald Top Banner -->
+      <div style="background: linear-gradient(135deg, #064e3b 0%, #065f46 65%, #047857 100%); color: #ffffff; padding: 24px 28px; display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid #d97706;">
+        <div style="display: flex; align-items: center; gap: 14px;">
+          <img src="https://nafcare.github.io/nafcare.png" crossorigin="anonymous" alt="Logo" style="width: 54px; height: 54px; border-radius: 50%; object-fit: cover; border: 2.5px solid #fbbf24; background: #ffffff;">
           <div>
-            <h2 style="margin: 0; color: #065f46; font-size: 20px; font-weight: 800; letter-spacing: 0.4px;">NAF CARE GROUP</h2>
-            <p style="margin: 2px 0 0; font-size: 12px; color: #64748b;">Together for a Better Tomorrow</p>
+            <div style="font-size: 10px; font-weight: 700; letter-spacing: 1.5px; color: #fde68a; text-transform: uppercase; margin-bottom: 2px;">Official Contribution Receipt</div>
+            <h2 style="margin: 0; color: #ffffff; font-size: 21px; font-weight: 900; letter-spacing: 0.5px;">NAF CARE GROUP</h2>
+            <p style="margin: 2px 0 0; font-size: 11.5px; color: #d1fae5; font-weight: 500;">Together for a Better Tomorrow</p>
           </div>
         </div>
         <div style="text-align: right;">
-          <div style="background: #dcfce7; color: #166534; padding: 4px 12px; border-radius: 4px; font-weight: 800; font-size: 12px; border: 1px solid #86efac; display: inline-block;">
-            ✓ PAID RECEIPT
+          <div style="background: #10b981; color: #022c22; padding: 5px 12px; border-radius: 999px; font-weight: 900; font-size: 11px; letter-spacing: 0.6px; display: inline-block; box-shadow: 0 2px 6px rgba(0,0,0,0.2);">
+            ✓ PAID & VERIFIED
           </div>
-          <p style="margin: 6px 0 0; font-size: 11px; color: #475569;">Ref: <strong id="rec-no">NCG-000</strong></p>
+          <div style="margin-top: 8px; font-size: 10.5px; color: #a7f3d0; font-weight: 600;">RECEIPT NO</div>
+          <div id="rec-no" style="font-size: 12px; font-weight: 800; color: #ffffff; letter-spacing: 0.4px;">NCG-000</div>
         </div>
       </div>
 
-      <!-- Member Info -->
-      <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px 16px; border-radius: 8px; margin-bottom: 18px; font-size: 13px;">
-        <table style="width: 100%; border-collapse: collapse;">
-          <tr>
-            <td style="padding: 4px 0; color: #64748b; width: 34%;">Member Name:</td>
-            <td style="padding: 4px 0; font-weight: 700; color: #0f172a;" id="rec-name">—</td>
-          </tr>
-          <tr>
-            <td style="padding: 4px 0; color: #64748b;">Member ID:</td>
-            <td style="padding: 4px 0; font-weight: 700; color: #0f172a;" id="rec-id">—</td>
-          </tr>
-          <tr>
-            <td style="padding: 4px 0; color: #64748b;">Phone Number:</td>
-            <td style="padding: 4px 0; font-weight: 600; color: #0f172a;" id="rec-phone">—</td>
-          </tr>
-          <tr>
-            <td style="padding: 4px 0; color: #64748b;">Receipt Issued:</td>
-            <td style="padding: 4px 0; font-weight: 600; color: #0f172a;" id="rec-issue-date">—</td>
-          </tr>
-        </table>
-      </div>
-
-      <!-- Contribution Breakdown -->
-      <table style="width: 100%; border-collapse: collapse; margin-bottom: 18px; font-size: 13px;">
-        <thead>
-          <tr style="background: #065f46; color: #ffffff;">
-            <th style="padding: 10px 12px; text-align: left;">Contribution Month</th>
-            <th style="padding: 10px 12px; text-align: right;">Required</th>
-            <th style="padding: 10px 12px; text-align: right;">Paid</th>
-            <th style="padding: 10px 12px; text-align: right;">Due</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr style="border-bottom: 1px solid #cbd5e1;">
-            <td style="padding: 12px; font-weight: 700;" id="rec-month">—</td>
-            <td style="padding: 12px; text-align: right;" id="rec-req">৳0</td>
-            <td style="padding: 12px; text-align: right; font-weight: 800; color: #065f46;" id="rec-paid">৳0</td>
-            <td style="padding: 12px; text-align: right; color: #64748b;" id="rec-due">৳0</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <!-- Overall Account Summary (5 Required Fields) -->
-      <div style="margin-bottom: 22px;">
-        <p style="margin: 0 0 6px; font-size: 11px; font-weight: 800; color: #475569; letter-spacing: 0.5px;">OVERALL ACCOUNT SUMMARY</p>
-        <table style="width: 100%; border-collapse: collapse; font-size: 12px; text-align: center; border: 1px solid #cbd5e1;">
-          <thead>
-            <tr style="background: #f1f5f9; color: #334155; border-bottom: 1px solid #cbd5e1;">
-              <th style="padding: 8px 6px; border-right: 1px solid #cbd5e1;">Capital Paid</th>
-              <th style="padding: 8px 6px; border-right: 1px solid #cbd5e1;">Capital Due</th>
-              <th style="padding: 8px 6px; border-right: 1px solid #cbd5e1;">Monthly Paid</th>
-              <th style="padding: 8px 6px;">Monthly Due</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr style="background: #ffffff; font-weight: 800; font-size: 13px;">
-              <td style="padding: 10px 6px; border-right: 1px solid #cbd5e1; color: #065f46;" id="rec-cap-paid">৳0</td>
-              <td style="padding: 10px 6px; border-right: 1px solid #cbd5e1; color: #dc2626;" id="rec-cap-due">৳0</td>
-              <td style="padding: 10px 6px; border-right: 1px solid #cbd5e1; color: #065f46;" id="rec-mon-paid">৳0</td>
-              <td style="padding: 10px 6px; color: #dc2626;" id="rec-mon-due">৳0</td>
-            </tr>
-          </tbody>
-          <tfoot>
-            <tr style="background: #ecfdf5; border-top: 1px solid #6ee7b7;">
-              <td colspan="3" style="padding: 8px 12px; text-align: right; font-weight: 800; color: #065f46;">TOTAL DUE:</td>
-              <td style="padding: 8px 12px; text-align: center; font-weight: 900; font-size: 14px; color: #dc2626;" id="rec-total-due">৳0</td>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
-
-      <!-- Footer & Stamp -->
-      <div style="display: flex; justify-content: space-between; align-items: flex-end; border-top: 1px solid #e2e8f0; padding-top: 14px; font-size: 11px; color: #64748b;">
-        <div>
-          <p style="margin: 0;">System-generated digital receipt.</p>
-          <p style="margin: 2px 0 0;">Verified from NAF Care Group Official Ledger.</p>
-        </div>
-        <div style="text-align: center;">
-          <div style="border: 1.5px solid #065f46; color: #065f46; padding: 4px 10px; border-radius: 4px; font-weight: 800; font-size: 10px; letter-spacing: 1px; transform: rotate(-3deg);">
-            DIGITALLY VERIFIED
+      <!-- Main Content Body -->
+      <div style="padding: 24px 28px; position: relative; z-index: 1;">
+        
+        <!-- Member & Receipt Meta Grid -->
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-left: 4px solid #065f46; border-radius: 8px; padding: 14px 18px; margin-bottom: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px 20px; font-size: 12.5px;">
+          <div>
+            <div style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: #64748b; font-weight: 700;">Member Name</div>
+            <div id="rec-name" style="font-size: 14px; font-weight: 800; color: #0f172a; margin-top: 2px;">—</div>
+          </div>
+          <div>
+            <div style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: #64748b; font-weight: 700;">Member ID</div>
+            <div id="rec-id" style="font-size: 14px; font-weight: 800; color: #065f46; margin-top: 2px;">—</div>
+          </div>
+          <div>
+            <div style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: #64748b; font-weight: 700;">Phone Number</div>
+            <div id="rec-phone" style="font-size: 13px; font-weight: 700; color: #1e293b; margin-top: 2px;">—</div>
+          </div>
+          <div>
+            <div style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: #64748b; font-weight: 700;">Receipt Issued Date</div>
+            <div id="rec-issue-date" style="font-size: 13px; font-weight: 700; color: #1e293b; margin-top: 2px;">—</div>
           </div>
         </div>
+
+        <!-- Contribution Breakdown Card -->
+        <div style="border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden; margin-bottom: 20px;">
+          <div style="background: #065f46; color: #ffffff; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; padding: 10px 14px; font-size: 11px; font-weight: 800; letter-spacing: 0.6px; text-transform: uppercase;">
+            <div>Contribution Month</div>
+            <div style="text-align: right;">Required</div>
+            <div style="text-align: right;">Paid</div>
+            <div style="text-align: right;">Due</div>
+          </div>
+          <div style="background: #ffffff; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; padding: 14px; font-size: 13.5px; align-items: center;">
+            <div id="rec-month" style="font-weight: 800; color: #0f172a;">—</div>
+            <div id="rec-req" style="text-align: right; font-weight: 600; color: #475569;">৳0</div>
+            <div id="rec-paid" style="text-align: right; font-weight: 900; color: #059669; font-size: 15px;">৳0</div>
+            <div id="rec-due" style="text-align: right; font-weight: 700; color: #64748b;">৳0</div>
+          </div>
+        </div>
+
+        <!-- Overall Account Summary (5 Required Fields) -->
+        <div style="margin-bottom: 22px;">
+          <div style="font-size: 10.5px; font-weight: 800; color: #475569; letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 8px;">Overall Account Summary</div>
+          
+          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 8px;">
+            <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 10px 8px; text-align: center;">
+              <div style="font-size: 9.5px; font-weight: 700; color: #166534; text-transform: uppercase;">Capital Paid</div>
+              <div id="rec-cap-paid" style="font-size: 13.5px; font-weight: 900; color: #065f46; margin-top: 3px;">৳0</div>
+            </div>
+            <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 6px; padding: 10px 8px; text-align: center;">
+              <div style="font-size: 9.5px; font-weight: 700; color: #991b1b; text-transform: uppercase;">Capital Due</div>
+              <div id="rec-cap-due" style="font-size: 13.5px; font-weight: 900; color: #dc2626; margin-top: 3px;">৳0</div>
+            </div>
+            <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 10px 8px; text-align: center;">
+              <div style="font-size: 9.5px; font-weight: 700; color: #166534; text-transform: uppercase;">Monthly Paid</div>
+              <div id="rec-mon-paid" style="font-size: 13.5px; font-weight: 900; color: #065f46; margin-top: 3px;">৳0</div>
+            </div>
+            <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 6px; padding: 10px 8px; text-align: center;">
+              <div style="font-size: 9.5px; font-weight: 700; color: #991b1b; text-transform: uppercase;">Monthly Due</div>
+              <div id="rec-mon-due" style="font-size: 13.5px; font-weight: 900; color: #dc2626; margin-top: 3px;">৳0</div>
+            </div>
+          </div>
+
+          <!-- Total Due Highlight Bar -->
+          <div style="background: #fff1f2; border: 1px solid #fda4af; border-radius: 6px; padding: 9px 14px; display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-size: 11.5px; font-weight: 800; color: #881337; letter-spacing: 0.5px;">TOTAL OUTSTANDING DUE (CAPITAL + MONTHLY)</span>
+            <span id="rec-total-due" style="font-size: 15px; font-weight: 900; color: #be123c;">৳0</span>
+          </div>
+        </div>
+
+        <!-- Footer with Verification QR Code & Seal -->
+        <div style="border-top: 1.5px dashed #cbd5e1; padding-top: 16px; display: flex; justify-content: space-between; align-items: center; gap: 14px;">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div id="rec-qr-box" style="width: 64px; height: 64px; padding: 4px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; flex-shrink: 0;"></div>
+            <div style="font-size: 10.5px; color: #475569; line-height: 1.45;">
+              <strong style="color: #0f172a; display: block; font-size: 11px;">Scan QR to Verify Member</strong>
+              This is an official computer-generated digital receipt from NAF Care Group Member Portal. No physical signature is required.
+            </div>
+          </div>
+
+          <div style="text-align: center; flex-shrink: 0;">
+            <div style="border: 2px solid #065f46; color: #065f46; background: #ecfdf5; padding: 6px 12px; border-radius: 6px; font-weight: 900; font-size: 10px; letter-spacing: 1px; transform: rotate(-4deg);">
+              DIGITALLY<br>VERIFIED
+            </div>
+          </div>
+        </div>
+
       </div>
 
+      <!-- Bottom Accent Bar -->
+      <div style="height: 6px; background: linear-gradient(90deg, #065f46, #d97706, #065f46);"></div>
     </div>
   </div>
 
