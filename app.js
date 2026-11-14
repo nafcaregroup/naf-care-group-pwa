@@ -1701,3 +1701,135 @@ window.addEventListener("appinstalled", () => {
   deferredPrompt = null;
   installAppBtn?.classList.add("hidden");
 });
+
+
+/* =========================================================
+   NAF CARE GROUP - INDIVIDUAL MONTH PDF RECEIPT GENERATOR
+   ========================================================= */
+(function initMonthlyReceiptFeature() {
+  const paymentsBody = document.getElementById("paymentsBody");
+  if (!paymentsBody) return;
+
+  function injectReceiptButtons() {
+    const rows = paymentsBody.querySelectorAll("tr");
+    rows.forEach((tr) => {
+      const cells = tr.querySelectorAll("td");
+      // ৫টি কলাম (Month, Required, Paid, Due, Status) থাকলে ৬ষ্ঠ কলাম যোগ করবে
+      if (cells.length === 5) {
+        const month = cells[0].textContent.trim();
+        const required = cells[1].textContent.trim();
+        const paid = cells[2].textContent.trim();
+        const due = cells[3].textContent.trim();
+        const status = cells[4].textContent.trim().toUpperCase();
+
+        const receiptTd = document.createElement("td");
+
+        if (status === "PAID") {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "receipt-dl-btn";
+          btn.innerHTML = "⬇ PDF";
+          btn.title = `Download receipt for ${month}`;
+          btn.addEventListener("click", () => {
+            downloadSingleMonthReceipt({ month, required, paid, due }, btn);
+          });
+          receiptTd.appendChild(btn);
+        } else {
+          receiptTd.textContent = "—";
+          receiptTd.style.color = "#64748b";
+          receiptTd.style.textAlign = "center";
+        }
+
+        tr.appendChild(receiptTd);
+      }
+    });
+  }
+
+  async function downloadSingleMonthReceipt(rowData, btnEl) {
+    if (btnEl) {
+      btnEl.disabled = true;
+      btnEl.textContent = "Generating…";
+    }
+
+    try {
+      // ১. পেজের DOM থেকে মেম্বারের তথ্য নেওয়া
+      const memberName =
+        document.getElementById("profileName")?.textContent.trim() ||
+        document.getElementById("sidebarMemberName")?.textContent.trim() ||
+        "Member";
+      const memberId =
+        document.getElementById("profileMemberId")?.textContent.trim() ||
+        document.getElementById("sidebarMemberId")?.textContent.trim() ||
+        "N/A";
+      const phone =
+        document.getElementById("idCardPhone")?.textContent.trim() || "N/A";
+
+      // ২. পেজের DOM থেকে ৫টি সামারি ফিল্ড নেওয়া
+      const capPaid = document.getElementById("capitalPaid")?.textContent.trim() || "৳0";
+      const capDue = document.getElementById("capitalDue")?.textContent.trim() || "৳0";
+      const monPaid = document.getElementById("monthlyPaid")?.textContent.trim() || "৳0";
+      const monDue = document.getElementById("monthlyDue")?.textContent.trim() || "৳0";
+      const totDue = document.getElementById("totalDue")?.textContent.trim() || "৳0";
+
+      // ৩. রিসিট টেমপ্লেটে ডেটা বসানো
+      const cleanMonth = rowData.month.replace(/\s+/g, "").toUpperCase();
+      document.getElementById("rec-no").textContent = `NCG-${cleanMonth}-${memberId}`;
+      document.getElementById("rec-name").textContent = memberName;
+      document.getElementById("rec-id").textContent = memberId;
+      document.getElementById("rec-phone").textContent = phone;
+      document.getElementById("rec-issue-date").textContent = new Date().toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric"
+      });
+
+      document.getElementById("rec-month").textContent = rowData.month;
+      document.getElementById("rec-req").textContent = rowData.required;
+      document.getElementById("rec-paid").textContent = rowData.paid;
+      document.getElementById("rec-due").textContent = rowData.due;
+
+      document.getElementById("rec-cap-paid").textContent = capPaid;
+      document.getElementById("rec-cap-due").textContent = capDue;
+      document.getElementById("rec-mon-paid").textContent = monPaid;
+      document.getElementById("rec-mon-due").textContent = monDue;
+      document.getElementById("rec-total-due").textContent = totDue;
+
+      // ৪. html2canvas + jsPDF দিয়ে HD A5 PDF তৈরি করা
+      const receiptEl = document.getElementById("naf-receipt-box");
+      const canvas = await html2canvas(receiptEl, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: "#ffffff"
+      });
+
+      const imgData = canvas.toDataURL("image/png");
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a5"
+      });
+
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const margin = 8;
+      const imgWidth = pageWidth - margin * 2;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      pdf.addImage(imgData, "PNG", margin, margin, imgWidth, imgHeight);
+      pdf.save(`NAF_Receipt_${memberId}_${rowData.month.replace(/\s+/g, "_")}.pdf`);
+    } catch (err) {
+      console.error("Receipt generation error:", err);
+      alert("Could not generate receipt PDF. Please try again.");
+    } finally {
+      if (btnEl) {
+        btnEl.disabled = false;
+        btnEl.innerHTML = "⬇ PDF";
+      }
+    }
+  }
+
+  // টেবিল লোড বা আপডেট হওয়ার সাথে সাথে বাটন যুক্ত করার Observer
+  const observer = new MutationObserver(() => injectReceiptButtons());
+  observer.observe(paymentsBody, { childList: true });
+  injectReceiptButtons();
+})();
