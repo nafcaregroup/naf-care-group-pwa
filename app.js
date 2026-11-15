@@ -1837,3 +1837,287 @@ window.addEventListener("appinstalled", () => {
   observer.observe(paymentsBody, { childList: true });
   injectReceiptButtons();
 })();
+
+
+
+
+/* =========================================================
+   NAF CARE GROUP - MULTI-PAGE OFFICIAL LETTERHEAD (PAD) PDF
+   ========================================================= */
+(function initOfficialPadPdfFeature() {
+  const downloadBtn = document.getElementById("downloadPostPdfBtn");
+  if (!downloadBtn) return;
+
+  function createPadPageElement({ category, refNo, dateStr, title, isFirstPage, pageNum, totalPages }) {
+    const page = document.createElement("div");
+    page.style.cssText = `
+      width: 794px;
+      height: 1123px;
+      background: #ffffff;
+      color: #1e293b;
+      font-family: 'Kalpurush', 'Noto Sans Bengali', 'Inter', sans-serif;
+      box-sizing: border-box;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border: 1px solid #cbd5e1;
+      overflow: hidden;
+    `;
+
+    // মাঝখানে বড় জলছাপ (Watermark Logo)
+    const watermark = document.createElement("img");
+    watermark.src = "https://nafcare.github.io/nafcare.png";
+    watermark.crossOrigin = "anonymous";
+    watermark.alt = "";
+    watermark.style.cssText = `
+      position: absolute;
+      top: 53%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 390px;
+      height: 390px;
+      opacity: 0.06;
+      pointer-events: none;
+      z-index: 0;
+    `;
+    page.appendChild(watermark);
+
+    // উপরের অংশ (Header + Ref + Subject + Body Slot)
+    const topSection = document.createElement("div");
+    topSection.style.cssText = "position: relative; z-index: 1; display: flex; flex-direction: column; flex: 1;";
+
+    topSection.innerHTML = `
+      <!-- Top Gold & Emerald Accent -->
+      <div style="height: 8px; background: linear-gradient(90deg, #064e3b 0%, #d97706 50%, #064e3b 100%);"></div>
+
+      <!-- Letterhead Header (প্রতিটি পেজেই থাকবে) -->
+      <div style="padding: 24px 46px 18px; border-bottom: 2.5px solid #065f46; display: flex; justify-content: space-between; align-items: center; background: #f8fafc;">
+        <div style="display: flex; align-items: center; gap: 15px;">
+          <img src="https://nafcare.github.io/nafcare.png" crossorigin="anonymous" alt="Logo" style="width: 66px; height: 66px; border-radius: 50%; object-fit: cover; border: 2.5px solid #d97706; background: #ffffff;">
+          <div>
+            <h1 style="margin: 0; font-family: 'Inter', sans-serif; font-size: 25px; font-weight: 900; color: #064e3b; letter-spacing: 0.5px;">NAF CARE GROUP</h1>
+            <p style="margin: 2px 0 0; font-family: 'Inter', sans-serif; font-size: 12.5px; font-weight: 700; color: #047857;">Together for a Better Tomorrow</p>
+            <p style="margin: 3px 0 0; font-family: 'Inter', sans-serif; font-size: 11px; color: #475569;">
+              Email: <strong>nafcaregroup@gmail.com</strong> &nbsp;|&nbsp; Web: <strong>nafcaregroup.blogspot.com</strong>
+            </p>
+          </div>
+        </div>
+
+        <div style="text-align: right; font-family: 'Inter', sans-serif;">
+          <span style="display: inline-block; background: #064e3b; color: #fde68a; font-size: 10.5px; font-weight: 800; padding: 4px 12px; border-radius: 4px; letter-spacing: 1px; text-transform: uppercase;">
+            ${category === "NOTICE" ? "OFFICIAL NOTICE" : "OFFICIAL PUBLICATION"}
+          </span>
+          <div style="margin-top: 7px; font-size: 11px; font-weight: 700; color: #64748b;">
+            Page ${pageNum} of ${totalPages}
+          </div>
+        </div>
+      </div>
+
+      <!-- Ref & Date Bar -->
+      <div style="padding: 10px 46px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; color: #334155; border-bottom: 1px dashed #cbd5e1;">
+        <div><strong>সূত্র / Ref:</strong> <span style="font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 700; color: #065f46;">${refNo}</span></div>
+        <div><strong>তারিখ / Date:</strong> <span style="font-weight: 700;">${dateStr}</span></div>
+      </div>
+
+      ${isFirstPage ? `
+        <!-- Subject Box (প্রথম পেজে পূর্ণ শিরোনাম) -->
+        <div style="padding: 20px 46px 8px;">
+          <div style="background: #f0fdf4; border-left: 4px solid #065f46; padding: 11px 16px; border-radius: 0 6px 6px 0;">
+            <span style="font-size: 13px; font-weight: 700; color: #065f46; display: block; margin-bottom: 2px;">বিষয় / Subject:</span>
+            <h2 style="margin: 0; font-size: 20px; font-weight: 700; color: #0f172a; line-height: 1.4;">${title}</h2>
+          </div>
+        </div>
+      ` : `
+        <!-- ২য় বা পরবর্তী পেজে চলমান শিরোনাম নির্দেশক -->
+        <div style="padding: 12px 46px 4px; font-size: 13.5px; color: #475569; border-bottom: 1px solid #f1f5f9;">
+          <strong>বিষয় (চলমান):</strong> ${title}
+        </div>
+      `}
+    `;
+
+    const bodySlot = document.createElement("div");
+    bodySlot.className = "pad-page-body-slot";
+    bodySlot.style.cssText = `
+      padding: 14px 46px 16px;
+      font-size: 16.5px;
+      line-height: 1.85;
+      color: #1e293b;
+      text-align: justify;
+      word-wrap: break-word;
+      flex: 1;
+    `;
+    topSection.appendChild(bodySlot);
+    page.appendChild(topSection);
+
+    // নিচের ফুটার ও সিগনেচার (প্রতিটি পেজেই থাকবে)
+    const footerSection = document.createElement("div");
+    footerSection.style.cssText = "padding: 0 46px 24px; position: relative; z-index: 1;";
+    footerSection.innerHTML = `
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 14px; margin-bottom: 16px;">
+        <div style="font-size: 12.5px; color: #64748b;">
+          * এটি NAF CARE GROUP পোর্টাল থেকে সংগৃহীত ডিজিটাল কপি।
+        </div>
+        <div style="text-align: center; min-width: 185px;">
+          <div style="border-top: 1.5px solid #0f172a; padding-top: 5px; font-size: 15px; font-weight: 700; color: #0f172a;">কর্তৃপক্ষ / Authority</div>
+          <div style="font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 700; color: #065f46;">NAF CARE GROUP</div>
+        </div>
+      </div>
+
+      <div style="border-top: 2px solid #065f46; padding-top: 8px; display: flex; justify-content: space-between; font-family: 'Inter', sans-serif; font-size: 10.5px; color: #475569;">
+        <span>© NAF CARE GROUP | Contact: nafcaregroup@gmail.com</span>
+        <span>Page ${pageNum} of ${totalPages}</span>
+      </div>
+    `;
+    page.appendChild(footerSection);
+
+    return { page, bodySlot };
+  }
+
+  downloadBtn.addEventListener("click", async function () {
+    if (!window.html2canvas || !window.jspdf) {
+      alert("PDF generator is loading. Please try again in a moment.");
+      return;
+    }
+
+    const title = document.getElementById("readerTitle")?.textContent.trim() || "Official Notice";
+    const dateStr = document.getElementById("readerDate")?.textContent.trim() || new Date().toLocaleDateString("en-GB");
+    const category = document.getElementById("readerCategory")?.textContent.trim() || "NOTICE";
+    const rawBodyHtml = document.getElementById("readerBody")?.innerHTML || "";
+
+    const stage = document.getElementById("naf-pad-render-stage");
+    if (!stage) return;
+
+    const originalText = downloadBtn.textContent;
+    downloadBtn.disabled = true;
+    downloadBtn.textContent = "Generating PDF…";
+
+    try {
+      if (document.fonts && document.fonts.ready) {
+        await document.fonts.ready;
+      }
+
+      const year = new Date().getFullYear();
+      const shortHash = Math.abs(title.split("").reduce((a, b) => ((a << 5) - a) + b.charCodeAt(0), 0)).toString().slice(0, 4);
+      const refNo = `NCG/${category}/${year}-${shortHash}`;
+
+      // কন্টেন্টের ব্লকগুলো আলাদা করে নেওয়া যাতে পেজ ব্রেক সুন্দর হয়
+      const tempParser = document.createElement("div");
+      tempParser.innerHTML = rawBodyHtml;
+
+      tempParser.querySelectorAll("img").forEach(img => {
+        img.crossOrigin = "anonymous";
+        img.style.maxWidth = "100%";
+        img.style.maxHeight = "360px";
+        img.style.height = "auto";
+        img.style.borderRadius = "6px";
+        img.style.margin = "10px 0";
+      });
+
+      const contentNodes = [];
+      Array.from(tempParser.childNodes).forEach(node => {
+        if (node.nodeType === Node.TEXT_NODE) {
+          if (node.textContent.trim()) {
+            const p = document.createElement("p");
+            p.textContent = node.textContent.trim();
+            p.style.margin = "0 0 12px 0";
+            contentNodes.push(p);
+          }
+        } else if (node.nodeType === Node.ELEMENT_NODE) {
+          const clone = node.cloneNode(true);
+          clone.style.fontFamily = "'Kalpurush', 'Noto Sans Bengali', 'Inter', sans-serif";
+          if (!clone.style.marginBottom) clone.style.marginBottom = "12px";
+          contentNodes.push(clone);
+        }
+      });
+
+      // প্রতিটি পেজে সর্বোচ্চ কতটুকু কন্টেন্ট জায়গা নেবে তার সীমা (px)
+      const MAX_HEIGHT_PAGE_1 = 685;
+      const MAX_HEIGHT_NEXT_PAGES = 740;
+
+      // অস্থায়ী মেজারমেন্ট বক্স
+      stage.replaceChildren();
+      const measureBox = document.createElement("div");
+      measureBox.style.cssText = "width: 702px; font-family: 'Kalpurush', 'Noto Sans Bengali', 'Inter', sans-serif; font-size: 16.5px; line-height: 1.85;";
+      stage.appendChild(measureBox);
+
+      const pagesChunks = [[]];
+      let currentPageIdx = 0;
+
+      for (const node of contentNodes) {
+        measureBox.appendChild(node);
+        const limit = currentPageIdx === 0 ? MAX_HEIGHT_PAGE_1 : MAX_HEIGHT_NEXT_PAGES;
+
+        if (measureBox.offsetHeight > limit && pagesChunks[currentPageIdx].length > 0) {
+          measureBox.removeChild(node);
+          currentPageIdx++;
+          pagesChunks[currentPageIdx] = [node];
+          measureBox.replaceChildren(node);
+        } else {
+          pagesChunks[currentPageIdx].push(node);
+        }
+      }
+
+      // প্রতিটি পেজের জন্য আলাদা লেটারহেড DOM তৈরি
+      stage.replaceChildren();
+      const totalPages = pagesChunks.length;
+      const renderedPages = [];
+
+      pagesChunks.forEach((nodes, idx) => {
+        const { page, bodySlot } = createPadPageElement({
+          category,
+          refNo,
+          dateStr,
+          title,
+          isFirstPage: idx === 0,
+          pageNum: idx + 1,
+          totalPages
+        });
+        nodes.forEach(n => bodySlot.appendChild(n));
+        stage.appendChild(page);
+        renderedPages.push(page);
+      });
+
+      // প্রতিটি পেজ আলাদাভাবে ক্যাপচার করে A4 PDF-এ যুক্ত করা
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4"
+      });
+
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+
+      for (let i = 0; i < renderedPages.length; i++) {
+        if (i > 0) pdf.addPage();
+        const canvas = await window.html2canvas(renderedPages[i], {
+          scale: 2.2,
+          useCORS: true,
+          allowTaint: true,
+          backgroundColor: "#ffffff",
+          logging: false
+        });
+        const imgData = canvas.toDataURL("image/png");
+        pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+      }
+
+      stage.replaceChildren();
+
+      const safeFileName = title
+        .replace(/[^\u0980-\u09FFa-zA-Z0-9\s-]/g, "")
+        .trim()
+        .replace(/\s+/g, "_")
+        .slice(0, 40) || "NAF_Notice";
+
+      pdf.save(`NAF_${category}_${safeFileName}.pdf`);
+    } catch (err) {
+      console.error("Official Pad PDF error:", err);
+      alert("PDF তৈরি করতে সমস্যা হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।");
+    } finally {
+      stage.replaceChildren();
+      downloadBtn.disabled = false;
+      downloadBtn.textContent = originalText;
+    }
+  });
+})();
