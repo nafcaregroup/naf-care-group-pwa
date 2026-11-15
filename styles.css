@@ -2037,3 +2037,132 @@ body.public-verify-mode #notice {
   text-decoration: none;
   margin: 0;
 }
+
+
+/* ========================================
+   CONSTITUTION SECTION & ACCORDION
+   ======================================== */
+body:not(.member-authenticated) #constitutionPanel {
+  display: none !important;
+}
+
+.const-pdf-btn {
+  width: auto !important;
+  min-height: 40px !important;
+  margin: 0 !important;
+  padding: 9px 16px !important;
+  font-size: 13px !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border-radius: 999px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.const-pdf-btn svg {
+  width: 16px;
+  height: 16px;
+  flex: none;
+}
+
+.constitution-intro {
+  background: rgba(11, 102, 87, 0.22);
+  border: 1px solid rgba(94, 234, 212, 0.22);
+  border-left: 4px solid #16a388;
+  border-radius: 14px;
+  padding: 15px 17px;
+  margin-bottom: 16px;
+  line-height: 1.75;
+  color: var(--ink);
+}
+
+.constitution-intro p {
+  margin: 0 0 8px;
+}
+
+.constitution-intro p:last-child {
+  margin-bottom: 0;
+}
+
+.constitution-accordion {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.const-item {
+  background: #102420;
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  overflow: hidden;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.const-item:hover {
+  border-color: rgba(94, 234, 212, 0.35);
+}
+
+.const-item[open] {
+  border-color: rgba(94, 234, 212, 0.45);
+  background: #132c27;
+}
+
+.const-item summary {
+  padding: 15px 17px;
+  font-weight: 700;
+  font-size: 15px;
+  color: #ffffff;
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  line-height: 1.45;
+}
+
+.const-item summary::-webkit-details-marker {
+  display: none;
+}
+
+.const-item summary::after {
+  content: "▾";
+  font-size: 18px;
+  color: #5eead4;
+  flex: none;
+  transition: transform 0.2s ease;
+}
+
+.const-item[open] summary::after {
+  transform: rotate(180deg);
+}
+
+.const-body {
+  padding: 4px 17px 16px;
+  border-top: 1px solid var(--line);
+  color: var(--ink);
+  font-size: 14.5px;
+  line-height: 1.8;
+}
+
+.const-body p {
+  margin: 10px 0 0;
+}
+
+.const-body strong {
+  color: #6ee7b7;
+}
+
+@media (max-width: 760px) {
+  .const-item summary {
+    padding: 14px 15px;
+    font-size: 14.5px;
+  }
+
+  .const-body {
+    padding: 4px 15px 15px;
+    font-size: 14px;
+  }
+}
