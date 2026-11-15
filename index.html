@@ -552,9 +552,10 @@
           <button id="closeReaderBtn" class="icon-button reader-close" type="button" aria-label="Close reader">✕</button>
         </div>
         <div id="readerBody" class="reader-body"></div>
-        <div class="reader-footer">
+        <div class="reader-footer" style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end;">
+          <button id="downloadPostPdfBtn" type="button" class="primary-button" style="background: #047857;">⬇ Download Pad PDF</button>
           <a id="readerExternalLink" href="#" target="_blank" rel="noopener noreferrer" class="ghost-button">Open in Browser ↗</a>
-          <button id="closeReaderFooterBtn" class="primary-button reader-done-btn" type="button">Close</button>
+          <button id="closeReaderFooterBtn" class="ghost-button reader-done-btn" type="button">Close</button>
         </div>
       </div>
     </div>
@@ -593,10 +594,8 @@
   <div style="position: fixed; left: -9999px; top: 0;" aria-hidden="true">
     <div id="naf-receipt-box" style="width: 580px; background: #ffffff; color: #0f172a; font-family: 'Inter', 'Noto Sans Bengali', sans-serif; box-sizing: border-box; border: 1px solid #cbd5e1; position: relative; overflow: hidden;">
       
-      <!-- Subtle Background Watermark -->
       <img src="https://nafcare.github.io/nafcare.png" crossorigin="anonymous" alt="" style="position: absolute; top: 52%; left: 50%; transform: translate(-50%, -50%); width: 250px; height: 250px; opacity: 0.045; pointer-events: none;">
 
-      <!-- Premium Dark Emerald Top Banner -->
       <div style="background: linear-gradient(135deg, #064e3b 0%, #065f46 65%, #047857 100%); color: #ffffff; padding: 24px 28px; display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid #d97706;">
         <div style="display: flex; align-items: center; gap: 14px;">
           <img src="https://nafcare.github.io/nafcare.png" crossorigin="anonymous" alt="Logo" style="width: 54px; height: 54px; border-radius: 50%; object-fit: cover; border: 2.5px solid #fbbf24; background: #ffffff;">
@@ -615,10 +614,7 @@
         </div>
       </div>
 
-      <!-- Main Content Body -->
       <div style="padding: 24px 28px; position: relative; z-index: 1;">
-        
-        <!-- Member & Receipt Meta Grid -->
         <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-left: 4px solid #065f46; border-radius: 8px; padding: 14px 18px; margin-bottom: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px 20px; font-size: 12.5px;">
           <div>
             <div style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: #64748b; font-weight: 700;">Member Name</div>
@@ -638,7 +634,6 @@
           </div>
         </div>
 
-        <!-- Contribution Breakdown Card -->
         <div style="border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden; margin-bottom: 20px;">
           <div style="background: #065f46; color: #ffffff; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; padding: 10px 14px; font-size: 11px; font-weight: 800; letter-spacing: 0.6px; text-transform: uppercase;">
             <div>Contribution Month</div>
@@ -654,10 +649,8 @@
           </div>
         </div>
 
-        <!-- Overall Account Summary (5 Required Fields) -->
         <div style="margin-bottom: 22px;">
           <div style="font-size: 10.5px; font-weight: 800; color: #475569; letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 8px;">Overall Account Summary</div>
-          
           <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 8px;">
             <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 10px 8px; text-align: center;">
               <div style="font-size: 9.5px; font-weight: 700; color: #166534; text-transform: uppercase;">Capital Paid</div>
@@ -677,14 +670,12 @@
             </div>
           </div>
 
-          <!-- Total Due Highlight Bar -->
           <div style="background: #fff1f2; border: 1px solid #fda4af; border-radius: 6px; padding: 9px 14px; display: flex; justify-content: space-between; align-items: center;">
             <span style="font-size: 11.5px; font-weight: 800; color: #881337; letter-spacing: 0.5px;">TOTAL OUTSTANDING DUE (CAPITAL + MONTHLY)</span>
             <span id="rec-total-due" style="font-size: 15px; font-weight: 900; color: #be123c;">৳0</span>
           </div>
         </div>
 
-        <!-- Clean Footer & Digital Seal -->
         <div style="border-top: 1.5px dashed #cbd5e1; padding-top: 16px; display: flex; justify-content: space-between; align-items: center; gap: 14px;">
           <div style="font-size: 11px; color: #475569; line-height: 1.5;">
             <strong style="color: #0f172a; display: block; font-size: 11.5px;">System-Generated Digital Receipt</strong>
@@ -697,13 +688,14 @@
             </div>
           </div>
         </div>
-
       </div>
 
-      <!-- Bottom Accent Bar -->
       <div style="height: 6px; background: linear-gradient(90deg, #065f46, #d97706, #065f46);"></div>
     </div>
   </div>
+
+  <!-- Hidden Multi-Page Official Letterhead (Pad) Container -->
+  <div id="naf-pad-render-stage" style="position: fixed; left: -9999px; top: 0; width: 794px;" aria-hidden="true"></div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
