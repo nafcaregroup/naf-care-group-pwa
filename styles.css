@@ -2166,3 +2166,16 @@ body:not(.member-authenticated) #constitutionPanel {
     font-size: 14px;
   }
 }
+
+
+/* Mobile Sidebar above Bottom Navigation */
+@media (max-width: 760px) {
+  body.member-authenticated .app-sidebar {
+    bottom: calc(62px + env(safe-area-inset-bottom));
+    padding-bottom: 20px;
+  }
+
+  body.member-authenticated .drawer-backdrop:not(.hidden) {
+    bottom: calc(62px + env(safe-area-inset-bottom));
+  }
+}
