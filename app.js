@@ -918,7 +918,7 @@ function openMemberQuickModal(member) {
 
   if (areaEl) areaEl.textContent = member.area || "—";
 
-  // এখানে বড়হাতের 'Phone' কলামের ডেটা ধরার জন্য member.Phone যোগ করা হয়েছে
+  // এখানে বড়হাতের 'Phone' কলামের ডেটা ধরার জন্য member.Phone যোগ করা হয়েছে
   const rawPhone = String(
     member.phone || 
     member.Phone || 
@@ -1865,7 +1865,7 @@ window.addEventListener("appinstalled", () => {
       overflow: hidden;
     `;
 
-    // মাঝখানে বড় জলছাপ (Watermark Logo)
+    // মাঝখানে বড় জলছাপ (Watermark Logo)
     const watermark = document.createElement("img");
     watermark.src = "https://nafcare.github.io/nafcare.png";
     watermark.crossOrigin = "anonymous";
@@ -1883,84 +1883,84 @@ window.addEventListener("appinstalled", () => {
     `;
     page.appendChild(watermark);
 
-    // উপরের অংশ (Header + Ref + Subject + Body Slot)
+    // উপরের অংশ (Header + Ref + Subject + 1-inch Margin Body)
     const topSection = document.createElement("div");
-    topSection.style.cssText = "position: relative; z-index: 1; display: flex; flex-direction: column; flex: 1;";
+    topSection.style.cssText = "position: relative; z-index: 1; display: flex; flex-direction: column;";
 
     topSection.innerHTML = `
       <!-- Top Gold & Emerald Accent -->
       <div style="height: 8px; background: linear-gradient(90deg, #064e3b 0%, #d97706 50%, #064e3b 100%);"></div>
 
-      <!-- Letterhead Header (প্রতিটি পেজেই থাকবে) -->
-      <div style="padding: 24px 46px 18px; border-bottom: 2.5px solid #065f46; display: flex; justify-content: space-between; align-items: center; background: #f8fafc;">
-        <div style="display: flex; align-items: center; gap: 15px;">
-          <img src="https://nafcare.github.io/nafcare.png" crossorigin="anonymous" alt="Logo" style="width: 66px; height: 66px; border-radius: 50%; object-fit: cover; border: 2.5px solid #d97706; background: #ffffff;">
+      <!-- Letterhead Header -->
+      <div style="padding: 22px 64px 16px; border-bottom: 2.5px solid #065f46; display: flex; justify-content: space-between; align-items: center; background: #f8fafc;">
+        <div style="display: flex; align-items: center; gap: 14px;">
+          <img src="https://nafcare.github.io/nafcare.png" crossorigin="anonymous" alt="Logo" style="width: 62px; height: 62px; border-radius: 50%; object-fit: cover; border: 2.5px solid #d97706; background: #ffffff;">
           <div>
-            <h1 style="margin: 0; font-family: 'Inter', sans-serif; font-size: 25px; font-weight: 900; color: #064e3b; letter-spacing: 0.5px;">NAF CARE GROUP</h1>
-            <p style="margin: 2px 0 0; font-family: 'Inter', sans-serif; font-size: 12.5px; font-weight: 700; color: #047857;">Together for a Better Tomorrow</p>
-            <p style="margin: 3px 0 0; font-family: 'Inter', sans-serif; font-size: 11px; color: #475569;">
+            <h1 style="margin: 0; font-family: 'Inter', sans-serif; font-size: 24px; font-weight: 900; color: #064e3b; letter-spacing: 0.5px;">NAF CARE GROUP</h1>
+            <p style="margin: 2px 0 0; font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 700; color: #047857;">Together for a Better Tomorrow</p>
+            <p style="margin: 3px 0 0; font-family: 'Inter', sans-serif; font-size: 10.5px; color: #475569;">
               Email: <strong>nafcaregroup@gmail.com</strong> &nbsp;|&nbsp; Web: <strong>nafcaregroup.blogspot.com</strong>
             </p>
           </div>
         </div>
 
         <div style="text-align: right; font-family: 'Inter', sans-serif;">
-          <span style="display: inline-block; background: #064e3b; color: #fde68a; font-size: 10.5px; font-weight: 800; padding: 4px 12px; border-radius: 4px; letter-spacing: 1px; text-transform: uppercase;">
+          <span style="display: inline-block; background: #064e3b; color: #fde68a; font-size: 10px; font-weight: 800; padding: 4px 11px; border-radius: 4px; letter-spacing: 1px; text-transform: uppercase;">
             ${category === "NOTICE" ? "OFFICIAL NOTICE" : "OFFICIAL PUBLICATION"}
           </span>
-          <div style="margin-top: 7px; font-size: 11px; font-weight: 700; color: #64748b;">
+          <div style="margin-top: 6px; font-size: 11px; font-weight: 700; color: #64748b;">
             Page ${pageNum} of ${totalPages}
           </div>
         </div>
       </div>
 
-      <!-- Ref & Date Bar -->
-      <div style="padding: 10px 46px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; color: #334155; border-bottom: 1px dashed #cbd5e1;">
+      <!-- Ref & Date Bar (1-inch = 96px side margin) -->
+      <div style="padding: 10px 96px; display: flex; justify-content: space-between; align-items: center; font-size: 13.5px; color: #334155; border-bottom: 1px dashed #cbd5e1;">
         <div><strong>সূত্র / Ref:</strong> <span style="font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 700; color: #065f46;">${refNo}</span></div>
         <div><strong>তারিখ / Date:</strong> <span style="font-weight: 700;">${dateStr}</span></div>
       </div>
 
       ${isFirstPage ? `
-        <!-- Subject Box (প্রথম পেজে পূর্ণ শিরোনাম) -->
-        <div style="padding: 20px 46px 8px;">
-          <div style="background: #f0fdf4; border-left: 4px solid #065f46; padding: 11px 16px; border-radius: 0 6px 6px 0;">
-            <span style="font-size: 13px; font-weight: 700; color: #065f46; display: block; margin-bottom: 2px;">বিষয় / Subject:</span>
-            <h2 style="margin: 0; font-size: 20px; font-weight: 700; color: #0f172a; line-height: 1.4;">${title}</h2>
+        <!-- Subject Box (1-inch side margin) -->
+        <div style="padding: 18px 96px 6px;">
+          <div style="background: #f0fdf4; border-left: 4px solid #065f46; padding: 10px 14px; border-radius: 0 6px 6px 0;">
+            <span style="font-size: 12.5px; font-weight: 700; color: #065f46; display: block; margin-bottom: 2px;">বিষয় / Subject:</span>
+            <h2 style="margin: 0; font-size: 19px; font-weight: 700; color: #0f172a; line-height: 1.35;">${title}</h2>
           </div>
         </div>
       ` : `
-        <!-- ২য় বা পরবর্তী পেজে চলমান শিরোনাম নির্দেশক -->
-        <div style="padding: 12px 46px 4px; font-size: 13.5px; color: #475569; border-bottom: 1px solid #f1f5f9;">
+        <!-- ২য় বা পরবর্তী পেজে চলমান শিরোনাম -->
+        <div style="padding: 10px 96px 4px; font-size: 13px; color: #475569; border-bottom: 1px solid #f1f5f9;">
           <strong>বিষয় (চলমান):</strong> ${title}
         </div>
       `}
     `;
 
+    // Notice Body (1 inch = 96px left & right margin, পরিমিত line-height)
     const bodySlot = document.createElement("div");
     bodySlot.className = "pad-page-body-slot";
     bodySlot.style.cssText = `
-      padding: 14px 46px 16px;
-      font-size: 16.5px;
-      line-height: 1.85;
+      padding: 12px 96px 10px;
+      font-size: 15.5px;
+      line-height: 1.55;
       color: #1e293b;
-      text-align: justify;
+      text-align: left;
       word-wrap: break-word;
-      flex: 1;
     `;
     topSection.appendChild(bodySlot);
     page.appendChild(topSection);
 
-    // নিচের ফুটার ও সিগনেচার (প্রতিটি পেজেই থাকবে)
+    // নিচের ফুটার ও সিগনেচার (প্রতিটি পেজেই সুরক্ষিত থাকবে)
     const footerSection = document.createElement("div");
-    footerSection.style.cssText = "padding: 0 46px 24px; position: relative; z-index: 1;";
+    footerSection.style.cssText = "padding: 0 96px 26px; position: relative; z-index: 1; background: transparent;";
     footerSection.innerHTML = `
-      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 14px; margin-bottom: 16px;">
-        <div style="font-size: 12.5px; color: #64748b;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 8px; margin-bottom: 14px;">
+        <div style="font-size: 12px; color: #64748b;">
           * এটি NAF CARE GROUP পোর্টাল থেকে সংগৃহীত ডিজিটাল কপি।
         </div>
-        <div style="text-align: center; min-width: 185px;">
-          <div style="border-top: 1.5px solid #0f172a; padding-top: 5px; font-size: 15px; font-weight: 700; color: #0f172a;">কর্তৃপক্ষ / Authority</div>
-          <div style="font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 700; color: #065f46;">NAF CARE GROUP</div>
+        <div style="text-align: center; min-width: 175px;">
+          <div style="border-top: 1.5px solid #0f172a; padding-top: 4px; font-size: 14.5px; font-weight: 700; color: #0f172a;">কর্তৃপক্ষ / Authority</div>
+          <div style="font-family: 'Inter', sans-serif; font-size: 10.5px; font-weight: 700; color: #065f46;">NAF CARE GROUP</div>
         </div>
       </div>
 
@@ -1972,6 +1972,85 @@ window.addEventListener("appinstalled", () => {
     page.appendChild(footerSection);
 
     return { page, bodySlot };
+  }
+
+  // <br> ট্যাগযুক্ত বড় ব্লককে ছোট ছোট লাইন/প্যারাগ্রাফে ভেঙে নেওয়ার ফাংশন
+  function extractCleanContentBlocks(rawHtml) {
+    const parser = document.createElement("div");
+    parser.innerHTML = rawHtml;
+
+    const blocks = [];
+
+    function walk(node) {
+      if (node.nodeType === Node.TEXT_NODE) {
+        const text = node.textContent.replace(/\s+/g, " ").trim();
+        if (text) {
+          const p = document.createElement("p");
+          p.textContent = text;
+          p.style.cssText = "margin: 0 0 7px 0; font-family: 'Kalpurush', 'Noto Sans Bengali', 'Inter', sans-serif;";
+          blocks.push(p);
+        }
+        return;
+      }
+
+      if (node.nodeType !== Node.ELEMENT_NODE) return;
+
+      const tag = node.tagName.toUpperCase();
+
+      if (tag === "BR") {
+        const spacer = document.createElement("div");
+        spacer.style.height = "6px";
+        blocks.push(spacer);
+        return;
+      }
+
+      if (tag === "IMG") {
+        const img = node.cloneNode(true);
+        img.crossOrigin = "anonymous";
+        img.style.cssText = "max-width: 100%; max-height: 320px; height: auto; border-radius: 6px; margin: 8px 0; display: block;";
+        blocks.push(img);
+        return;
+      }
+
+      // যদি কোনো div বা p এর ভেতরে <br> থাকে, তবে সেটিকে লাইন বাই লাইন ভেঙে নেওয়া হবে
+      if ((tag === "DIV" || tag === "P" || tag === "SPAN") && node.querySelector("br")) {
+        let currentLine = document.createElement("p");
+        currentLine.style.cssText = "margin: 0 0 7px 0; font-family: 'Kalpurush', 'Noto Sans Bengali', 'Inter', sans-serif;";
+
+        Array.from(node.childNodes).forEach(child => {
+          if (child.nodeType === Node.ELEMENT_NODE && child.tagName.toUpperCase() === "BR") {
+            if (currentLine.textContent.trim() || currentLine.querySelector("img")) {
+              blocks.push(currentLine);
+            }
+            currentLine = document.createElement("p");
+            currentLine.style.cssText = "margin: 0 0 7px 0; font-family: 'Kalpurush', 'Noto Sans Bengali', 'Inter', sans-serif;";
+          } else {
+            currentLine.appendChild(child.cloneNode(true));
+          }
+        });
+
+        if (currentLine.textContent.trim() || currentLine.querySelector("img")) {
+          blocks.push(currentLine);
+        }
+        return;
+      }
+
+      if (["P", "H1", "H2", "H3", "H4", "LI", "BLOCKQUOTE", "TABLE"].includes(tag)) {
+        const clone = node.cloneNode(true);
+        clone.style.margin = "0 0 8px 0";
+        clone.style.fontFamily = "'Kalpurush', 'Noto Sans Bengali', 'Inter', sans-serif";
+        clone.querySelectorAll("*").forEach(el => {
+          el.style.fontFamily = "'Kalpurush', 'Noto Sans Bengali', 'Inter', sans-serif";
+        });
+        blocks.push(clone);
+        return;
+      }
+
+      Array.from(node.childNodes).forEach(walk);
+    }
+
+    Array.from(parser.childNodes).forEach(walk);
+    return blocks;
   }
 
   downloadBtn.addEventListener("click", async function () {
@@ -1990,7 +2069,7 @@ window.addEventListener("appinstalled", () => {
 
     const originalText = downloadBtn.textContent;
     downloadBtn.disabled = true;
-    downloadBtn.textContent = "Generating PDF…";
+    downloadBtn.textContent = "Generating…";
 
     try {
       if (document.fonts && document.fonts.ready) {
@@ -2001,64 +2080,42 @@ window.addEventListener("appinstalled", () => {
       const shortHash = Math.abs(title.split("").reduce((a, b) => ((a << 5) - a) + b.charCodeAt(0), 0)).toString().slice(0, 4);
       const refNo = `NCG/${category}/${year}-${shortHash}`;
 
-      // কন্টেন্টের ব্লকগুলো আলাদা করে নেওয়া যাতে পেজ ব্রেক সুন্দর হয়
-      const tempParser = document.createElement("div");
-      tempParser.innerHTML = rawBodyHtml;
+      const contentBlocks = extractCleanContentBlocks(rawBodyHtml);
 
-      tempParser.querySelectorAll("img").forEach(img => {
-        img.crossOrigin = "anonymous";
-        img.style.maxWidth = "100%";
-        img.style.maxHeight = "360px";
-        img.style.height = "auto";
-        img.style.borderRadius = "6px";
-        img.style.margin = "10px 0";
-      });
+      // 1-inch margin (96px * 2 = 192px) বাদ দিলে কন্টেন্টের প্রস্থ = 794 - 192 = 602px
+      // হেডার ও ফুটার বাদে নিরাপদ উচ্চতা:
+      const MAX_HEIGHT_PAGE_1 = 680;
+      const MAX_HEIGHT_NEXT_PAGES = 745;
 
-      const contentNodes = [];
-      Array.from(tempParser.childNodes).forEach(node => {
-        if (node.nodeType === Node.TEXT_NODE) {
-          if (node.textContent.trim()) {
-            const p = document.createElement("p");
-            p.textContent = node.textContent.trim();
-            p.style.margin = "0 0 12px 0";
-            contentNodes.push(p);
-          }
-        } else if (node.nodeType === Node.ELEMENT_NODE) {
-          const clone = node.cloneNode(true);
-          clone.style.fontFamily = "'Kalpurush', 'Noto Sans Bengali', 'Inter', sans-serif";
-          if (!clone.style.marginBottom) clone.style.marginBottom = "12px";
-          contentNodes.push(clone);
-        }
-      });
-
-      // প্রতিটি পেজে সর্বোচ্চ কতটুকু কন্টেন্ট জায়গা নেবে তার সীমা (px)
-      const MAX_HEIGHT_PAGE_1 = 685;
-      const MAX_HEIGHT_NEXT_PAGES = 740;
-
-      // অস্থায়ী মেজারমেন্ট বক্স
       stage.replaceChildren();
       const measureBox = document.createElement("div");
-      measureBox.style.cssText = "width: 702px; font-family: 'Kalpurush', 'Noto Sans Bengali', 'Inter', sans-serif; font-size: 16.5px; line-height: 1.85;";
+      measureBox.style.cssText = `
+        width: 602px;
+        font-family: 'Kalpurush', 'Noto Sans Bengali', 'Inter', sans-serif;
+        font-size: 15.5px;
+        line-height: 1.55;
+        text-align: left;
+        word-wrap: break-word;
+      `;
       stage.appendChild(measureBox);
 
       const pagesChunks = [[]];
       let currentPageIdx = 0;
 
-      for (const node of contentNodes) {
-        measureBox.appendChild(node);
+      for (const block of contentBlocks) {
+        measureBox.appendChild(block);
         const limit = currentPageIdx === 0 ? MAX_HEIGHT_PAGE_1 : MAX_HEIGHT_NEXT_PAGES;
 
         if (measureBox.offsetHeight > limit && pagesChunks[currentPageIdx].length > 0) {
-          measureBox.removeChild(node);
+          measureBox.removeChild(block);
           currentPageIdx++;
-          pagesChunks[currentPageIdx] = [node];
-          measureBox.replaceChildren(node);
+          pagesChunks[currentPageIdx] = [block];
+          measureBox.replaceChildren(block);
         } else {
-          pagesChunks[currentPageIdx].push(node);
+          pagesChunks[currentPageIdx].push(block);
         }
       }
 
-      // প্রতিটি পেজের জন্য আলাদা লেটারহেড DOM তৈরি
       stage.replaceChildren();
       const totalPages = pagesChunks.length;
       const renderedPages = [];
@@ -2078,7 +2135,6 @@ window.addEventListener("appinstalled", () => {
         renderedPages.push(page);
       });
 
-      // প্রতিটি পেজ আলাদাভাবে ক্যাপচার করে A4 PDF-এ যুক্ত করা
       const { jsPDF } = window.jspdf;
       const pdf = new jsPDF({
         orientation: "portrait",
@@ -2113,7 +2169,7 @@ window.addEventListener("appinstalled", () => {
       pdf.save(`NAF_${category}_${safeFileName}.pdf`);
     } catch (err) {
       console.error("Official Pad PDF error:", err);
-      alert("PDF তৈরি করতে সমস্যা হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।");
+      alert("PDF তৈরি করতে সমস্যা হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।");
     } finally {
       stage.replaceChildren();
       downloadBtn.disabled = false;
