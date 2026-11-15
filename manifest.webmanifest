@@ -3,7 +3,7 @@
   "short_name": "NAF CARE",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#0c1917",
+  "background_color": "#0b6657",
   "theme_color": "#0b6657",
   "icons": [
     {
