@@ -1,4 +1,4 @@
-const CACHE = 'naf-care-v9';
+const CACHE = 'naf-care-v10';
 
 // Keep authenticated API responses and financial/member data out of Cache Storage.
 self.addEventListener('install', event => {
