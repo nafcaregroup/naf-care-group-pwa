@@ -73,6 +73,97 @@
       opacity: 0.6;
       cursor: wait;
     }
+
+    /* Constitution Section & Accordion Styles */
+    .constitution-intro {
+      background: rgba(16, 185, 129, 0.08);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      border-left: 4px solid #10b981;
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+      font-family: 'Noto Sans Bengali', 'Inter', sans-serif;
+      line-height: 1.7;
+    }
+
+    .constitution-intro p {
+      margin: 0 0 8px;
+    }
+
+    .constitution-intro p:last-child {
+      margin-bottom: 0;
+    }
+
+    .constitution-accordion {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      font-family: 'Noto Sans Bengali', 'Inter', sans-serif;
+    }
+
+    .const-item {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .const-item[open] {
+      border-color: rgba(16, 185, 129, 0.45);
+      background: rgba(16, 185, 129, 0.05);
+    }
+
+    .const-item summary {
+      padding: 14px 16px;
+      font-weight: 700;
+      font-size: 15px;
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .const-item summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .const-item summary::after {
+      content: "▾";
+      font-size: 1.15rem;
+      color: #34d399;
+      flex-shrink: 0;
+      transition: transform 0.2s ease;
+    }
+
+    .const-item[open] summary::after {
+      transform: rotate(180deg);
+    }
+
+    .const-body {
+      padding: 4px 16px 15px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      line-height: 1.75;
+      font-size: 14.5px;
+    }
+
+    .const-body p {
+      margin: 10px 0 0;
+    }
+
+    .const-pdf-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+      text-decoration: none;
+      white-space: nowrap;
+    }
   </style>
 </head>
 
@@ -111,6 +202,7 @@
           <a href="#contributionInfo" class="nav-link" data-nav="contributionInfo"><span class="nav-icon"><i data-lucide="wallet"></i></span>Contribution Info</a>
           <a href="#profilePanel" class="nav-link" data-nav="profilePanel"><span class="nav-icon"><i data-lucide="user-round"></i></span>My Profile</a>
           <a href="#aboutPanel" class="nav-link" data-nav="aboutPanel"><span class="nav-icon"><i data-lucide="heart"></i></span>About Us</a>
+          <a href="#constitutionPanel" class="nav-link" data-nav="constitutionPanel"><span class="nav-icon"><i data-lucide="book-open-check"></i></span>সংবিধান (Constitution)</a>
           <a href="#settingsPanel" class="nav-link" data-nav="settingsPanel"><span class="nav-icon"><i data-lucide="settings"></i></span>Settings</a>
 
           <button id="installAppBtn" class="nav-link hidden" type="button" style="background: rgba(8, 120, 74, 0.2); color: #fff; margin-top: 8px; border: 1px dashed rgba(255,255,255,0.35);">
@@ -472,6 +564,7 @@
             <a href="#memberPanel">Personal Information <span>›</span></a>
             <a href="#memberPanel">My Payment History <span>›</span></a>
             <a href="#noticesPanel">Notices <span>›</span></a>
+            <a href="#constitutionPanel">সংবিধান (Constitution) <span>›</span></a>
             <button id="profileLogoutBtn" type="button">Log out <span>›</span></button>
           </div>
         </section>
@@ -512,6 +605,83 @@
                 <span>Facebook</span>
               </a>
             </div>
+          </div>
+        </section>
+
+        <section id="constitutionPanel" class="content-panel app-page hidden">
+          <div class="section-heading" style="flex-wrap: wrap; gap: 12px;">
+            <div>
+              <p class="eyebrow">OFFICIAL CONSTITUTION</p>
+              <h2>সংবিধান — NAF CARE GROUP</h2>
+            </div>
+            <a
+              href="https://drive.google.com/uc?export=download&id=1KKa3ClgU2RhinR_aLMKfx3zgwU2x_U1R"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="primary-button const-pdf-btn"
+            >
+              <i data-lucide="file-down" style="width: 16px; height: 16px;"></i>
+              <span>মূল PDF ডাউনলোড</span>
+            </a>
+          </div>
+
+          <div class="constitution-intro">
+            <p>যে কোন প্রতিষ্ঠানের সংবিধানই একটি মৌলিক দলিল হিসেবে বিবেচিত হয়। সংগঠন পরিচালনা, শৃঙ্খলা ও নীতিমালা সংরক্ষণে এর প্রয়োজনীয়তা অনস্বীকার্য। এই সংগঠনের সংবিধান এক পবিত্র আমানত। এর প্রতিটি দিক কুরআন ও সুন্নাহর ঐতিহ্যের আলোকে প্রণয়ন করা হয়েছে।</p>
+            <p class="muted" style="font-size: 13.5px;">মৌলিক নীতিমালাকে অক্ষুণ্ণ রেখে পরিবেশ ও পরিস্থিতির দাবি অনুসারে এ সংবিধানে বিভিন্ন সময় কিছু কিছু সংশোধনী আনা হবে।</p>
+          </div>
+
+          <div class="constitution-accordion">
+            <details class="const-item" open>
+              <summary>ভূমিকা ও ধারা ১–৩: সমিতির নাম, লক্ষ্য ও অঞ্চল</summary>
+              <div class="const-body">
+                <p><strong>ভূমিকা:</strong> আমরা প্রত্যেক সদস্য এই সমিতির সংবিধানের উপরে দৃঢ় বিশ্বাস রাখি যে, কুরআন ও হাদিসের আলোকে সুদমুক্ত হালাল পন্থায় জীবন ব্যবস্থাই শ্রেষ্ঠ।</p>
+                <p><strong>ধারা ১ (সমিতি):</strong> এই সমিতির নাম <strong>নাফ কেয়ার গ্রুপ (NAF CARE GROUP)</strong>।</p>
+                <p><strong>ধারা ২ (লক্ষ্য ও উদ্দেশ্য):</strong> সকল সদস্যদের সম্মিলিত অর্থায়নের ভিত্তিতে, সুদমুক্ত অর্থনৈতিক জীবন যাপনের প্রয়াসে, ইসলামি শরীয়াহ ভিত্তিক অর্থ সঞ্চয়, বিনিয়োগ ও ব্যবসায়িক সমিতি প্রতিষ্ঠার মাধ্যমে সকল সদস্যদের ব্যক্তিগত অর্থনৈতিক সমৃদ্ধি বৃদ্ধি করা।</p>
+                <p><strong>ধারা ৩ (সাংগঠনিক অঞ্চল):</strong> অত্র সমিতির সাংগঠনিক অঞ্চল — <strong>কক্সবাজার জনপদ</strong>।</p>
+              </div>
+            </details>
+
+            <details class="const-item">
+              <summary>ধারা ৪: সদস্যপদ, মাসিক ফি, বিনিয়োগ ও লভ্যাংশ নীতি</summary>
+              <div class="const-body">
+                <p><strong>ক) সদস্যপদ লাভ:</strong> সমিতির লক্ষ্য ও কর্মসূচির সাথে পূর্ণ ঐকমত্য পোষণকারী এবং সংবিধান মেনে চলা ব্যক্তি সদস্যপদ লাভ করতে পারবেন।</p>
+                <p><strong>খ) মাসিক ফি:</strong> প্রত্যেক সদস্য প্রতিমাসে <strong>১,০০০ টাকা</strong> হারে ফি প্রদান করবেন। সার্বিক বিবেচনায় সমিতির সিদ্ধান্তে ফি-র পরিমাণ পরিবর্তিত হতে পারে। এছাড়া কার্যকরী পরিষদ সদস্যদের মতামতের ভিত্তিতে বার্ষিক ফি ও উন্নয়ন ফি-সহ অন্যান্য ফি উত্তোলনের সিদ্ধান্ত গ্রহণ করবেন।</p>
+                <p><strong>গ) প্রাথমিক মূলধন:</strong> প্রত্যেক নতুন সদস্যকে সমিতির ভিত্তি মজবুতের লক্ষ্যে প্রাথমিকভাবে <strong>৩০,০০০ টাকা</strong> জমা করতে হবে। উক্ত টাকা জমা দানের জন্য ৪ মাস সময় দেওয়া হবে; ৪ মাসের মধ্যে জমা করতে না পারলে সদস্যপদ বাতিল বলে গণ্য হবে।</p>
+                <p><strong>ঘ) বিনিয়োগ নীতি:</strong> সমিতির মোট মূলধন <strong>২.৫ লক্ষ টাকা</strong> হলে সুদবিহীন লাভজনক ও নিরাপদ খাতে দুই-তৃতীয়াংশ সদস্যের মতামতের ভিত্তিতে মূলধনের সর্বোচ্চ <strong>৭০%</strong> অর্থ বিনিয়োগ করা যাবে। পরবর্তী বিনিয়োগের ক্ষেত্রে <strong>৩০%</strong> রিজার্ভ বলবৎ থাকবে।</p>
+                <p><strong>ঙ) লভ্যাংশ বণ্টন:</strong> সমিতির মোট মূলধন কমপক্ষে <strong>১০ লক্ষ টাকা</strong> হলে লভ্যাংশ বণ্টন করার ব্যাপারে বিবেচনা করা হবে।</p>
+                <p><strong>চ) সাধারণ সভা:</strong> প্রতি <strong>২ মাস</strong> অন্তর সাধারণ সভা এবং প্রতি মাসে অন্তত একবার কার্যকরী পরিষদের সভা বসতে হবে। প্রত্যেক সভায় সকল সদস্যদের উপস্থিতি বাধ্যতামূলক।</p>
+              </div>
+            </details>
+
+            <details class="const-item">
+              <summary>ধারা ৫–৬: সদস্য সংখ্যা, দায়িত্ব ও শৃঙ্খলাবিধি</summary>
+              <div class="const-body">
+                <p><strong>ধারা ৫ (ক) সদস্য সংখ্যা:</strong> মোট সদস্য সংখ্যা হবে <strong>১০ জন</strong>।</p>
+                <p><strong>ধারা ৫ (খ) সদস্যদের কাজ:</strong> প্রতি মাসের ১ থেকে ১০ তারিখের মধ্যে নিজ দায়িত্বে নির্ধারিত পরিমাণ ফি অর্থ সম্পাদককে পরিশোধ করে জমা দানের রশিদ সংগ্রহ করতে হবে। যৌক্তিক কারণ ছাড়া কর্মসূচিতে অনুপস্থিত থাকলে <strong>১০০ টাকা</strong> জরিমানা প্রদান করতে হবে। কোন সদস্যের ব্যক্তিগত ও সমাজ-রাষ্ট্র বিরোধী কার্যকলাপের দায়ভার সমিতি বহন করবে না।</p>
+                <p><strong>ধারা ৬ (ক) জবাবদিহিতা:</strong> কোন সদস্য সংবিধান লঙ্ঘন করলে বা সমিতির ক্ষতি সাধন করলে দুই-তৃতীয়াংশ সদস্যের মতামতের ভিত্তিতে আর্থিক জরিমানা অথবা সদস্যপদ বাতিলের সিদ্ধান্ত গ্রহণ করা হবে।</p>
+                <p><strong>ধারা ৬ (খ) বকেয়া নীতি:</strong> কোন সদস্য একটানা দীর্ঘ <strong>৪ মাস</strong> পর্যন্ত মাসিক ফি আদায় না করলে, উক্ত সদস্যের সদস্যপদ চূড়ান্তরূপে বাতিল বলে গণ্য হবে।</p>
+              </div>
+            </details>
+
+            <details class="const-item">
+              <summary>ধারা ৭–৮: মূলধন ফেরত ও নমিনী নীতিমালা</summary>
+              <div class="const-body">
+                <p><strong>ধারা ৭ (মূলধন ফেরত):</strong> কোন সদস্য যদি স্বেচ্ছায় অথবা সংগঠনের সিদ্ধান্তে সদস্যপদ বাতিল করতে চায়, তাহলে ঐ সদস্যকে তার মূলধন পাওয়ার জন্য সংগঠনের মোট মূলধন <strong>১০ লক্ষ টাকা</strong> না হওয়া পর্যন্ত অপেক্ষা করতে হবে। তারপর সকল সদস্যের মতামতের ভিত্তিতে তার মূল জমা টাকাগুলো ফেরত দেওয়া হবে।</p>
+                <p><strong>ধারা ৮ (নমিনী):</strong> কোন সদস্যের মৃত্যু হলে তার নমিনী সদস্যপদ চালিয়ে যাবে। যদি নমিনী অপারগতা প্রকাশ করে তাহলে পরবর্তী <strong>৩ মাসের</strong> মধ্যে তার মূলধন তার লভ্যাংশসহ ফেরত দেওয়া হবে।</p>
+              </div>
+            </details>
+
+            <details class="const-item">
+              <summary>ধারা ৯–১৪: কার্যকরী পরিষদ, দায়িত্ব বণ্টন ও অর্থবছর</summary>
+              <div class="const-body">
+                <p><strong>ধারা ৯:</strong> সদস্যদের প্রত্যক্ষ ভোটে <strong>৩ জন</strong> সদস্যবিশিষ্ট কার্যকরী পরিষদ গঠন করা হবে, যার মেয়াদ হবে <strong>২ বছর</strong>। মেয়াদ শেষে ১০ দিবসের মধ্যে পরবর্তী নির্বাচনের আয়োজন সদ্যবিলুপ্ত কমিটিকে করতে হবে।</p>
+                <p><strong>ধারা ১০:</strong> কার্যকরী পরিষদ তাদের কাজের জন্য সদস্যদের নিকট দায়ী থাকবে। দুই-তৃতীয়াংশ সদস্য প্রয়োজনবোধ করলে উপ-নির্বাচনের মাধ্যমে পরিষদে পরিবর্তন আনা যাবে।</p>
+                <p><strong>ধারা ১১ (চেয়ারম্যান):</strong> চেয়ারম্যান সমিতির সার্বিক শৃঙ্খলা বিধান, সদস্যদের দায়িত্ব বণ্টন ও সর্বোচ্চ নির্বাহীর দায়িত্বে থাকবেন।</p>
+                <p><strong>ধারা ১২ (অফিস সম্পাদক):</strong> অফিস সম্পাদক সমিতির সকল বিজ্ঞপ্তি প্রদান এবং সংগঠনের সকল দাপ্তরিক নথিপত্র সংরক্ষণ করবেন।</p>
+                <p><strong>ধারা ১৩ (অর্থ সম্পাদক):</strong> অর্থ সম্পাদক প্রতিমাসের ০১ তারিখ হতে ০৫ তারিখের মধ্যে মাসিক ফি সংগ্রহ করে ১০ তারিখের মধ্যে ব্যাংকে জমা করবেন এবং সমিতির যাবতীয় আর্থিক হিসাব সংরক্ষণ করবেন।</p>
+                <p><strong>ধারা ১৪ (অর্থবছর):</strong> সমিতির অর্থবছর <strong>জুলাই মাস থেকে পরবর্তী জুন মাস</strong> পর্যন্ত গণনা করা হবে।</p>
+              </div>
+            </details>
           </div>
         </section>
 
