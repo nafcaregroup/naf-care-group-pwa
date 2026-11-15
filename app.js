@@ -20,7 +20,7 @@ const loginBtn = $("#loginBtn");
 
 const SCREEN_IDS = [
   "home", "members", "memberPanel", "noticesPanel", "blogPanel",
-  "contributionInfo", "profilePanel", "aboutPanel", "settingsPanel"
+  "contributionInfo", "profilePanel", "aboutPanel", "constitutionPanel", "settingsPanel"
 ];
 
 const PRIVATE_SCREENS = new Set([
@@ -29,7 +29,7 @@ const PRIVATE_SCREENS = new Set([
 ]);
 
 const PUBLIC_SCREENS = new Set([
-  "noticesPanel", "blogPanel", "aboutPanel"
+  "noticesPanel", "blogPanel", "aboutPanel", "constitutionPanel"
 ]);
 
 const IS_PUBLIC_VERIFY = new URLSearchParams(location.search).has("verify");
@@ -918,13 +918,12 @@ function openMemberQuickModal(member) {
 
   if (areaEl) areaEl.textContent = member.area || "—";
 
-  // এখানে বড়হাতের 'Phone' কলামের ডেটা ধরার জন্য member.Phone যোগ করা হয়েছে
   const rawPhone = String(
-    member.phone || 
-    member.Phone || 
-    member.mobile || 
-    member.cell || 
-    member.contact || 
+    member.phone ||
+    member.Phone ||
+    member.mobile ||
+    member.cell ||
+    member.contact ||
     ""
   ).trim();
 
@@ -1702,11 +1701,6 @@ window.addEventListener("appinstalled", () => {
   installAppBtn?.classList.add("hidden");
 });
 
-
-
-
-
-
 /* =========================================================
    NAF CARE GROUP - INDIVIDUAL MONTH PDF RECEIPT GENERATOR
    ========================================================= */
@@ -1718,7 +1712,6 @@ window.addEventListener("appinstalled", () => {
     const rows = paymentsBody.querySelectorAll("tr");
     rows.forEach((tr) => {
       const cells = tr.querySelectorAll("td");
-      // ৫টি কলাম (Month, Required, Paid, Due, Status) থাকলে ৬ষ্ঠ কলাম যোগ করবে
       if (cells.length === 5) {
         const month = cells[0].textContent.trim();
         const required = cells[1].textContent.trim();
@@ -1756,7 +1749,6 @@ window.addEventListener("appinstalled", () => {
     }
 
     try {
-      // ১. পেজের DOM থেকে মেম্বারের তথ্য নেওয়া
       const memberName =
         document.getElementById("profileName")?.textContent.trim() ||
         document.getElementById("sidebarMemberName")?.textContent.trim() ||
@@ -1768,14 +1760,12 @@ window.addEventListener("appinstalled", () => {
       const phone =
         document.getElementById("idCardPhone")?.textContent.trim() || "N/A";
 
-      // ২. পেজের DOM থেকে ৫টি সামারি ফিল্ড নেওয়া
       const capPaid = document.getElementById("capitalPaid")?.textContent.trim() || "৳0";
       const capDue = document.getElementById("capitalDue")?.textContent.trim() || "৳0";
       const monPaid = document.getElementById("monthlyPaid")?.textContent.trim() || "৳0";
       const monDue = document.getElementById("monthlyDue")?.textContent.trim() || "৳0";
       const totDue = document.getElementById("totalDue")?.textContent.trim() || "৳0";
 
-      // ৩. রিসিট টেমপ্লেটে ডেটা বসানো
       const cleanMonth = rowData.month.replace(/\s+/g, "").toUpperCase();
       document.getElementById("rec-no").textContent = `NCG-${cleanMonth}-${memberId}`;
       document.getElementById("rec-name").textContent = memberName;
@@ -1798,7 +1788,6 @@ window.addEventListener("appinstalled", () => {
       document.getElementById("rec-mon-due").textContent = monDue;
       document.getElementById("rec-total-due").textContent = totDue;
 
-      // ৪. html2canvas + jsPDF দিয়ে HD A5 PDF তৈরি করা
       const receiptEl = document.getElementById("naf-receipt-box");
       const canvas = await html2canvas(receiptEl, {
         scale: 3,
@@ -1832,7 +1821,6 @@ window.addEventListener("appinstalled", () => {
     }
   }
 
-  // টেবিল লোড বা আপডেট হওয়ার সাথে সাথে বাটন যুক্ত করার Observer
   const observer = new MutationObserver(() => injectReceiptButtons());
   observer.observe(paymentsBody, { childList: true });
   injectReceiptButtons();
