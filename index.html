@@ -11,57 +11,16 @@
   <link rel="apple-touch-icon" href="https://nafcare.github.io/nafcare.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
- <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@600;700;800&family=Tiro+Bangla:ital@0;1&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800;900&family=Noto+Sans+Bengali:wght@600;700;800;900&display=swap">
+  <link rel="stylesheet" href="https://fonts.maateen.me/kalpurush/font.css">
   <link rel="stylesheet" href="./styles.css">
 
   <style>
 
-
-    /* আইডি কার্ডকে একদম আগের মতো মোটা ও স্ট্যান্ডার্ড ফন্টে ফিরিয়ে আনা */
-#digitalIdCard,
-#digitalIdCard strong,
-#digitalIdCard span,
-#digitalIdCard h3,
-.horiz-info-table th,
-.horiz-info-table td {
-  font-family: 'Inter', 'Noto Sans Bengali', sans-serif !important;
-}
-
-.horiz-info-table th {
-  font-weight: 700 !important;
-}
-
-.horiz-info-table td {
-  font-weight: 800 !important;
-}
-
-    /* ড্যাশবোর্ডের টাকার অঙ্ক ও সংখ্যার জন্য প্রিমিয়াম মডার্ন ফন্ট */
-.stat-card strong,
-.payments-table td,
-.profile-row strong,
-.statement-print-summary strong,
-#rec-req, #rec-paid, #rec-due,
-#rec-cap-paid, #rec-cap-due, #rec-mon-paid, #rec-mon-due, #rec-total-due {
-  font-family: 'Plus Jakarta Sans', 'Noto Sans Bengali', sans-serif !important;
-  font-variant-numeric: tabular-nums; /* সব সংখ্যা সমান লাইনে ও এলাইনমেন্টে থাকবে */
-  letter-spacing: -0.02em;
-}
-    /* =========================================================
-       TIRO BANGLA FOR BENGALI + INTER FOR ENGLISH
-       ========================================================= */
-    body,
-    button,
-    input,
-    select,
-    textarea,
-    #readerBody {
-      font-family: 'Inter', 'Tiro Bangla', serif !important;
-    }
-    .loader-tagline-pill {
-  font-family: 'Tiro Bangla', 'Inter', serif !important;
+     .loader-tagline-pill {
+  font-family: 'Kalpurush', 'Inter', serif !important;
   letter-spacing: 0 !important;
 }
-
     .see-more-btn {
       display: inline-flex;
       align-items: center;
@@ -128,8 +87,8 @@
       border-radius: 12px;
       padding: 14px 16px;
       margin-bottom: 16px;
-      font-family: 'Inter', 'Tiro Bangla', serif;
-      line-height: 1.75;
+      font-family: 'Noto Sans Bengali', 'Inter', sans-serif;
+      line-height: 1.7;
     }
 
     .constitution-intro p {
@@ -144,7 +103,7 @@
       display: flex;
       flex-direction: column;
       gap: 10px;
-      font-family: 'Inter', 'Tiro Bangla', serif;
+      font-family: 'Noto Sans Bengali', 'Inter', sans-serif;
     }
 
     .const-item {
@@ -163,7 +122,7 @@
     .const-item summary {
       padding: 14px 16px;
       font-weight: 700;
-      font-size: 15.5px;
+      font-size: 15px;
       cursor: pointer;
       list-style: none;
       display: flex;
@@ -191,8 +150,8 @@
     .const-body {
       padding: 4px 16px 15px;
       border-top: 1px solid rgba(255, 255, 255, 0.08);
-      line-height: 1.8;
-      font-size: 15px;
+      line-height: 1.75;
+      font-size: 14.5px;
     }
 
     .const-body p {
@@ -908,7 +867,7 @@
 
   <!-- Hidden Premium PDF Receipt Template (No QR Code) -->
   <div class="no-pdf" style="position: fixed; left: -9999px; top: 0;" aria-hidden="true">
-    <div id="naf-receipt-box" style="width: 580px; background: #ffffff; color: #0f172a; font-family: 'Inter', 'Tiro Bangla', serif; box-sizing: border-box; border: 1px solid #cbd5e1; position: relative; overflow: hidden;">
+    <div id="naf-receipt-box" style="width: 580px; background: #ffffff; color: #0f172a; font-family: 'Inter', 'Noto Sans Bengali', sans-serif; box-sizing: border-box; border: 1px solid #cbd5e1; position: relative; overflow: hidden;">
       
       <!-- Subtle Background Watermark -->
       <img src="https://nafcare.github.io/nafcare.png" crossorigin="anonymous" alt="" style="position: absolute; top: 52%; left: 50%; transform: translate(-50%, -50%); width: 250px; height: 250px; opacity: 0.045; pointer-events: none;">
