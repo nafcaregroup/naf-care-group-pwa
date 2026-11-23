@@ -466,7 +466,7 @@ function renderPayments(rows, result) {
     const row = document.createElement("tr");
     const cell = document.createElement("td");
 
-    cell.colSpan = 5;
+    cell.colSpan = 6;
     cell.textContent = "No payment history available.";
 
     row.append(cell);
@@ -1474,10 +1474,14 @@ document.getElementById("statementDownloadBtn")
     const memberId = document.getElementById("statementMemberId")?.textContent?.trim() || "Member";
     document.title = `${memberId}_Financial_Statement`;
 
+    // Ensure clean print state (hides Constitution & Receipt buttons, fixes Page 2 margin)
+    document.body.classList.add("printing-statement");
+
     window.print();
 
     setTimeout(() => {
       document.title = originalTitle;
+      document.body.classList.remove("printing-statement");
     }, 1000);
   });
 
@@ -1720,11 +1724,12 @@ window.addEventListener("appinstalled", () => {
         const status = cells[4].textContent.trim().toUpperCase();
 
         const receiptTd = document.createElement("td");
+        receiptTd.className = "no-pdf"; // Exclude receipt column from Statement PDF
 
         if (status === "PAID") {
           const btn = document.createElement("button");
           btn.type = "button";
-          btn.className = "receipt-dl-btn";
+          btn.className = "receipt-dl-btn no-pdf"; // Exclude receipt button from Statement PDF
           btn.innerHTML = "⬇ PDF";
           btn.title = `Download receipt for ${month}`;
           btn.addEventListener("click", () => {
