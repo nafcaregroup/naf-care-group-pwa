@@ -2451,23 +2451,3 @@ body:not(.member-authenticated) #loginBtn {
 
 
 
-/* শুধুমাত্র বাংলা ইউনিকোড ক্যারেক্টারের জন্য Kalpurush ফন্ট */
-@font-face {
-  font-family: 'KalpurushBanglaOnly';
-  src: local('Kalpurush'),
-       url('https://fonts.maateen.me/kalpurush/Kalpurush.woff2') format('woff2'),
-       url('https://fonts.maateen.me/kalpurush/Kalpurush.ttf') format('truetype');
-  unicode-range: U+0980-09FF, U+200C-200D, U+25CC;
-}
-
-/* ইংরেজি ইন্টার (Inter) ফন্টে থাকবে, আর বাংলা স্বয়ংক্রিয়ভাবে Kalpurush হবে */
-body,
-button,
-input,
-select,
-textarea,
-.constitution-intro,
-.constitution-accordion,
-#readerBody {
-  font-family: 'Inter', 'KalpurushBanglaOnly', sans-serif !important;
-}
