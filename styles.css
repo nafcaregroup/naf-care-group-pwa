@@ -2448,3 +2448,15 @@ body:not(.member-authenticated) #loginBtn {
   50% { left: 58%; }
   100% { left: 100%; }
 }
+
+
+
+body,
+button,
+input,
+select,
+textarea,
+.constitution-intro,
+.constitution-accordion {
+  font-family: 'Kalpurush', 'Inter', 'Noto Sans Bengali', sans-serif !important;
+}
