@@ -11,10 +11,22 @@
   <link rel="apple-touch-icon" href="https://nafcare.github.io/nafcare.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800;900&family=Tiro+Bangla:ital@0;1&display=swap">
+ <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@600;700;800&family=Tiro+Bangla:ital@0;1&display=swap">
   <link rel="stylesheet" href="./styles.css">
 
   <style>
+
+    /* ড্যাশবোর্ডের টাকার অঙ্ক ও সংখ্যার জন্য প্রিমিয়াম মডার্ন ফন্ট */
+.stat-card strong,
+.payments-table td,
+.profile-row strong,
+.statement-print-summary strong,
+#rec-req, #rec-paid, #rec-due,
+#rec-cap-paid, #rec-cap-due, #rec-mon-paid, #rec-mon-due, #rec-total-due {
+  font-family: 'Plus Jakarta Sans', 'Noto Sans Bengali', sans-serif !important;
+  font-variant-numeric: tabular-nums; /* সব সংখ্যা সমান লাইনে ও এলাইনমেন্টে থাকবে */
+  letter-spacing: -0.02em;
+}
     /* =========================================================
        TIRO BANGLA FOR BENGALI + INTER FOR ENGLISH
        ========================================================= */
