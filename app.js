@@ -145,6 +145,7 @@ function showScreen(screenId, updateUrl = true) {
 
   if (screenId === "noticesPanel") markFeedAsSeen("notices");
   if (screenId === "blogPanel") markFeedAsSeen("blog");
+  if (screenId === "contributionInfo" && session()) loadContributionLedger();
 
   if (session()) {
     loginPanel?.classList.add("hidden");
@@ -492,6 +493,320 @@ function renderPayments(rows, result) {
 
     body.append(row);
   });
+}
+
+/* =========================================================
+   CONTRIBUTION LEDGER (ALL MEMBERS x AUTO MONTHS MATRIX)
+   ========================================================= */
+const MONTH_NAMES_SHORT = [
+  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+];
+
+const MONTH_NAME_MAP = {
+  jan: 0, january: 0, "01": 0, "1": 0,
+  feb: 1, february: 1, "02": 1, "2": 1,
+  mar: 2, march: 2, "03": 2, "3": 2,
+  apr: 3, april: 3, "04": 3, "4": 3,
+  may: 4, "05": 4, "5": 4,
+  jun: 5, june: 5, "06": 5, "6": 5,
+  jul: 6, july: 6, "07": 6, "7": 6,
+  aug: 7, august: 7, "08": 7, "8": 7,
+  sep: 8, sept: 8, september: 8, "09": 8, "9": 8,
+  oct: 9, october: 9, "10": 9,
+  nov: 10, november: 10, "11": 10,
+  dec: 11, december: 11, "12": 11
+};
+
+let ledgerState = {
+  loaded: false,
+  loading: false,
+  entries: [],
+  selectedYear: "ALL",
+  onlyDue: false
+};
+
+function generateTimelineMonths() {
+  const startYear = 2024;
+  const startMonth = 6; // July (0-indexed)
+  const now = new Date();
+  const endYear = now.getFullYear();
+  const endMonth = now.getMonth();
+
+  const months = [];
+  let y = startYear;
+  let m = startMonth;
+
+  while (y < endYear || (y === endYear && m <= endMonth)) {
+    months.push({
+      key: `${y}-${String(m + 1).padStart(2, "0")}`,
+      year: y,
+      monthIndex: m,
+      label: `${MONTH_NAMES_SHORT[m]} ${y}`
+    });
+    m++;
+    if (m > 11) {
+      m = 0;
+      y++;
+    }
+  }
+
+  // Newest month at top
+  return months.reverse();
+}
+
+function normalizePaymentMonthKey(payment) {
+  const rawMonth = String(payment.monthName || payment.month || "").trim().toLowerCase();
+  const rawYear = String(payment.year || "").trim();
+
+  // Case 1: monthName/month + year provided separately
+  if (rawYear && /^\d{4}$/.test(rawYear)) {
+    const cleanM = rawMonth.replace(/[^a-z0-9]/g, "");
+    if (Object.prototype.hasOwnProperty.call(MONTH_NAME_MAP, cleanM)) {
+      const mIdx = MONTH_NAME_MAP[cleanM];
+      return `${rawYear}-${String(mIdx + 1).padStart(2, "0")}`;
+    }
+  }
+
+  // Case 2: Combined string like "July 2024", "Jul-24", "2024-07"
+  const isoMatch = rawMonth.match(/^(\d{4})[-/](\d{1,2})/);
+  if (isoMatch) {
+    return `${isoMatch[1]}-${String(Number(isoMatch[2])).padStart(2, "0")}`;
+  }
+
+  const textYearMatch = rawMonth.match(/([a-z]+)[^0-9]*(\d{2,4})/);
+  if (textYearMatch) {
+    const mKey = textYearMatch[1];
+    let yVal = textYearMatch[2];
+    if (yVal.length === 2) yVal = "20" + yVal;
+    if (Object.prototype.hasOwnProperty.call(MONTH_NAME_MAP, mKey)) {
+      const mIdx = MONTH_NAME_MAP[mKey];
+      return `${yVal}-${String(mIdx + 1).padStart(2, "0")}`;
+    }
+  }
+
+  return "";
+}
+
+function renderContributionLedger() {
+  const thead = document.getElementById("ledgerTableHead");
+  const tbody = document.getElementById("ledgerTableBody");
+  const totalFundEl = document.getElementById("ledgerTotalFund");
+  const totalCapEl = document.getElementById("ledgerTotalCapital");
+  const totalMonEl = document.getElementById("ledgerTotalMonthly");
+  const currentBadge = document.getElementById("ledgerCurrentMonthBadge");
+
+  if (!thead || !tbody) return;
+
+  const members = ledgerState.entries;
+  const allMonths = generateTimelineMonths();
+
+  if (currentBadge && allMonths.length) {
+    currentBadge.textContent = `Jul 2024 – ${allMonths[0].label}`;
+  }
+
+  // Build quick lookup map per member: memberId -> { "2026-11": paidAmount }
+  let groupCapitalSum = 0;
+  let groupMonthlySum = 0;
+
+  const preparedMembers = members.map(m => {
+    const capPaid = Number(m.capitalPaid || 0);
+    const monPaid = Number(m.monthlyPaid || 0);
+    groupCapitalSum += capPaid;
+    groupMonthlySum += monPaid;
+
+    const monthMap = {};
+    (Array.isArray(m.payments) ? m.payments : []).forEach(p => {
+      const key = normalizePaymentMonthKey(p);
+      const paidVal = Number(p.paid || 0);
+      if (key && paidVal > 0) {
+        monthMap[key] = (monthMap[key] || 0) + paidVal;
+      }
+    });
+
+    return {
+      ...m,
+      capPaid,
+      monPaid,
+      grandTotal: capPaid + monPaid,
+      monthMap
+    };
+  });
+
+  if (totalCapEl) totalCapEl.textContent = cash(groupCapitalSum);
+  if (totalMonEl) totalMonEl.textContent = cash(groupMonthlySum);
+  if (totalFundEl) totalFundEl.textContent = cash(groupCapitalSum + groupMonthlySum);
+
+  // Render Table Header (Members as Columns)
+  const headRow = document.createElement("tr");
+  const cornerTh = document.createElement("th");
+  cornerTh.className = "ledger-sticky-col";
+  cornerTh.innerHTML = `Month / Summary<small>${preparedMembers.length} Members</small>`;
+  headRow.append(cornerTh);
+
+  preparedMembers.forEach(m => {
+    const th = document.createElement("th");
+    const shortName = String(m.name || "Member").trim();
+    const idLabel = m.id ? `ID: ${m.id}` : "";
+    th.innerHTML = `${shortName}<small>${idLabel}</small>`;
+    headRow.append(th);
+  });
+
+  thead.replaceChildren(headRow);
+  tbody.replaceChildren();
+
+  if (!preparedMembers.length) {
+    const emptyTr = document.createElement("tr");
+    emptyTr.innerHTML = `<td colspan="2" class="muted" style="text-align:center;padding:18px;">No member records found.</td>`;
+    tbody.append(emptyTr);
+    return;
+  }
+
+  // Top Pinned Summary Rows (Capital Paid, Monthly Total, Total Paid)
+  const summaryDefs = [
+    { label: "Capital Paid", getValue: m => cash(m.capPaid), grand: false },
+    { label: "Monthly Total", getValue: m => cash(m.monPaid), grand: false },
+    { label: "Total Paid", getValue: m => cash(m.grandTotal), grand: true }
+  ];
+
+  summaryDefs.forEach(def => {
+    const tr = document.createElement("tr");
+    tr.className = "ledger-summary-row" + (def.grand ? " ledger-grand-row" : "");
+
+    const labelTd = document.createElement("td");
+    labelTd.className = "ledger-sticky-col";
+    labelTd.textContent = def.label;
+    tr.append(labelTd);
+
+    preparedMembers.forEach(m => {
+      const td = document.createElement("td");
+      td.textContent = def.getValue(m);
+      tr.append(td);
+    });
+
+    tbody.append(tr);
+  });
+
+  // Filter timeline months by Year & "Only Due" toggle
+  const filteredMonths = allMonths.filter(monthObj => {
+    if (ledgerState.selectedYear !== "ALL" && String(monthObj.year) !== ledgerState.selectedYear) {
+      return false;
+    }
+    if (ledgerState.onlyDue) {
+      const hasAnyDue = preparedMembers.some(m => !(m.monthMap[monthObj.key] > 0));
+      if (!hasAnyDue) return false;
+    }
+    return true;
+  });
+
+  if (!filteredMonths.length) {
+    const noRow = document.createElement("tr");
+    const td = document.createElement("td");
+    td.colSpan = preparedMembers.length + 1;
+    td.className = "muted";
+    td.style.textAlign = "center";
+    td.style.padding = "18px";
+    td.textContent = ledgerState.onlyDue
+      ? "Alhamdulillah! No due months found for this filter."
+      : "No months to display.";
+    noRow.append(td);
+    tbody.append(noRow);
+    return;
+  }
+
+  // Render Monthly Rows (Paid = clean amount, Not in sheet = red Due)
+  filteredMonths.forEach(monthObj => {
+    const tr = document.createElement("tr");
+
+    const monthTd = document.createElement("td");
+    monthTd.className = "ledger-sticky-col";
+    monthTd.textContent = monthObj.label;
+    tr.append(monthTd);
+
+    preparedMembers.forEach(m => {
+      const td = document.createElement("td");
+      const paidAmount = m.monthMap[monthObj.key] || 0;
+
+      if (paidAmount > 0) {
+        td.className = "cell-paid";
+        td.textContent = Number(paidAmount).toLocaleString("en-BD");
+      } else {
+        td.className = "cell-due";
+        td.textContent = "Due";
+      }
+
+      tr.append(td);
+    });
+
+    tbody.append(tr);
+  });
+}
+
+function initLedgerFilters() {
+  const yearWrap = document.getElementById("ledgerYearFilters");
+  const dueToggle = document.getElementById("ledgerOnlyDueToggle");
+
+  if (yearWrap) {
+    const allMonths = generateTimelineMonths();
+    const years = [...new Set(allMonths.map(m => String(m.year)))];
+
+    yearWrap.replaceChildren();
+    ["ALL", ...years].forEach(yr => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "area-chip" + (yr === ledgerState.selectedYear ? " active" : "");
+      btn.textContent = yr === "ALL" ? "All Months" : yr;
+
+      btn.addEventListener("click", () => {
+        ledgerState.selectedYear = yr;
+        yearWrap.querySelectorAll(".area-chip").forEach(c => c.classList.remove("active"));
+        btn.classList.add("active");
+        renderContributionLedger();
+      });
+
+      yearWrap.append(btn);
+    });
+  }
+
+  if (dueToggle && !dueToggle.dataset.bound) {
+    dueToggle.dataset.bound = "1";
+    dueToggle.addEventListener("change", () => {
+      ledgerState.onlyDue = dueToggle.checked;
+      renderContributionLedger();
+    });
+  }
+}
+
+async function loadContributionLedger(forceReload = false) {
+  if (ledgerState.loading) return;
+  if (ledgerState.loaded && !forceReload) {
+    renderContributionLedger();
+    return;
+  }
+
+  const tbody = document.getElementById("ledgerTableBody");
+  if (tbody) {
+    tbody.innerHTML = `<tr><td colspan="2" class="muted" style="text-align:center;padding:20px;">Loading all members' contribution ledger…</td></tr>`;
+  }
+
+  ledgerState.loading = true;
+  initLedgerFilters();
+
+  try {
+    const data = await request(`${API.payments}?all=1`, {
+      headers: headers()
+    });
+
+    ledgerState.entries = Array.isArray(data.ledger) ? data.ledger : [];
+    ledgerState.loaded = true;
+    renderContributionLedger();
+  } catch (err) {
+    if (tbody) {
+      tbody.innerHTML = `<tr><td colspan="2" class="error-text" style="text-align:center;padding:18px;">${err.message || "Could not load contribution ledger."}</td></tr>`;
+    }
+  } finally {
+    ledgerState.loading = false;
+  }
 }
 
 /* Blogger Notice and Blog feeds use the Cloudflare Pages API proxy. */
@@ -1247,6 +1562,7 @@ async function loadData() {
     );
 
     loadMembers();
+    loadContributionLedger();
     loadFeed("notices");
     loadFeed("blog");
 
@@ -1431,6 +1747,10 @@ document.querySelectorAll("[data-nav]").forEach(link => {
 
     if (target === "members" && session()) {
       loadMembers();
+    }
+
+    if (target === "contributionInfo" && session()) {
+      loadContributionLedger();
     }
 
     if (target === "noticesPanel") {
