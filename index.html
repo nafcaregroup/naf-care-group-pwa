@@ -269,7 +269,7 @@
           <a href="#members" class="nav-link" data-nav="members"><span class="nav-icon"><i data-lucide="users-round"></i></span>Members</a>
           <a href="#noticesPanel" class="nav-link" data-nav="noticesPanel"><span class="nav-icon"><i data-lucide="diamond"></i></span>Notices</a>
           <a href="#blogPanel" class="nav-link" data-nav="blogPanel"><span class="nav-icon"><i data-lucide="newspaper"></i></span>Blog</a>
-          <a href="#contributionInfo" class="nav-link" data-nav="contributionInfo"><span class="nav-icon"><i data-lucide="wallet"></i></span>Contribution Info</a>
+          <a href="#contributionInfo" class="nav-link" data-nav="contributionInfo"><span class="nav-icon"><i data-lucide="wallet"></i></span>Contribution Ledger</a>
           <a href="#profilePanel" class="nav-link" data-nav="profilePanel"><span class="nav-icon"><i data-lucide="user-round"></i></span>My Profile</a>
           <a href="#aboutPanel" class="nav-link" data-nav="aboutPanel"><span class="nav-icon"><i data-lucide="heart"></i></span>About Us</a>
           <a href="#constitutionPanel" class="nav-link" data-nav="constitutionPanel"><span class="nav-icon"><i data-lucide="book-open-check"></i></span>সংবিধান (Constitution)</a>
@@ -577,16 +577,64 @@
 
         <section id="contributionInfo" class="content-panel app-page hidden">
           <div class="section-heading">
-            <div><p class="eyebrow">GROUP INFORMATION</p><h2>Contribution Info</h2></div>
+            <div>
+              <p class="eyebrow">GROUP FUND & LEDGER</p>
+              <h2>Contribution Ledger</h2>
+            </div>
+            <span id="ledgerCurrentMonthBadge" class="member-count-badge">Since Jul 2024</span>
           </div>
-          <div class="contribution-highlight">
-            <span class="contribution-icon">৳</span>
-            <div><span>Monthly Contribution</span><strong id="infoMonthlyAmount">See your member account</strong></div>
+
+          <!-- Top 3 Group Fund Summary Cards -->
+          <div class="ledger-summary-grid">
+            <article class="ledger-fund-hero">
+              <div class="ledger-fund-top">
+                <span>Total Group Fund</span>
+                <small id="ledgerPaidRatio">Capital + Monthly</small>
+              </div>
+              <strong id="ledgerTotalFund">৳0</strong>
+              <small class="ledger-fund-sub">Combined verified deposits from all members</small>
+            </article>
+
+            <article class="ledger-stat-card">
+              <span>Total Capital Collected</span>
+              <strong id="ledgerTotalCapital">৳0</strong>
+              <small>All members capital</small>
+            </article>
+
+            <article class="ledger-stat-card">
+              <span>Total Monthly Collected</span>
+              <strong id="ledgerTotalMonthly">৳0</strong>
+              <small>Jul 2024 – Present</small>
+            </article>
           </div>
-          <h3>Important Information</h3>
-          <div class="info-row"><strong>Contribution Start</strong><p>July 2024</p></div>
-          <div class="info-row"><strong>Payment Deadline</strong><p>Follow the group's official payment notice.</p></div>
-          <div class="info-row"><strong>Purpose</strong><p>Group support, savings and member welfare.</p></div>
+
+          <!-- Filter Controls (Year Pills + Only Due Months Toggle) -->
+          <div class="ledger-controls">
+            <div id="ledgerYearFilters" class="area-filter-chips" role="group" aria-label="Filter ledger by year">
+              <button type="button" class="area-chip active" data-year="ALL">All Months</button>
+            </div>
+            <label class="ledger-due-toggle">
+              <input type="checkbox" id="ledgerOnlyDueToggle">
+              <span>Show Due Months Only</span>
+            </label>
+          </div>
+
+          <!-- Scrollable Matrix Table: Months as Rows, Members as Columns -->
+          <div class="ledger-table-wrap">
+            <table class="ledger-matrix-table" id="contributionLedgerTable">
+              <thead id="ledgerTableHead">
+                <tr>
+                  <th class="ledger-sticky-col">Month / Summary</th>
+                  <th>Loading members…</th>
+                </tr>
+              </thead>
+              <tbody id="ledgerTableBody">
+                <tr>
+                  <td colspan="2" class="muted" style="text-align: center; padding: 20px;">Loading contribution ledger…</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </section>
 
         <section id="profilePanel" class="content-panel app-page hidden">
