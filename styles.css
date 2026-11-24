@@ -2449,5 +2449,252 @@ body:not(.member-authenticated) #loginBtn {
   100% { left: 100%; }
 }
 
+/* ========================================
+   CONTRIBUTION LEDGER (FUND CARDS & MATRIX)
+   ======================================== */
+.ledger-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 11px;
+  margin-bottom: 16px;
+}
 
+.ledger-fund-hero {
+  grid-column: 1 / -1;
+  background: linear-gradient(135deg, #074f43 0%, #0b6b5b 65%, #0e7d6a 100%);
+  border: 1px solid rgba(94, 234, 212, 0.35);
+  border-radius: 16px;
+  padding: 16px 18px;
+  color: #ffffff;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
+}
 
+.ledger-fund-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.ledger-fund-top span {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  color: #a7f3d0;
+}
+
+.ledger-fund-top small {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.24);
+  color: #fde68a;
+}
+
+.ledger-fund-hero strong {
+  display: block;
+  font-size: clamp(24px, 5vw, 31px);
+  font-weight: 900;
+  color: #ffffff;
+  margin: 6px 0 3px;
+  letter-spacing: 0.3px;
+}
+
+.ledger-fund-sub {
+  display: block;
+  font-size: 11.5px;
+  color: #d1fae5;
+}
+
+.ledger-stat-card {
+  background: #102420;
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  padding: 13px 14px;
+  min-width: 0;
+}
+
+.ledger-stat-card span {
+  display: block;
+  font-size: 11.5px;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.ledger-stat-card strong {
+  display: block;
+  font-size: clamp(18px, 3.6vw, 22px);
+  font-weight: 800;
+  color: #5eead4;
+  margin: 5px 0 2px;
+  overflow-wrap: anywhere;
+}
+
+.ledger-stat-card small {
+  display: block;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.ledger-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.ledger-controls .area-filter-chips {
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.ledger-due-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #fca5a5;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.28);
+  padding: 6px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.ledger-due-toggle input {
+  accent-color: #ef4444;
+  width: 15px;
+  height: 15px;
+  margin: 0;
+}
+
+/* Matrix Table: Months as Rows, Members as Columns */
+.ledger-table-wrap {
+  width: 100%;
+  max-height: 68dvh;
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #0d1f1b;
+  position: relative;
+}
+
+.ledger-matrix-table {
+  width: 100%;
+  min-width: max-content;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 12.5px;
+}
+
+.ledger-matrix-table th,
+.ledger-matrix-table td {
+  padding: 10px 11px;
+  border-bottom: 1px solid var(--line);
+  border-right: 1px solid rgba(35, 64, 58, 0.65);
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* Top Sticky Member Header */
+.ledger-matrix-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 15;
+  background: #0b5d4f;
+  color: #ffffff;
+  font-size: 11.5px;
+  font-weight: 800;
+  text-transform: none;
+  letter-spacing: 0.2px;
+  border-bottom: 2px solid #16a388;
+  vertical-align: middle;
+}
+
+.ledger-matrix-table thead th small {
+  display: block;
+  font-size: 10px;
+  font-weight: 600;
+  color: #a7f3d0;
+  margin-top: 2px;
+}
+
+/* Top-Left Corner Intersection Cell */
+.ledger-matrix-table thead th.ledger-sticky-col {
+  left: 0;
+  z-index: 25;
+  text-align: left;
+  background: #08473c;
+  border-right: 2px solid #16a388;
+}
+
+/* Left Sticky Month / Summary Label Column */
+.ledger-sticky-col {
+  position: sticky;
+  left: 0;
+  z-index: 10;
+  text-align: left !important;
+  background: #102420;
+  color: #e4f0ec;
+  font-weight: 700;
+  min-width: 116px;
+  max-width: 132px;
+  border-right: 2px solid var(--line) !important;
+}
+
+/* Pinned Top Summary Rows (Capital, Monthly Total, Grand Total) */
+.ledger-summary-row td {
+  background: #132c27;
+  font-weight: 800;
+  color: #e4f0ec;
+}
+
+.ledger-summary-row td.ledger-sticky-col {
+  background: #112823;
+  color: #5eead4;
+}
+
+.ledger-summary-row.ledger-grand-row td {
+  background: #16362f;
+  color: #fde68a;
+  border-bottom: 2px solid #16a388;
+}
+
+.ledger-summary-row.ledger-grand-row td.ledger-sticky-col {
+  background: #133029;
+  color: #fbbf24;
+}
+
+/* Paid Cell: Clean plain amount without green badge */
+.ledger-matrix-table td.cell-paid {
+  color: #e4f0ec;
+  font-weight: 600;
+  background: #0e211d;
+}
+
+/* Due Cell: Highlighted in Error Red */
+.ledger-matrix-table td.cell-due {
+  background: rgba(239, 68, 68, 0.16);
+  color: #f87171;
+  font-weight: 800;
+}
+
+@media (max-width: 600px) {
+  .ledger-matrix-table th,
+  .ledger-matrix-table td {
+    padding: 8px 9px;
+    font-size: 12px;
+  }
+
+  .ledger-sticky-col {
+    min-width: 102px;
+    max-width: 114px;
+    font-size: 11.5px;
+  }
+}
